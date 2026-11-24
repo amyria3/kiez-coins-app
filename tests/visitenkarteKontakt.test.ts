@@ -114,3 +114,14 @@ describe('Kontakt, Webseiten und soziale Netzwerke', () => {
     assert.equal(socialLink('https://arkadieff.art'), null);
   });
 });
+
+describe('Telefon im Kontakt', () => {
+  it('steht in der Gruppe Kontakt, als Link zum Anrufen und in der vCard', async () => {
+    const { contactGroups, telLink } = await import('../src/data/digitalCard.mjs');
+    assert.equal(contactGroups({ phone: '0341 123456', links: [] }).phone, '0341 123456');
+    assert.equal(contactGroups({ phone: 'ruf an', links: [] }).phone, '');
+    assert.equal(telLink('+49 (0)341 / 123-456'), 'tel:+49341123456');
+    const v = vcard({ ...schaufenster, phone: '0341 123456' }, {}, jetzt);
+    assert.match(v, /\r\nTEL;TYPE=WORK,VOICE:0341 123456\r\n/);
+  });
+});

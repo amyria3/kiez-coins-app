@@ -29,7 +29,7 @@ describe('Knöpfe der Visitenkarte', () => {
     assert.equal(primary({ viewer: 'team', origin: 'manage' }), 'share');
   });
 
-  it('Mitglied: Kontakt speichern zuerst, Kontakt schicken nur mit Kontakt-Mail', () => {
+  it('Mitglied: Kontakt speichern zuerst, Kontakt senden nur mit Kontakt-Mail', () => {
     assert.deepEqual(ids({ viewer: 'member', origin: 'showcase', hasContactMail: true }), [
       'saveContact',
       'share',
@@ -50,14 +50,14 @@ describe('Knöpfe der Visitenkarte', () => {
     assert.ok(!ids({ viewer: 'member', origin: 'link' }).includes('befriend'));
   });
 
-  it('Gast nach dem QR-Code der Karte: speichern zuerst, schicken und tauschen, kein QR-Code', () => {
+  it('Gast nach dem QR-Code der Karte: speichern zuerst, senden und tauschen, kein QR-Code', () => {
     const list = ids({ viewer: 'guest', origin: 'card', hasContactMail: true });
     assert.equal(list[0], 'saveContact');
     assert.ok(list.includes('sendContact') && list.includes('exchange'));
     assert.ok(!list.includes('qr') && !list.includes('copyLink') && !list.includes('addContact'));
   });
 
-  it('Gast über Link: Teilen zuerst, kein Kontakt schicken', () => {
+  it('Gast über Link: Teilen zuerst, kein Kontakt senden', () => {
     const list = ids({ viewer: 'guest', origin: 'link', hasContactMail: true });
     assert.equal(list[0], 'share');
     assert.ok(list.includes('saveContact') && list.includes('qr') && list.includes('follow'));
@@ -79,8 +79,8 @@ describe('Knöpfe der Visitenkarte', () => {
       assert.equal(list.indexOf('mail'), list.indexOf('addContact') + 1, origin);
       assert.equal(list.at(-1), 'copyLink', origin);
     }
-    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'team', origin: 'manage' }), 'Nur per Mail schicken');
-    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'guest', origin: 'link' }), 'Per Mail schicken');
+    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'team', origin: 'manage' }), 'Nur per Mail senden');
+    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'guest', origin: 'link' }), 'Per Mail senden');
   });
 
   it('setzt den Namen ein und nennt den Rückweg zum Schaufenster', () => {

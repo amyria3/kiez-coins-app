@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { cardMail, cleanSenderName, isEmail, qrTable } from '../supabase/functions/visitenkarte-mail/mail';
+import { cardMail, cleanMeetingPlace, cleanRecipientName, cleanSenderName, isEmail, qrTable } from '../supabase/functions/visitenkarte-mail/mail';
 
 const qr = [
   [true, true, false],
@@ -50,7 +50,7 @@ describe('Visitenkarte per Mail', () => {
     assert.ok(!mail.html.includes('<Kiezblick>'));
     assert.ok(!mail.html.includes('javascript:'));
     assert.ok(mail.html.includes('href="https://kiezcoins.de/s/kiezblick"'));
-    assert.ok(mail.html.includes('Lena schickt Dir die Links zum Schaufenster'));
+    assert.ok(mail.html.includes('Lena sendet Dir die Links zum Schaufenster'));
     assert.ok(mail.html.includes('Tritt der Community bei und abonniere das Schaufenster von'));
     assert.ok(mail.html.includes('href="https://app.kiezcoins.de/schaufenster/abc?folgen=1"'));
     assert.ok(mail.html.includes('Hier sind das'));
@@ -69,5 +69,21 @@ describe('Visitenkarte per Mail', () => {
   it('bleibt unter der Grenze, ab der Gmail kürzt', () => {
     const big = Array.from({ length: 33 }, (_, r) => Array.from({ length: 33 }, (_, c) => (r * 7 + c * 3) % 2 === 0));
     assert.ok(cardMail(data, big, 'Lena').html.length < 100_000);
+  });
+});
+
+describe('Begegnung, die das Team einträgt', () => {
+  it('grüßt mit Vornamen und nennt Ort und Datum', () => {
+    const mail = cardMail(data, qr, '', { name: 'Anna Berg', place: 'Flohmarkt am Kanal', date: '24.11.2026' });
+    assert.match(mail.text, /^Ahoi Anna!\n/);
+    assert.ok(mail.text.includes('Ihr habt Euch am 24.11.2026 getroffen: Flohmarkt am Kanal.'));
+    assert.ok(mail.html.includes('Ahoi Anna!'));
+  });
+  it('lässt Links, Adressen und Zeichen außerhalb von Namen weg', () => {
+    assert.equal(cleanMeetingPlace('Kauf hier: www.spam.example'), '');
+    assert.equal(cleanMeetingPlace('schreib an a@b.de'), '');
+    assert.equal(cleanMeetingPlace('Flohmarkt am Kanal'), 'Flohmarkt am Kanal');
+    assert.equal(cleanRecipientName('Anna <b>'), '');
+    assert.equal(cleanRecipientName("Dr. Anne-Marie O'Neil"), "Dr. Anne-Marie O'Neil");
   });
 });

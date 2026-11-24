@@ -274,7 +274,7 @@ ${knopf(t('Termin erstellen', 'Create event'), 'anlegen')}`),
       id: 'newsletter',
       titel: t('Newsletter', 'Newsletter'),
       text: t(
-        'Deine Kundschaft trägt sich auf Deiner Seite ein. Das System verschickt Deine neuen Termine per E-Mail, über Brevo.',
+        'Deine Kundschaft trägt sich auf Deiner Seite ein. Das System versendet Deine neuen Termine per E-Mail, über Brevo.',
         'Your customers sign up on your page. The system sends your new events by email, via Brevo.',
       ),
       zeit: t('20 Minuten', '20 minutes'),

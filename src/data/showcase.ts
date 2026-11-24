@@ -42,6 +42,8 @@ export type Showcase = {
   address?: string;
   /** Kontakt-Mail (Daria, 2026-11-17, Migration 20261117000200); wie die Adresse nur über showcase_private */
   email?: string;
+  /** Telefonnummer (Daria, 2026-11-24, Migration 20261124000100); wie die Mail nur über showcase_private */
+  phone?: string;
   /** Punkt der Adresse für die Karte auf der öffentlichen Seite (Daria, 2026-11-18); wie die Adresse nur über showcase_private */
   coords?: Coords;
   /** Bis zu 10 Links (Daria, 2026-11-10: „mehr Links“) */
@@ -146,7 +148,7 @@ type Row = {
  * damit Menschen ohne Zugang sie nicht sehen.
  */
 const COLUMNS = 'id, group_id, name, slug, logo_path, cover_path, about, services, services_collapsed, bg_color, kiez, website, links, opening_hours, imprint, visibility, plan_until';
-type Private = { address: string | null; lat: number | null; lng: number | null; email: string | null; invite_code: string | null } | null;
+type Private = { address: string | null; lat: number | null; lng: number | null; email: string | null; phone?: string | null; invite_code: string | null } | null;
 
 const toShowcase = (r: Row): Showcase => ({
   id: r.id,
@@ -302,11 +304,12 @@ export async function loadPublicShowcase(slug: string): Promise<Showcase | null>
     data = res.data;
   }
   if (!data) return null;
-  const r = data as Omit<Row, 'group_id' | 'visibility' | 'plan_until'> & { address: string | null; email: string | null };
+  const r = data as Omit<Row, 'group_id' | 'visibility' | 'plan_until'> & { address: string | null; email: string | null; phone?: string | null };
   return {
     ...toShowcase({ ...r, group_id: '', visibility: 'public', plan_until: null }),
     address: r.address ?? undefined,
     email: r.email ?? undefined,
+    phone: r.phone ?? undefined,
   };
 }
 
@@ -377,6 +380,7 @@ async function loadPrivate(showcase: Showcase): Promise<void> {
   const { data: priv } = await supabase.rpc('showcase_private', { p_showcase: showcase.id });
   showcase.address = (priv as Private)?.address ?? undefined;
   showcase.email = (priv as Private)?.email ?? undefined;
+  showcase.phone = (priv as Private)?.phone ?? undefined;
   const { lat, lng } = (priv as Private) ?? {};
   showcase.coords = typeof lat === 'number' && typeof lng === 'number' ? { latitude: lat, longitude: lng } : undefined;
   showcase.inviteCode = (priv as Private)?.invite_code ?? '';
@@ -438,6 +442,7 @@ export type ShowcaseInput = {
   /** Punkt der Adresse; null löscht ihn, ohne Angabe bleibt er (Karte auf der öffentlichen Seite, 2026-11-18) */
   coords?: Coords | null;
   email?: string;
+  phone?: string;
   links: string[];
   openingHours?: string;
   imprint?: string;
@@ -516,6 +521,7 @@ export async function updateShowcase(id: string, userId: string, input: Showcase
     kiez: nullIfEmpty(input.kiez),
     address: nullIfEmpty(input.address),
     email: nullIfEmpty(input.email),
+    phone: nullIfEmpty(input.phone),
     links: input.links.map((l) => l.trim()).filter(Boolean).slice(0, MAX_LINKS),
     // Die alte Spalte bleibt der erste Link
     website: input.links.map((l) => l.trim()).find(Boolean) ?? null,
@@ -896,10 +902,16 @@ export type CardMailResult = 'ok' | 'email' | 'name' | 'limit' | 'not_found' | '
  * wie auf der öffentlichen Seite (`visitenkarte-mail`, #408): Mail mit Karte, QR-Code und Link
  * zur Seite, dort geht das Anfreunden. Nur für Schaufenster, die öffentlich und online sind.
  */
-export async function sendCardMail(slug: string, to: string, from?: string): Promise<CardMailResult> {
+export async function sendCardMail(
+  slug: string,
+  to: string,
+  from?: string,
+  /** Nur fürs Team: Name der Person (Anrede) und Ort der Begegnung; die Funktion prüft, ob man zum Team gehört */
+  meeting?: { name?: string; place?: string },
+): Promise<CardMailResult> {
   try {
     const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>('visitenkarte-mail', {
-      body: { slug, to: to.trim(), from: from?.trim() || undefined },
+      body: { slug, to: to.trim(), from: from?.trim() || undefined, an: meeting?.name?.trim() || undefined, ort: meeting?.place?.trim() || undefined },
     });
     if (data?.ok) {
       await noteCardMail(slug, to);

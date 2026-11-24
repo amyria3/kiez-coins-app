@@ -5,7 +5,7 @@
 // Schaufenster über public_showcase, also nur Schaufenster mit Sichtbarkeit „Alle“, die online sind, und schickt die
 // Karte als HTML-Mail (mail.ts) über Brevo.
 //
-// Schutz vor Missbrauch: kein Freitext, nur ein optionaler Vorname. Höchstens 5 Mails je Gerät und Stunde,
+// Schutz vor Missbrauch: kein Freitext, nur ein optionaler Vorname (Name und Ort der Begegnung nur vom Team). Höchstens 5 Mails je Gerät und Stunde,
 // 20 je Gerät und Tag, 2 je Empfängeradresse und Tag, 50 je Schaufenster und Tag. Gerät und Empfängeradresse stehen
 // nur als Prüfsumme in showcase_card_mails (Migration 20261117000500); Zeilen älter als 30 Tage löscht die Funktion.
 // Gegen Massenversand über viele Geräte (Daria, 2026-11-18): höchstens 30 Mails je Stunde und 120 je Tag über alle
@@ -13,7 +13,9 @@
 // laufen über dasselbe Konto; sie sollen nie wegen Visitenkarten ausfallen.
 // Ein verstecktes Feld „website“ fängt einfache Bots ab.
 //
-// Anfrage: POST { slug, to, from?, website? }  Antwort: { ok: true } oder { error }
+// Anfrage: POST { slug, to, from?, an?, ort?, website? }  Antwort: { ok: true } oder { error }
+// `an` (Name der Person) und `ort` (Ort der Begegnung) zählen nur, wenn ein Mitglied des Teams angemeldet schickt
+// (Daria, 2026-11-24: dieselben Felder wie „Kontakt speichern und per Mail schicken“).
 // Fehler: input, email, name, not_found, limit, mail
 //
 // Kontakt schicken und Kontakte tauschen (Daria, 2026-11-23): POST { slug, art: 'kontakt', name, email, phone?, ort?,
@@ -27,7 +29,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import QRCode from 'npm:qrcode@1.5.4';
 
-import { cardMail, cleanSenderName, contactMail, isEmail, type CardMailData, type QrMatrix } from './mail.ts';
+import { cardMail, cleanMeetingPlace, cleanRecipientName, cleanSenderName, contactMail, isEmail, type CardMailData, type Meeting, type QrMatrix } from './mail.ts';
 
 const SITE = 'https://kiezcoins.de';
 // Dieselbe bei Brevo bestätigte Absenderadresse wie bei konto-ohne-mail
@@ -157,6 +159,7 @@ Deno.serve(async (req) => {
     kiez: s.kiez || undefined,
     address: s.address || undefined,
     email: s.email || undefined,
+    phone: s.phone || undefined,
     openingHours: s.opening_hours || undefined,
     services: s.services || undefined,
     links: links.filter((l) => /^https:\/\//i.test(l)),
@@ -194,9 +197,22 @@ Deno.serve(async (req) => {
     if (!(await send(teamMail, mail, { email: to, name: person.name }, 'visitenkarte-kontakt'))) return reply({ error: 'mail' }, 502);
     await db.from('showcase_card_mails').insert({ showcase_id: s.id, device_hash: device, recipient_hash: team });
   }
+  // Name und Ort der Begegnung (Daria, 2026-11-24): nur vom Team des Schaufensters, sonst bleiben sie weg. So kann
+  // niemand über die öffentliche Seite eigenen Text in fremde Postfächer schicken.
+  let meeting: Meeting | undefined;
+  const meetName = contact ? '' : cleanRecipientName(input.an);
+  const meetPlace = contact ? '' : cleanMeetingPlace(input.ort);
+  if (meetName || meetPlace) {
+    const asUser = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
+      auth: { persistSession: false },
+    });
+    const { data: isTeam } = await asUser.rpc('can_post_showcase', { p_showcase: s.id });
+    if (isTeam === true) meeting = { name: meetName || undefined, place: meetPlace || undefined, date: today() };
+  }
   if (sendCard) {
     // Antworten gehen an die Kontakt-Mail des Schaufensters, wenn es eine gibt
-    const mail = cardMail(data, qrMatrix(data.url), sender);
+    const mail = cardMail(data, qrMatrix(data.url), sender, meeting);
     const ok = await send(to, mail, data.email ? { email: data.email, name: data.name } : null, 'visitenkarte');
     // Beim Tausch ist der Kontakt schon beim Team: Die Seite sagt dann, dass nur die Karte fehlt
     if (!ok) return reply(contact ? { ok: true, karte: false } : { error: 'mail' }, contact ? 200 : 502);

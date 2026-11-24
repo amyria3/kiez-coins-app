@@ -33,7 +33,7 @@ import {
   type ShowcaseFriendResult,
   type ShowcasePost,
 } from '../../../data/showcase';
-import { contactGroups, socialLink } from '../../../data/digitalCard.mjs';
+import { contactGroups, socialLink, telLink } from '../../../data/digitalCard.mjs';
 import { countShowcaseVisit } from '../../../data/showcaseCard';
 import { useAuth } from '../../../data/auth';
 import { rememberInvite } from '../../../data/pendingInvite';
@@ -252,7 +252,7 @@ export default function ShowcaseScreen() {
               <Pill
                 check={friendResult === 'sent'}
                 disabled={busy || friendResult === 'sent'}
-                label={friendResult === 'sent' ? t('Anfrage verschickt') : t('Mit {name} anfreunden')}
+                label={friendResult === 'sent' ? t('Anfrage gesendet') : t('Mit {name} anfreunden')}
                 name={friendResult === 'sent' ? undefined : s.name}
                 onPress={befriend}
               />
@@ -381,6 +381,8 @@ type InfoCardData = {
   payment?: string;
   links?: string[];
   email?: string;
+  /** Telefon als Zeile unter der Mail (Daria, 2026-11-24) */
+  phone?: string;
 };
 
 /**
@@ -413,8 +415,8 @@ function infoCards(s: Showcase): InfoCardData[] {
   // Eigene Karten für Kontakt, Webseiten und soziale Netzwerke (Daria, 2026-11-23: „Can we do different cards“).
   // Bis dahin standen Mail und alle Links in einer Karte „Kontakt“ (2026-11-17).
   // Dieselben drei Gruppen wie die Digitale Visitenkarte und die Seite im Web (data/digitalCard.mjs)
-  const { email, websites: sites, social } = contactGroups(s);
-  if (email) cards.push({ id: 'kontakt', kicker: 'Kontakt', title: '', icon: 'message', email });
+  const { email, phone, websites: sites, social } = contactGroups(s);
+  if (email || phone) cards.push({ id: 'kontakt', kicker: 'Kontakt', title: '', icon: 'message', email: email || undefined, phone: phone || undefined });
   if (sites.length) cards.push({ id: 'webseiten', kicker: sites.length === 1 ? 'Webseite' : 'Webseiten', title: '', icon: 'link', links: sites });
   if (social.length) cards.push({ id: 'netzwerke', kicker: 'Soziale Netzwerke', title: '', icon: 'friends', links: social });
   return cards;
@@ -495,7 +497,7 @@ function CardGrid({ title, count, wide, children }: { title: string; count: numb
   );
 }
 
-function InfoCard({ kicker, title, body, icon, address, links, email, booking, payment, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, address, links, email, phone, booking, payment, name }: InfoCardData & { name: string }) {
   return (
     <View style={[styles.card, styles.fill]}>
       <View style={styles.cardHead}>
@@ -517,14 +519,15 @@ function InfoCard({ kicker, title, body, icon, address, links, email, booking, p
         </Text>
       ) : null}
       {/* Je Link eine Zeile mit Namen des Dienstes und der Adresse darunter (Daria, 2026-11-17: „Layout nicht gut“) */}
-      {links?.length || email ? (
+      {links?.length || email || phone ? (
         <View style={styles.linkList}>
-          {[...(email ? [`mailto:${email}`] : []), ...(links ?? [])].map((l, i) => {
+          {[...(email ? [`mailto:${email}`] : []), ...(phone ? [`tel:${phone}`] : []), ...(links ?? [])].map((l, i) => {
             const { label, sub } = linkParts(l);
             return (
               <Pressable
                 key={l}
-                onPress={() => openLink(l)}
+                // Telefon: angezeigt wie eingetragen, gewählt nur mit Ziffern (telLink)
+                onPress={() => openLink(/^tel:/i.test(l) ? telLink(l.slice(4)) : l)}
                 accessibilityRole="link"
                 accessibilityLabel={`${label}, ${sub}`}
                 style={({ pressed }) => [styles.linkRow, i > 0 ? styles.linkRowLine : styles.linkRowFirst, pressed && styles.pressed]}
@@ -573,6 +576,7 @@ function InfoCard({ kicker, title, body, icon, address, links, email, booking, p
 /** Zeile einer Link-Karte: Mail, Netzwerk mit @Name oder die kurze Adresse der Webseite */
 function linkParts(link: string): { label: string; sub: string } {
   if (/^mailto:/i.test(link)) return { label: t('E-Mail'), sub: link.slice(7) };
+  if (/^tel:/i.test(link)) return { label: t('Telefon'), sub: link.slice(4) };
   const social = socialLink(link);
   // In der Karte „Webseiten“ genügt die Adresse; „Webseite“ über jeder Zeile wiederholte nur die Überschrift (2026-11-23)
   return social ? { label: social.network, sub: social.handle } : { label: shortLink(link), sub: '' };

@@ -77,7 +77,7 @@ export default function Code() {
             disabled={digits.length < MIN_DIGITS || busy}
             whyDisabled={() => !busy && codeField.nudge(t('Der Code hat {MIN_DIGITS} Ziffern.', { MIN_DIGITS }))}
           />
-          <Button label="Neuen Code schicken" variant="secondary" onPress={resend} disabled={busy} />
+          <Button label="Neuen Code senden" variant="secondary" onPress={resend} disabled={busy} />
         </>
       }
     >

@@ -55,7 +55,7 @@ export default function NoEmail() {
       return;
     }
     if (result.created && copyTo.trim() && !result.copySent) {
-      Alert.alert('Keine Kopie verschickt', 'Die Mail ging nicht raus. Notiere Dir Deckname und Passwort bitte selbst.');
+      Alert.alert('Keine Kopie gesendet', 'Die Mail ging nicht raus. Notiere Dir Deckname und Passwort bitte selbst.');
     }
     dispatch({ type: 'updateProfile', patch: { handle: handle.trim(), email: '' } });
     const { data } = await supabase.auth.getUser();
@@ -113,7 +113,7 @@ export default function NoEmail() {
         />
         <TextField
           label="Kopie an E-Mail"
-          helperText="Freiwillig. Wir schicken Dir Deckname und Passwort einmal zu und speichern die Adresse nicht."
+          helperText="Freiwillig. Wir senden Dir Deckname und Passwort einmal zu und speichern die Adresse nicht."
           error={copyError}
           value={copyTo}
           onChangeText={(v) => {
