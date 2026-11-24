@@ -15,7 +15,7 @@
 //
 // Anfrage: POST { slug, to, from?, an?, ort?, selbst?, website? }  Antwort: { ok: true } oder { error }
 // `selbst`: Die Person sendet sich die Karte selbst („An mich per Mail senden“, Daria, 2026-11-24).
-// `an` (Name der Person) und `ort` (Ort der Begegnung) zählen nur, wenn ein Mitglied des Teams angemeldet schickt
+// `an` (Name der Person), `ort` (Ort der Begegnung) und `nachricht` zählen nur, wenn ein Mitglied des Teams angemeldet schickt
 // (Daria, 2026-11-24: dieselben Felder wie „Kontakt speichern und per Mail schicken“).
 // Fehler: input, email, name, not_found, limit, mail
 //
@@ -205,13 +205,15 @@ Deno.serve(async (req) => {
   let meeting: Meeting | undefined;
   const meetName = contact ? '' : cleanRecipientName(input.an);
   const meetPlace = contact ? '' : cleanMeetingPlace(input.ort);
-  if (meetName || meetPlace) {
+  // Nachricht des Teams (Daria, 2026-11-24: „wieso sollte ich hier nicht eine Nachricht hinzufügen können“), auch nur vom Team
+  const meetMessage = contact ? '' : plain(input.nachricht, 1000, true);
+  if (meetName || meetPlace || meetMessage) {
     const asUser = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, {
       global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
       auth: { persistSession: false },
     });
     const { data: isTeam } = await asUser.rpc('can_post_showcase', { p_showcase: s.id });
-    if (isTeam === true) meeting = { name: meetName || undefined, place: meetPlace || undefined, date: today() };
+    if (isTeam === true) meeting = { name: meetName || undefined, place: meetPlace || undefined, message: meetMessage || undefined, date: today() };
   }
   if (sendCard) {
     // Antworten gehen an die Kontakt-Mail des Schaufensters, wenn es eine gibt

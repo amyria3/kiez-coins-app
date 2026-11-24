@@ -267,6 +267,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [place, setPlace] = useState('');
+  const [message, setMessage] = useState('');
   const [note, setNote] = useState('');
   const [sendCard, setSendCard] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -301,7 +302,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
     let ok = true;
     if (mailNow) {
       // Name und Ort auch in die Mail: Anrede und Ort der Begegnung, wie bei „Nur per Mail schicken“ (2026-11-24)
-      const r = await sendCardMail(showcase.slug, email, undefined, { name, place });
+      const r = await sendCardMail(showcase.slug, email, undefined, { name, place, message });
       ok = r === 'ok';
       message = ok
         ? t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })
@@ -314,6 +315,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       setName('');
       setEmail('');
       setPlace('');
+      setMessage('');
       setNote('');
     }
   };
@@ -324,6 +326,8 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
       <PlaceField value={place} onChange={setPlace} />
+      {/* Nachricht in der Mail an die Person, die Notiz bleibt nur im eigenen Adressbuch (Daria, 2026-11-24) */}
+      {mailNow ? <TextField label="Nachricht in der Mail" value={message} onChangeText={setMessage} multiline maxLength={1000} helperText="Optional" /> : null}
       <TextField label="Notiz für Dich" value={note} onChangeText={setNote} multiline maxLength={500} helperText="Optional" />
       {isEmail(email) ? (
         <CheckOption

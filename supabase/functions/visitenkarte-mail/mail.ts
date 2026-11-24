@@ -173,7 +173,7 @@ export function backHtml(d: CardMailData): string {
  * Begegnung, die das Team einträgt (Daria, 2026-11-24): Name der Person für die Anrede, Ort und Datum für einen Satz
  * unter der Anrede. Nur vom Team, das prüft index.ts.
  */
-export type Meeting = { name?: string; place?: string; date: string };
+export type Meeting = { name?: string; place?: string; date: string; /** Nachricht des Teams in der Mail (Daria, 2026-11-24) */ message?: string };
 
 /** Name der Person für die Anrede: nur Buchstaben, Leerzeichen, Punkt, Bindestrich, Apostroph; sonst leer */
 export function cleanRecipientName(input: unknown): string {
@@ -210,8 +210,10 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
         : '';
   const intro = introText ? `<br>${esc(introText).replace(esc(d.name), name)}` : '';
   // Kopie der Nachricht als eingerückter Block, Zeilenumbrüche bleiben
-  const copyHtml = kind.copy
-    ? `<tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 20px"><div style="border-left:3px solid ${INK};padding:4px 0 4px 14px">${esc(kind.copy).replace(/\n/g, '<br>')}</div></td></tr>`
+  // Kopie der eigenen Nachricht oder Nachricht des Teams: eingerückter Block, Zeilenumbrüche bleiben
+  const quoted = kind.copy ?? meeting?.message;
+  const copyHtml = quoted
+    ? `<tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 20px"><div style="border-left:3px solid ${INK};padding:4px 0 4px 14px">${esc(quoted).replace(/\n/g, '<br>')}</div></td></tr>`
     : '';
   const first = meeting?.name?.split(' ')[0] ?? '';
   const hello = first ? `Ahoi ${first}!` : 'Ahoi!';
@@ -269,7 +271,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
     hello,
     ...(introText ? [introText] : []),
     ...(met ? [met] : []),
-    ...(kind.copy ? ['', ...kind.copy.split('\n').map((l) => `> ${l}`)] : []),
+    ...(quoted ? ['', ...quoted.split('\n').map((l) => `> ${l}`)] : []),
     '',
     ...(d.appUrl ? [`Tritt der Community bei und abonniere das Schaufenster von ${d.name}:`, d.appUrl, ''] : []),
     `Hier sind das Schaufenster und die Digitale Visitenkarte von ${d.name}:`,

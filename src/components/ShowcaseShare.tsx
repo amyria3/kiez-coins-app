@@ -135,6 +135,7 @@ export function CardMailButton({
     setFrom('');
     setName('');
     setPlace('');
+    setMessage('');
     setResult(null);
     repeat.clear();
   };
@@ -142,6 +143,7 @@ export function CardMailButton({
   const [from, setFrom] = useState('');
   const [name, setName] = useState('');
   const [place, setPlace] = useState('');
+  const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [focused, setFocused] = useState(false);
@@ -162,7 +164,7 @@ export function CardMailButton({
     setResult(null);
     if (!(await repeat.check(to))) return;
     setBusy(true);
-    const r = await sendCardMail(showcase.slug, to, team || self ? undefined : from, team ? { name, place } : undefined, self);
+    const r = await sendCardMail(showcase.slug, to, team || self ? undefined : from, team ? { name, place, message } : undefined, self);
     setBusy(false);
     if (r === 'ok') {
       // Erfolg (Daria, 2026-11-23: „Where is success message?“): Das Formular klappt zu, die Meldung steht direkt unter
@@ -173,6 +175,7 @@ export function CardMailButton({
       setFrom('');
       setName('');
       setPlace('');
+      setMessage('');
       setOpen(false);
     } else {
       setResult({ ok: false, message: t(MESSAGES[r]) });
@@ -211,6 +214,10 @@ export function CardMailButton({
             {...focusProps}
           />
           {team ? <PlaceField value={place} onChange={setPlace} /> : null}
+          {/* Nachricht in der Mail wie bei „Kontakt speichern und per Mail senden“ (Daria, 2026-11-24) */}
+          {team ? (
+            <TextField label="Nachricht in der Mail" value={message} onChangeText={setMessage} multiline maxLength={1000} helperText="Optional" {...focusProps} />
+          ) : null}
           {/* Früher „Optional, steht in der Mail.“: DeepL machte daraus „'Optional' is stated in the email.“ (Daria,
               2026-11-23). Jetzt sagt der Hinweis, wozu der Name dient. */}
           {!team && !self ? (
