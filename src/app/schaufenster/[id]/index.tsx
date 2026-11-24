@@ -1,5 +1,5 @@
 import { Children, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Redirect, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -21,6 +21,7 @@ import {
   follow,
   loadEntries,
   loadShowcase,
+  publicSlugOf,
   requestAccess,
   requestShowcaseFriend,
   setShowcasePost,
@@ -136,6 +137,8 @@ export default function ShowcaseScreen() {
       </SubScreen>
     );
   }
+  // Ohne Anmeldung darf die App das Schaufenster nicht laden (2026-11-24): Gäste kommen zur öffentlichen Seite
+  if (data === null && !session) return <GuestRedirect id={id} />;
   if (data === null) {
     return (
       <SubScreen title="Schaufenster" navigation="back" onLeadingPress={goBack}>
@@ -418,6 +421,37 @@ function infoCards(s: Showcase): InfoCardData[] {
   if (sites.length) cards.push({ id: 'webseiten', kicker: sites.length === 1 ? 'Webseite' : 'Webseiten', title: '', icon: 'link', links: sites });
   if (social.length) cards.push({ id: 'netzwerke', kicker: 'Soziale Netzwerke', title: '', icon: 'friends', links: social });
   return cards;
+}
+
+/**
+ * Gäste ohne Anmeldung (Daria, 2026-11-24): Ist das Schaufenster öffentlich, geht es im Browser zur öffentlichen Seite
+ * kiezcoins.de/s/<kurzname>. Sonst (nur für Eingeladene, offline oder in der App) sagt die Seite, dass man sich
+ * anmelden muss, statt „gibt es nicht mehr“.
+ */
+function GuestRedirect({ id }: { id: string }) {
+  const router = useRouter();
+  const goBack = useGoBack();
+  const [slug, setSlug] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    publicSlugOf(id).then(setSlug, () => setSlug(null));
+  }, [id]);
+  useEffect(() => {
+    if (slug && Platform.OS === 'web') window.location.replace(showcasePublicLink(slug));
+  }, [slug]);
+  if (slug === undefined || (slug && Platform.OS === 'web')) {
+    return (
+      <SubScreen title="Schaufenster" navigation="back" onLeadingPress={goBack}>
+        <ActivityIndicator color={color.text.secondary} />
+      </SubScreen>
+    );
+  }
+  return (
+    <SubScreen title="Schaufenster" navigation="back" onLeadingPress={goBack}>
+      <Notice message="Dieses Schaufenster siehst Du, wenn Du bei KiezCoins angemeldet bist." />
+      <Button label="Anmelden" onPress={() => router.push('/onboarding/welcome')} />
+      {slug ? <Button label="Öffentliche Seite ansehen" variant="secondary" iconEnd="external" onPress={() => openLink(showcasePublicLink(slug))} /> : null}
+    </SubScreen>
+  );
 }
 
 /** Überschrift wie die Gruppen im Kalender, optional mit Anzahl */

@@ -750,6 +750,12 @@ export async function savedEvents(userId: string): Promise<(ShowcaseEvent & { sh
 /** Öffentliche Seite ohne Anmeldung, nur bei Sichtbarkeit „Alle“ (api/s.mjs) */
 export const showcasePublicLink = (slug: string) => `https://kiezcoins.de/s/${slug}`;
 
+/** Kurzname eines öffentlichen, online gestellten Schaufensters, auch ohne Anmeldung (Migration 20261124000200) */
+export async function publicSlugOf(id: string): Promise<string | null> {
+  const { data, error } = await supabase.rpc('public_showcase_slug_of', { p_showcase: id });
+  return error || typeof data !== 'string' ? null : data;
+}
+
 export const showcaseInviteLink = (code: string) => `${WEB_APP_URL}/schaufenster/beitreten?code=${encodeURIComponent(code)}`;
 
 export async function follow(showcaseId: string, on: boolean): Promise<boolean> {
