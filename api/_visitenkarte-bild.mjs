@@ -3,7 +3,18 @@
 // Vorschau unter „Connect“. Gleicher Aufbau wie die Karte auf der Seite (_visitenkarte.mjs): Avatar, Name, Ort,
 // Services als Pillen auf Gelbgrün. Gezeichnet mit @vercel/og (Satori), Elemente als einfache Objekte statt JSX.
 
+import { readFileSync } from "node:fs";
+
 import { ortZeile, serviceListe } from "./_visitenkarte.mjs";
+
+// Bildmarke für die Fußzeile (Daria, 2026-11-24: „KiezCoins <Katze Icon> Digitale …“, rechtsbündig). Die Datei
+// kommt über import.meta.url mit in die Vercel-Funktion. Fehlt sie, bleibt die Fußzeile ohne Kater.
+let bildmarke = null;
+try {
+  bildmarke = `data:image/svg+xml,${encodeURIComponent(readFileSync(new URL("../assets/marke/bildmarke.svg", import.meta.url), "utf8"))}`;
+} catch {
+  bildmarke = null;
+}
 
 export const BILD_B = 1200;
 export const BILD_H = 630;
@@ -108,8 +119,9 @@ export function bildBaum(s, { logo, kater }) {
     el("div", { flex: 1 }),
     el(
       "div",
-      { justifyContent: "space-between", alignItems: "flex-end", fontSize: 26 },
+      { justifyContent: "flex-end", alignItems: "center", gap: 14, fontSize: 26 },
       el("div", { fontFamily: "Unbounded", fontSize: 26 }, "KiezCoins"),
+      bildmarke ? { type: "img", props: { src: bildmarke, width: 44, height: 44, style: { width: 44, height: 44 } } } : null,
       el("div", {}, "Digitale Visitenkarte"),
     ),
   );
