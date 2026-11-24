@@ -3,17 +3,22 @@
 //
 // Reine Funktionen ohne Deno- oder Netzwerkzugriff, damit tests/visitenkarteMail.test.ts sie mit Node prüft.
 // Die Karte entspricht src/lib/businessCardCanvas.ts: vorne Gelbgrün mit Name, Kiez und Instant-Code, hinten
-// dunkel mit Adresse, Öffnungszeiten, Services, Mail und Links.
+// dunkel mit Adresse, Öffnungszeiten, Services, Kontakt (Mail, Telefon), Webseiten und sozialen Netzwerken.
 //
 // Mail-HTML: Layout aus Tabellen, Stile inline, Farben zusätzlich als bgcolor für Outlook. Der Instant-Code besteht
 // aus Tabellenzellen und erscheint deshalb auch, wenn das Mailprogramm Bilder blockiert. Unbounded und Karla lädt
 // nur, wer Webfonts zulässt (Apple Mail, iOS); Gmail und Outlook zeigen Arial.
+
+// Gruppen und Netzwerke an einer Stelle für App, Web und Mail (Daria, 2026-11-23)
+import { contactGroups, socialLink, telLink } from '../../../src/data/digitalCard.mjs';
 
 export type CardMailData = {
   name: string;
   kiez?: string;
   address?: string;
   email?: string;
+  /** Telefon (Migration 20261124000100) */
+  phone?: string;
   openingHours?: string;
   services?: string;
   links: string[];
@@ -141,21 +146,22 @@ export function frontHtml(d: CardMailData, qr: QrMatrix): string {
 }
 
 export function backHtml(d: CardMailData): string {
-  const links = d.links
-    .filter((l) => /^https:\/\//i.test(l))
-    .map((l) => `<a href="${esc(l)}" style="color:${WHITE};text-decoration:underline">${esc(shortLink(l))}</a>`)
-    .join('<br>');
+  // Kontakt, Webseiten und soziale Netzwerke getrennt wie überall (src/data/digitalCard.mjs, Daria, 2026-11-23)
+  const g = contactGroups(d);
+  const a = (href: string, label: string) => `<a href="${esc(href)}" style="color:${WHITE};text-decoration:underline">${esc(label)}</a>`;
+  const network = (l: string) => {
+    const n = socialLink(l);
+    return n ? `${n.network} ${n.handle}` : shortLink(l);
+  };
   const left = backColumn([
     { title: 'Adresse', html: br(d.address) },
     { title: 'Öffnungszeiten', html: br(d.openingHours) },
   ]);
   const right = backColumn([
     { title: 'Services', html: servicesPlain(d.services).map(esc).join('<br>') },
-    {
-      title: 'E-Mail',
-      html: d.email && isEmail(d.email) ? `<a href="mailto:${esc(d.email)}" style="color:${WHITE};text-decoration:underline">${esc(d.email)}</a>` : '',
-    },
-    { title: d.links.length > 1 ? 'Links' : 'Link', html: links },
+    { title: 'Kontakt', html: [g.email ? a(`mailto:${g.email}`, g.email) : '', g.phone ? a(telLink(g.phone), g.phone) : ''].filter(Boolean).join('<br>') },
+    { title: g.websites.length > 1 ? 'Webseiten' : 'Webseite', html: g.websites.map((l) => a(l, shortLink(l))).join('<br>') },
+    { title: 'Soziale Netzwerke', html: g.social.map((l) => a(l, network(l))).join('<br>') },
   ]);
   if (!left && !right) return '';
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BACK}" style="background:${BACK};border-radius:14px">
@@ -235,8 +241,9 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
     ['Adresse', lines(d.address).join(', ')],
     ['Öffnungszeiten', lines(d.openingHours).join(', ')],
     ['Services', servicesPlain(d.services).join('\n')],
-    ['E-Mail', d.email ?? ''],
-    [d.links.length > 1 ? 'Links' : 'Link', d.links.filter((l) => /^https:\/\//i.test(l)).join('\n')],
+    ['Kontakt', [contactGroups(d).email, contactGroups(d).phone].filter(Boolean).join('\n')],
+    [contactGroups(d).websites.length > 1 ? 'Webseiten' : 'Webseite', contactGroups(d).websites.join('\n')],
+    ['Soziale Netzwerke', contactGroups(d).social.join('\n')],
   ]
     .filter(([, v]) => v)
     .map(([k, v]) => `${k}:\n${v}`);

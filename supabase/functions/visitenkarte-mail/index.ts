@@ -159,6 +159,7 @@ Deno.serve(async (req) => {
     kiez: s.kiez || undefined,
     address: s.address || undefined,
     email: s.email || undefined,
+    phone: s.phone || undefined,
     openingHours: s.opening_hours || undefined,
     services: s.services || undefined,
     links: links.filter((l) => /^https:\/\//i.test(l)),

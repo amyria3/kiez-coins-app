@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { contactGroups, placeLine, serviceItems, socialLink } from '../../data/digitalCard.mjs';
+import { contactGroups, placeLine, serviceItems, socialLink, telLink } from '../../data/digitalCard.mjs';
 import { shortLink, type Showcase } from '../../data/showcase';
 import { t } from '../../data/texts';
 import { openLink } from '../../lib/places';
@@ -23,7 +23,7 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
   const place = placeLine({ kiez: s.kiez, address: s.address });
   const services = serviceItems(s.services);
   // Kontakt, Webseiten und soziale Netzwerke getrennt wie auf der Schaufenster-Seite (Daria, 2026-11-23)
-  const { email, websites, social } = contactGroups(s);
+  const { email, phone, websites, social } = contactGroups(s);
   const linkRow = (label: string, links: { href: string; text: string }[]) =>
     links.length ? (
       <View style={styles.row}>
@@ -68,7 +68,7 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
       ) : null}
       {s.address?.trim() ? <Row label={t('Adresse')} value={s.address.trim()} /> : null}
       {s.openingHours?.trim() ? <Row label={t('Öffnungszeiten')} value={s.openingHours.trim()} /> : null}
-      {linkRow(t('Kontakt'), email ? [{ href: `mailto:${email}`, text: email }] : [])}
+      {linkRow(t('Kontakt'), [...(email ? [{ href: `mailto:${email}`, text: email }] : []), ...(phone ? [{ href: telLink(phone), text: phone }] : [])])}
       {linkRow(t(websites.length === 1 ? 'Webseite' : 'Webseiten'), websites.map((l) => ({ href: l, text: shortLink(l) })))}
       {linkRow(
         t('Soziale Netzwerke'),

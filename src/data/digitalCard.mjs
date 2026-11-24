@@ -72,16 +72,30 @@ export function socialLink(link) {
   return { network, handle: name && network !== 'YouTube' ? `@${name.replace(/^@/, '')}` : short };
 }
 
+/** Wie die Datenbank (showcases_phone_check, Migration 20261124000100): Ziffern, Leerzeichen, + ( ) / -, 5 bis 30 Zeichen */
+export const PHONE_PATTERN = /^\+?[0-9 ()/-]{5,30}$/;
+
 /**
- * Kontaktangaben in drei Gruppen: Mail, Webseiten, soziale Netzwerke. Nur https-Links.
- * @param {{ email?: string | null; links?: string[] | null }} s
- * @returns {{ email: string; websites: string[]; social: string[] }}
+ * Link zum Anrufen: nur Ziffern und ein führendes +. Bei „+49 (0)341 …“ fällt die (0) weg.
+ * @param {string} phone
+ */
+export const telLink = (phone) => {
+  const p = String(phone).trim();
+  return `tel:${(p.startsWith('+') ? p.replace(/\(0\)/g, '') : p).replace(/(?!^\+)[^0-9]/g, '')}`;
+};
+
+/**
+ * Kontaktangaben in drei Gruppen: Kontakt (Mail, Telefon), Webseiten, soziale Netzwerke. Nur https-Links.
+ * @param {{ email?: string | null; phone?: string | null; links?: string[] | null }} s
+ * @returns {{ email: string; phone: string; websites: string[]; social: string[] }}
  */
 export function contactGroups(s) {
   const email = String(s?.email ?? '').trim();
+  const phone = String(s?.phone ?? '').trim();
   const links = (Array.isArray(s?.links) ? s.links : []).filter((l) => /^https:\/\//i.test(String(l)));
   return {
     email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) ? email : '',
+    phone: PHONE_PATTERN.test(phone) ? phone : '',
     websites: links.filter((l) => !socialLink(l)),
     social: links.filter((l) => !!socialLink(l)),
   };
