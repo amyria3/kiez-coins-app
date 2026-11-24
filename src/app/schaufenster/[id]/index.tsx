@@ -286,13 +286,14 @@ export default function ShowcaseScreen() {
           </View>
         )}
 
-        {/* Angaben als Kartenreihe wie im Kalender (Daria, 2026-11-17): Ort mit „In Karten öffnen“ und „Ort teilen“ */}
+        {/* Angaben als Karten (Daria, 2026-11-17): Ort mit „In Karten öffnen“ und „Ort teilen“. Seit 2026-11-23 umbrechend
+            statt seitlich wischbar, siehe CardGrid */}
         {cards.length ? (
-          <CardRow title="Gut zu wissen" count={cards.length}>
+          <CardGrid title="Gut zu wissen" count={cards.length} wide={cards.map((c) => isWide(c))}>
             {cards.map((c) => (
               <InfoCard key={c.id} {...c} name={s.name} />
             ))}
-          </CardRow>
+          </CardGrid>
         ) : null}
 
         {access.canSee && events.length ? (
@@ -371,7 +372,7 @@ type InfoCardData = {
   kicker: string;
   title: string;
   body?: string;
-  icon: 'map-pin' | 'clock-filled' | 'link' | 'calendar';
+  icon: 'map-pin' | 'clock-filled' | 'link' | 'calendar' | 'message' | 'friends';
   address?: string;
   /** Buchungslink, öffnet „Termin buchen“ (Cal.com o. ä., Daria, 2026-11-18) */
   booking?: string;
@@ -382,7 +383,19 @@ type InfoCardData = {
 };
 
 /**
- * Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Links mit Mail. Leere Angaben fehlen ganz, auch fürs Team
+ * Nur kurze Zahlungskarten dürfen zu zweit nebeneinander stehen. Bei allen anderen bliebe neben dem Icon zu wenig Platz,
+ * Wörter wie „Öffnungszeiten“ brächen mitten im Wort um (2026-11-23, Bildschirmfoto).
+ */
+const isWide = (c: InfoCardData) => !(c.payment && c.title.length <= 12);
+
+/** Link zu einem bekannten sozialen Netzwerk (SERVICES)? */
+const isSocial = (link: string) => {
+  const host = shortLink(link).split('/')[0].toLowerCase();
+  return SERVICES.some(([re]) => re.test(host));
+};
+
+/**
+ * Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Termin buchen, Bezahlen, Kontakt, Webseiten, Soziale Netzwerke. Leere Angaben fehlen ganz, auch fürs Team
  * (Daria, 2026-11-18: „Leere Karten noch sichtbar“). Ausfüllen geht über „Verwalten“. Nur Leerzeichen zählt als leer.
  */
 function infoCards(s: Showcase): InfoCardData[] {
@@ -402,11 +415,13 @@ function infoCards(s: Showcase): InfoCardData[] {
   s.paymentLinks.forEach((p, i) =>
     cards.push({ id: `zahlung-${i}`, kicker: 'Bezahlen', title: p.title, body: p.amount, icon: 'link', payment: p.url }),
   );
-  // Mail als erste Zeile der Link-Karte (Daria, 2026-11-17: „Dann bitte Mail einbinden“)
-  if (s.links.length || s.email) {
-    const kicker = s.email ? (s.links.length ? 'Kontakt' : 'E-Mail') : s.links.length === 1 ? 'Link' : 'Links';
-    cards.push({ id: 'links', kicker, title: '', icon: 'link', links: s.links, email: s.email });
-  }
+  // Eigene Karten für Kontakt, Webseiten und soziale Netzwerke (Daria, 2026-11-23: „Can we do different cards“).
+  // Bis dahin standen Mail und alle Links in einer Karte „Kontakt“ (2026-11-17).
+  if (s.email) cards.push({ id: 'kontakt', kicker: 'Kontakt', title: '', icon: 'message', email: s.email });
+  const sites = s.links.filter((l) => !isSocial(l));
+  const social = s.links.filter(isSocial);
+  if (sites.length) cards.push({ id: 'webseiten', kicker: sites.length === 1 ? 'Webseite' : 'Webseiten', title: '', icon: 'link', links: sites });
+  if (social.length) cards.push({ id: 'netzwerke', kicker: 'Soziale Netzwerke', title: '', icon: 'friends', links: social });
   return cards;
 }
 
@@ -461,9 +476,33 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
   );
 }
 
+/**
+ * Karten, die umbrechen wie Flexbox in beide Richtungen (Daria, 2026-11-23: „behave like flex in both directions filling
+ * out necessary space keeping gaps vertically and horizontally not that much“): Jede Karte wächst, bis die Reihe voll
+ * ist, und alle Karten einer Reihe sind gleich hoch. Schmale Karten (kurze Zahlungslinks) stehen auf dem Handy zu
+ * zweit nebeneinander, breite Karten (mindestens 280) nehmen dort die ganze Breite, auf breiten Bildschirmen zu zweit. Abstand 12 in beide Richtungen.
+ * Nichts ragt mehr über den Rand, wie vorher in der wischbaren Reihe.
+ */
+function CardGrid({ title, count, wide, children }: { title: string; count: number; wide: boolean[]; children: ReactNode }) {
+  const items = Children.toArray(children);
+  return (
+    <View style={routine.group}>
+      <SectionHead title={title} count={count} />
+      <View style={styles.grid}>
+        {items.map((c, i) => (
+          // Leicht schräg wie die Karten in Routine, abwechselnd
+          <View key={i} style={[styles.cell, wide[i] ? styles.cellWide : styles.cellNarrow, { transform: [{ rotate: i % 2 ? '0.7deg' : '-0.7deg' }] }]}>
+            {c}
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function InfoCard({ kicker, title, body, icon, address, links, email, booking, payment, name }: InfoCardData & { name: string }) {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, styles.fill]}>
       <View style={styles.cardHead}>
         <View style={styles.flex}>
           <Text style={styles.cardKicker}>{kicker}</Text>
@@ -496,10 +535,15 @@ function InfoCard({ kicker, title, body, icon, address, links, email, booking, p
                 style={({ pressed }) => [styles.linkRow, i > 0 ? styles.linkRowLine : styles.linkRowFirst, pressed && styles.pressed]}
               >
                 <View style={styles.flex}>
-                  <Text style={styles.linkLabel}>{label}</Text>
-                  <Text noTranslate style={styles.linkSub} numberOfLines={1}>
-                    {sub}
+                  {/* Dienst, Adresse oder das schon übersetzte „E-Mail“: nichts mehr zu übersetzen */}
+                  <Text noTranslate style={styles.linkLabel} numberOfLines={1}>
+                    {label}
                   </Text>
+                  {sub ? (
+                    <Text noTranslate style={styles.linkSub} numberOfLines={1}>
+                      {sub}
+                    </Text>
+                  ) : null}
                 </View>
                 {/* Pfeil schräg nach oben: Der Link verlässt die App. Ein Pfeil nach rechts sähe aus, als öffne er ein
                     Fenster in der App (Daria, 2026-11-17) */}
@@ -548,7 +592,8 @@ function linkParts(link: string): { label: string; sub: string } {
   const short = shortLink(link);
   const [host, ...path] = short.split('/');
   const service = SERVICES.find(([re]) => re.test(host.toLowerCase()))?.[1];
-  if (!service) return { label: t('Webseite'), sub: short };
+  // In der Karte „Webseiten“ genügt die Adresse; „Webseite“ über jeder Zeile wiederholte nur die Überschrift (2026-11-23)
+  if (!service) return { label: short, sub: '' };
   // Bei LinkedIn und Bluesky steht vor dem Namen ein Pfadteil („linkedin.com/in/<name>“, „bsky.app/profile/<name>“);
   // vorher zeigte die Karte deshalb „@in“ (Daria, 2026-11-18)
   const handle = path.filter(Boolean).find((p) => !/^(in|company|school|showcase|profile|user|pages)$/i.test(p));
@@ -708,6 +753,11 @@ const styles = StyleSheet.create({
   row: { paddingHorizontal: space[16], paddingVertical: space[6], gap: space[12], alignItems: 'flex-start' },
   slot: { flexDirection: 'column' },
   slotAlone: { alignSelf: 'stretch', maxWidth: 560 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space[12], paddingVertical: space[6] },
+  cell: { flexGrow: 1, maxWidth: '100%' },
+  cellNarrow: { flexBasis: 170, minWidth: 170 },
+  cellWide: { flexBasis: 280, minWidth: 280 },
+  fill: { flexGrow: 1 },
   card: { gap: space[12], padding: space[20], borderRadius: radius.md, backgroundColor: color.showcaseCards.card },
   cardHead: { flexDirection: 'row', gap: space[12], alignItems: 'flex-start' },
   flex: { flex: 1, gap: space[4] },
