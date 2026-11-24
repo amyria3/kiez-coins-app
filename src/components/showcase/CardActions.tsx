@@ -143,7 +143,7 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                   <View ref={panelRef} collapsable={false} style={styles.panel}>
                     <Text style={styles.body}>
                       {viewer === 'team' && hasContactMail
-                        ? t('Die andere Person scannt den QR-Code mit der Kamera. Sie speichert Eure Digitale Visitenkarte und kann Euch ihren Kontakt schicken.')
+                        ? t('Die andere Person scannt den QR-Code mit der Kamera. Sie speichert Eure Digitale Visitenkarte und kann Euch ihren Kontakt senden.')
                         : t('Mit der Kamera scannen, um die Digitale Visitenkarte zu öffnen.')}
                     </Text>
                     <InviteQr value={codeLink} label={t('QR-Code zur Digitalen Visitenkarte')} />
@@ -160,8 +160,8 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                   label={label(id)}
                   intro={
                     viewer === 'team'
-                      ? 'Schickt Eure Digitale Visitenkarte per Mail an die Adresse, die Du einträgst. Auf diesem Handy wird kein Kontakt gespeichert.'
-                      : 'Schickt diese Digitale Visitenkarte per Mail an die Adresse, die Du einträgst.'
+                      ? 'Sendet Eure Digitale Visitenkarte per Mail an die Adresse, die Du einträgst. Auf diesem Handy wird kein Kontakt gespeichert.'
+                      : 'Sendet diese Digitale Visitenkarte per Mail an die Adresse, die Du einträgst.'
                   }
                   open={panel === 'mail'}
                   onOpenChange={(o) => setPanel(o ? 'mail' : null)}
@@ -188,7 +188,7 @@ const CONTACT_MESSAGES: Record<Exclude<ContactResult, 'ok' | 'card_failed'>, str
   name: 'Bitte trage Deinen Namen ein.',
   phone: 'Bitte prüfe die Telefonnummer.',
   consent: 'Bitte bestätige die Einwilligung.',
-  limit: 'Für heute sind genug Kontakte verschickt. Probier es morgen wieder.',
+  limit: 'Für heute sind genug Kontakte gesendet. Probier es morgen wieder.',
   no_contact: 'Dieses Schaufenster hat keine Kontakt-Mail.',
   error: 'Das hat nicht geklappt. Probier es gleich nochmal.',
 };
@@ -222,7 +222,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
         ok: true,
         message:
           r === 'card_failed'
-            ? `${done} ${t('Die Digitale Visitenkarte konnte nicht verschickt werden.')}`
+            ? `${done} ${t('Die Digitale Visitenkarte konnte nicht gesendet werden.')}`
             : withCard
               ? `${done} ${t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })}`
               : done,
@@ -256,7 +256,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
         <Text style={styles.link}>{t('Datenschutz lesen')}</Text>
       </Pressable>
       <Button
-        label={exchange ? 'Kontakte tauschen' : 'Kontakt schicken'}
+        label={exchange ? 'Kontakte tauschen' : 'Kontakt senden'}
         busy={busy}
         disabled={!name.trim() || !isEmail(email) || !consent}
         onPress={send}
@@ -264,7 +264,7 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
       <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
       <QuestionHint
         question={t('Was passiert mit meinen Angaben?')}
-        answer={t('KiezCoins schickt sie per Mail an {name} und speichert sie nicht.', { name: s.name })}
+        answer={t('KiezCoins sendet sie per Mail an {name} und speichert sie nicht.', { name: s.name })}
       />
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>
@@ -319,7 +319,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       ok = r === 'ok';
       message = ok
         ? t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })
-        : t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte konnte nicht verschickt werden.');
+        : t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte konnte nicht gesendet werden.');
     }
     setBusy(false);
     setResult({ ok, message });
@@ -334,14 +334,14 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
 
   return (
     <View style={styles.panel}>
-      <Text style={styles.body}>{t('Speichert den Kontakt der Person auf diesem Handy und schickt ihr Eure Digitale Visitenkarte per Mail. Gut, wenn jemand ohne Handy vor Dir steht.')}</Text>
+      <Text style={styles.body}>{t('Speichert den Kontakt der Person auf diesem Handy und sendet ihr Eure Digitale Visitenkarte per Mail. Gut, wenn jemand ohne Handy vor Dir steht.')}</Text>
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
       <PlaceField value={place} onChange={setPlace} />
       <TextField label="Notiz für Dich" value={note} onChangeText={setNote} multiline maxLength={500} helperText="Optional" />
       {isEmail(email) ? (
         <CheckOption
-          label={first ? t('Digitale Visitenkarte per Mail an {name} schicken', { name: first }) : t('Digitale Visitenkarte per Mail schicken')}
+          label={first ? t('Digitale Visitenkarte per Mail an {name} senden', { name: first }) : t('Digitale Visitenkarte per Mail senden')}
           selected={sendCard}
           onPress={() => setSendCard(!sendCard)}
         />
@@ -349,7 +349,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       {/* Hinweis vor dem Knopf (UX-Regeln, Daria, 2026-11-24) */}
       {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
       <Button
-        label={!mailNow ? 'Kontakt speichern' : again ? 'Speichern und trotzdem noch mal schicken' : 'Speichern und Digitale Visitenkarte schicken'}
+        label={!mailNow ? 'Kontakt speichern' : again ? 'Speichern und trotzdem noch mal senden' : 'Speichern und Digitale Visitenkarte senden'}
         busy={busy}
         disabled={!name.trim() || (!!email.trim() && !isEmail(email))}
         onPress={save}
@@ -358,7 +358,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       <QuestionHint
         question={t('Wo landet der Kontakt, den ich hier eintrage?')}
         answer={t(
-          'In Deinem Adressbuch: Dein Handy bietet an, die Person mit Name, Mail-Adresse, Treffpunkt und Notiz als neuen Kontakt anzulegen. KiezCoins speichert davon nichts. Die Mail-Adresse braucht KiezCoins nur, um ihr die Digitale Visitenkarte zu schicken.',
+          'In Deinem Adressbuch: Dein Handy bietet an, die Person mit Name, Mail-Adresse, Treffpunkt und Notiz als neuen Kontakt anzulegen. KiezCoins speichert davon nichts. Die Mail-Adresse braucht KiezCoins nur, um ihr die Digitale Visitenkarte zu senden.',
         )}
       />
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}

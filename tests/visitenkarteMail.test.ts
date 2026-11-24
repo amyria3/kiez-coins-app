@@ -50,7 +50,7 @@ describe('Visitenkarte per Mail', () => {
     assert.ok(!mail.html.includes('<Kiezblick>'));
     assert.ok(!mail.html.includes('javascript:'));
     assert.ok(mail.html.includes('href="https://kiezcoins.de/s/kiezblick"'));
-    assert.ok(mail.html.includes('Lena schickt Dir die Links zum Schaufenster'));
+    assert.ok(mail.html.includes('Lena sendet Dir die Links zum Schaufenster'));
     assert.ok(mail.html.includes('Tritt der Community bei und abonniere das Schaufenster von'));
     assert.ok(mail.html.includes('href="https://app.kiezcoins.de/schaufenster/abc?folgen=1"'));
     assert.ok(mail.html.includes('Hier sind das'));

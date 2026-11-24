@@ -20,7 +20,7 @@ const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim(
 const MESSAGES: Record<Exclude<CardMailResult, 'ok'>, string> = {
   email: 'Bitte prüfe die Mail-Adresse.',
   name: 'Beim Vornamen gehen nur Buchstaben, höchstens 30.',
-  limit: 'Für heute sind genug Mails verschickt. Probier es morgen wieder.',
+  limit: 'Für heute sind genug Mails gesendet. Probier es morgen wieder.',
   not_found: 'Die Mail geht nur, wenn Dein Schaufenster öffentlich und online ist.',
   error: 'Das hat nicht geklappt. Probier es gleich nochmal.',
 };
@@ -45,10 +45,10 @@ function sentAt(at: number): string {
 export function repeatMessage(times: number[]): string {
   const last = times[times.length - 1];
   if (times.length < CARD_MAILS_PER_ADDRESS) {
-    return t('Du hast die Digitale Visitenkarte {wann} schon an diese Adresse geschickt.', { wann: sentAt(last) });
+    return t('Du hast die Digitale Visitenkarte {wann} schon an diese Adresse gesendet.', { wann: sentAt(last) });
   }
   return t(
-    'Du hast die Digitale Visitenkarte schon zweimal an diese Adresse geschickt, zuletzt {wann}. Mehr als zwei Mails in 24 Stunden gehen nicht an dieselbe Adresse. Ab {ab} geht es wieder.',
+    'Du hast die Digitale Visitenkarte schon zweimal an diese Adresse gesendet, zuletzt {wann}. Mehr als zwei Mails in 24 Stunden gehen nicht an dieselbe Adresse. Ab {ab} geht es wieder.',
     { wann: sentAt(last), ab: untilAt(times[0] + 86400e3) },
   );
 }
@@ -217,7 +217,7 @@ export function CardMailButton({
             {/* Hinweis vor dem Knopf: Er sagt, was ein erneutes Tippen bewirkt (UX-Regeln, Daria, 2026-11-24) */}
             {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
             <Button
-              label={again && !again.full ? 'Trotzdem noch mal schicken' : 'Digitale Visitenkarte schicken'}
+              label={again && !again.full ? 'Trotzdem noch mal senden' : 'Digitale Visitenkarte senden'}
               busy={busy}
               disabled={!isEmail(to) || !!again?.full}
               onPress={send}

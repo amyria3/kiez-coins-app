@@ -252,7 +252,7 @@ export default function ShowcaseScreen() {
               <Pill
                 check={friendResult === 'sent'}
                 disabled={busy || friendResult === 'sent'}
-                label={friendResult === 'sent' ? t('Anfrage verschickt') : t('Mit {name} anfreunden')}
+                label={friendResult === 'sent' ? t('Anfrage gesendet') : t('Mit {name} anfreunden')}
                 name={friendResult === 'sent' ? undefined : s.name}
                 onPress={befriend}
               />

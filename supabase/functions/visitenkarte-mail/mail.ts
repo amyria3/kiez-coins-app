@@ -195,7 +195,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
   // (App) und „Hier sind das Schaufenster und die Digitale Visitenkarte von …“ (Web, darunter die Karte)
   const subject = `Schaufenster und Digitale Visitenkarte von ${d.name}`;
   const name = `<strong>${esc(d.name)}</strong>`;
-  const intro = sender ? `<br>${esc(sender)} schickt Dir die Links zum Schaufenster von ${name}.` : '';
+  const intro = sender ? `<br>${esc(sender)} sendet Dir die Links zum Schaufenster von ${name}.` : '';
   const first = meeting?.name?.split(' ')[0] ?? '';
   const hello = first ? `Ahoi ${first}!` : 'Ahoi!';
   const met = meeting?.place ? `Ihr habt Euch am ${meeting.date} getroffen: ${meeting.place}.` : '';
@@ -229,7 +229,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
     <a href="${esc(d.url)}" style="display:inline-block;background:${INK};color:${YELLOW};font-family:${BODY};font-size:16px;line-height:20px;font-weight:bold;text-decoration:none;padding:13px 26px;border-radius:999px">Schaufenster ansehen</a>
   </td></tr>
   <tr><td style="font-family:${BODY};font-size:12px;line-height:18px;color:${MUTED};padding:24px 4px 0;text-align:center">
-    Jemand hat diese Mail über <a href="${esc(d.url)}" style="color:${MUTED}">${esc(shortLink(d.url))}</a> an Dich geschickt.
+    Jemand hat diese Mail über <a href="${esc(d.url)}" style="color:${MUTED}">${esc(shortLink(d.url))}</a> an Dich gesendet.
     Deine Adresse haben wir nur für diese Mail genutzt und nicht gespeichert. Weitere Mails bekommst Du nicht.<br>
     <a href="${SITE}" style="color:${MUTED}">KiezCoins</a> · <a href="${SITE}/impressum" style="color:${MUTED}">Impressum</a>
   </td></tr>
@@ -249,7 +249,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
     .map(([k, v]) => `${k}:\n${v}`);
   const text = [
     hello,
-    ...(sender ? [`${sender} schickt Dir die Links zum Schaufenster von ${d.name}.`] : []),
+    ...(sender ? [`${sender} sendet Dir die Links zum Schaufenster von ${d.name}.`] : []),
     ...(met ? [met] : []),
     '',
     ...(d.appUrl ? [`Tritt der Community bei und abonniere das Schaufenster von ${d.name}:`, d.appUrl, ''] : []),
@@ -262,7 +262,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
     ...back2.flatMap((b) => [b, '']),
     `Schaufenster ansehen: ${d.url}`,
     '',
-    `Jemand hat diese Mail über ${shortLink(d.url)} an Dich geschickt. Deine Adresse haben wir nur für diese Mail genutzt und nicht gespeichert.`,
+    `Jemand hat diese Mail über ${shortLink(d.url)} an Dich gesendet. Deine Adresse haben wir nur für diese Mail genutzt und nicht gespeichert.`,
   ].join('\n');
   return { subject, html, text };
 }
@@ -293,7 +293,7 @@ export function contactMail(showcase: string, url: string, c: ContactData, date:
   ];
   const note = c.cardSent
     ? `${c.name} hat im selben Schritt Eure Digitale Visitenkarte per Mail bekommen.`
-    : `${c.name} hat Euch die Kontaktdaten geschickt, ohne Eure Digitale Visitenkarte per Mail.`;
+    : `${c.name} hat Euch die Kontaktdaten gesendet, ohne Eure Digitale Visitenkarte per Mail.`;
   const row = ([k, v]: [string, string]) =>
     `<tr><td style="font-family:${BODY};font-size:13px;line-height:20px;color:${MUTED};padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap">${esc(k)}</td>
     <td style="font-family:${BODY};font-size:16px;line-height:22px;color:${INK};padding:6px 0;vertical-align:top">${br(v)}</td></tr>`;
@@ -306,7 +306,7 @@ export function contactMail(showcase: string, url: string, c: ContactData, date:
 <tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">
   <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 18px">
-    Über die Digitale Visitenkarte von <strong>${esc(showcase)}</strong> hat Dir jemand den eigenen Kontakt geschickt.
+    Über die Digitale Visitenkarte von <strong>${esc(showcase)}</strong> hat Dir jemand den eigenen Kontakt gesendet.
   </td></tr>
   <tr><td style="background:${WHITE};border-radius:14px;padding:16px 20px">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0">${rows.map(row).join('')}</table>
@@ -320,7 +320,7 @@ export function contactMail(showcase: string, url: string, c: ContactData, date:
 </td></tr></table>
 </body></html>`;
   const text = [
-    `Über die Digitale Visitenkarte von ${showcase} hat Dir jemand den eigenen Kontakt geschickt.`,
+    `Über die Digitale Visitenkarte von ${showcase} hat Dir jemand den eigenen Kontakt gesendet.`,
     '',
     ...rows.map(([k, v]) => `${k}: ${v}`),
     '',

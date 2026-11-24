@@ -79,7 +79,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Dein Konto',
         paragraphs: [
-          'Für das Konto speichern wir Deine E-Mail-Adresse und, wenn Du eines festlegst, Dein Passwort als verschlüsselten Hash. Die Anmeldung per Code schickt Dir einen Einmalcode per E-Mail. Auf Deinem Gerät bleibt die Sitzung gespeichert, damit Du angemeldet bleibst.',
+          'Für das Konto speichern wir Deine E-Mail-Adresse und, wenn Du eines festlegst, Dein Passwort als verschlüsselten Hash. Die Anmeldung per Code sendet Dir einen Einmalcode per E-Mail. Auf Deinem Gerät bleibt die Sitzung gespeichert, damit Du angemeldet bleibst.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
@@ -89,7 +89,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Wir speichern Deinen Decknamen, Dein Profilbild, Deine Ansprache, Deinen Kiez (als Text, zum Beispiel „Prenzlauer Berg, 10435 Berlin“), Deine Einstellungen und die Zeitpunkte Deiner Zustimmung zu diesen Bedingungen.',
           'Zu Challenges speichern wir Titel, Text, Fotos, Ort als Text, Frist, Coins, Status und einen auf rund 100 Meter gerundeten Punkt. Dazu kommen Kommentare, Likes, private Operationsnamen und Gruppen samt Mitgliedschaft.',
           'Andere angemeldete Personen sehen Deinen Decknamen, Dein Profilbild, Deinen Kiez, Deine Challenges und Kommentare. Challenges in Gruppen sehen nur die Mitglieder der Gruppe, private Posts nur Du. Fotos aus öffentlichen Posts liegen unter einer öffentlichen Adresse. Wer diese Adresse kennt, kann das Foto auch ohne Konto öffnen. Fotos aus privaten Posts, aus Gruppen und aus sehr privaten Posts liegen in einem geschützten Speicher. Die App zeigt sie nur Personen, die den Post sehen dürfen, über Links, die 24 Stunden gelten.',
-          'Mit „Sehr privat“ legst Du für jeden Post fest, dass niemand ihn teilen kann. Dann gibt es keinen Teilen-Knopf und keine öffentliche Seite. Schaltest Du „Sehr privat“ später ein, bekommen die Fotos neue Adressen, und schon verschickte Links funktionieren nicht mehr. Kopien, die jemand vorher gespeichert oder weitergepostet hat, können wir nicht zurückholen.',
+          'Mit „Sehr privat“ legst Du für jeden Post fest, dass niemand ihn teilen kann. Dann gibt es keinen Teilen-Knopf und keine öffentliche Seite. Schaltest Du „Sehr privat“ später ein, bekommen die Fotos neue Adressen, und schon versendete Links funktionieren nicht mehr. Kopien, die jemand vorher gespeichert oder weitergepostet hat, können wir nicht zurückholen.',
           'Teilst Du einen eigenen öffentlichen Post, steht er mit Foto, Deckname, Kiez, Titel und Text unter kiezcoins.de/c/ im Internet, auch für Menschen ohne Konto, solange der Post öffentlich ist. Suchmaschinen nehmen diese Seite nicht auf. Messenger zeigen beim Teilen eine Vorschau. Besuche der Seite zählen wir ohne Kennung.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
@@ -98,16 +98,16 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Dein Standort bleibt auf Deinem Gerät',
         paragraphs: [
           'Gibst Du den Standort frei, ermittelt Dein Handy daraus Ortsteil, Postleitzahl und Straße. Dafür nutzt es den Ortsdienst des Betriebssystems (Apple bei iPhone, Google bei Android). KiezCoins speichert Deinen genauen Standort nicht. Gespeichert wird nur der Kiez als Text und bei Challenges der gerundete Punkt. Entfernungen im Feed berechnet Dein Handy selbst.',
-          'In der Web-App fragt Dein Browser Kiez und Straße bei OpenStreetMap ab (Dienst Nominatim der OpenStreetMap Foundation, Vereinigtes Königreich). Er schickt dafür nur den auf etwa 100 Meter gerundeten Punkt, technisch bedingt auch Deine IP-Adresse. Grundlage ist Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) und der Angemessenheitsbeschluss der EU für das Vereinigte Königreich.',
+          'In der Web-App fragt Dein Browser Kiez und Straße bei OpenStreetMap ab (Dienst Nominatim der OpenStreetMap Foundation, Vereinigtes Königreich). Er sendet dafür nur den auf etwa 100 Meter gerundeten Punkt, technisch bedingt auch Deine IP-Adresse. Grundlage ist Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) und der Angemessenheitsbeschluss der EU für das Vereinigte Königreich.',
           'Die Freigabe ist freiwillig und lässt sich jederzeit in den Einstellungen Deines Handys oder Browsers zurücknehmen. Ohne Freigabe trägst Du Deinen Kiez von Hand ein.',
-          'Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür schickt sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, schickt sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
+          'Tippst Du bei einer Erinnerung einen Ort ein, schlägt die App passende Orte vor. Dafür sendet sie den getippten Text an Photon, einen Suchdienst der komoot GmbH (Deutschland) mit Daten von OpenStreetMap. Damit nahe Orte oben stehen, sendet sie einen auf etwa 10 Kilometer gerundeten Punkt mit: Deinen Standort, wenn Du ihn freigegeben hast, sonst Deinen Kiez. Technisch bedingt erhält der Dienst auch Deine IP-Adresse. Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
       // Nachrichten, Routine, Kalender und Weiterposten (Daria, 2026-11-14: fehlten bisher)
       {
         heading: 'Nachrichten an Freund:innen',
         paragraphs: [
-          'Nachrichten kannst Du nur Personen schicken, mit denen Du befreundet bist. Wir speichern Absender:in, Empfänger:in, Text und Zeitpunkte. Lesen können sie in der App nur Ihr beide. Nach einem Monat löschen wir Nachrichten automatisch.',
+          'Nachrichten kannst Du nur Personen senden, mit denen Du befreundet bist. Wir speichern Absender:in, Empfänger:in, Text und Zeitpunkte. Lesen können sie in der App nur Ihr beide. Nach einem Monat löschen wir Nachrichten automatisch.',
           'Das Team öffnet einen Chat nur bei einer Meldung oder einem Hinweis auf Missbrauch. Jedes Öffnen wird dauerhaft mit Zeitpunkt, Person und Grund protokolliert.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO), für das Öffnen bei Meldungen unser berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO).',
         ],
@@ -124,7 +124,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Kalender verbindest Du selbst',
         paragraphs: [
           'Termine exportieren: Du bekommst einen persönlichen, geheimen Abo-Link. Dein Kalenderdienst, zum Beispiel Apple, Google oder Microsoft, ruft darüber regelmäßig Deine Termine aus KiezCoins ab und speichert sie nach seinen eigenen Regeln. Wer den Link kennt, sieht Deine Termine. „Neuen Link erstellen“ macht den alten ungültig, ausgeschaltet liefert der Link keine Termine mehr.',
-          'Termine anzeigen über einen Link: Wir speichern die iCal-Adresse und den Namen, den Du dem Kalender gibst. Öffnest Du Routine, ruft unser Server bei Supabase die Adresse ab und schickt die Termine der nächsten 60 Tage an Deine App. Die Termine selbst speichern wir nicht. Der Kalenderdienst sieht dabei die Anfrage unseres Servers, nicht Deine IP-Adresse.',
+          'Termine anzeigen über einen Link: Wir speichern die iCal-Adresse und den Namen, den Du dem Kalender gibst. Öffnest Du Routine, ruft unser Server bei Supabase die Adresse ab und sendet die Termine der nächsten 60 Tage an Deine App. Die Termine selbst speichern wir nicht. Der Kalenderdienst sieht dabei die Anfrage unseres Servers, nicht Deine IP-Adresse.',
           'Kalender auf dem Handy (Android): Gibst Du den Zugriff frei, liest die App die gewählten Kalender direkt auf dem Gerät. Die Termine verlassen Dein Handy nicht. Den Zugriff nimmst Du in den Einstellungen des Handys zurück.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
@@ -133,7 +133,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Weiterposten nur auf Deinen Wunsch',
         paragraphs: [
           'Verbindest Du ein Konto bei BlueSky, Mastodon, Instagram oder Facebook, speichern wir Deinen Namen dort, die Adresse des Dienstes und den Zugang. Den Zugang speichern wir verschlüsselt.',
-          'Teilst Du einen Post über „Weiterposten“, schicken wir Titel, Text, Foto und den Link zu Deinem Post an diesen Dienst. Dort gelten dessen Datenschutzregeln. Meta (Instagram, Facebook) verarbeitet Daten auch in den USA. „Trennen“ löscht den Zugang bei uns.',
+          'Teilst Du einen Post über „Weiterposten“, senden wir Titel, Text, Foto und den Link zu Deinem Post an diesen Dienst. Dort gelten dessen Datenschutzregeln. Meta (Instagram, Facebook) verarbeitet Daten auch in den USA. „Trennen“ löscht den Zugang bei uns.',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
@@ -145,7 +145,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
           'Ein öffentliches Schaufenster sieht jede Person im Internet unter kiezcoins.de/s/, auch ohne Konto. Suchmaschinen wie Google dürfen die Seite aufnehmen. Das gilt auch für Namen und Anschrift im Impressum. Die Adresse des Schaufensters sehen in der App nur Personen mit Zugang. Ein Schaufenster „nur für Eingeladene“ zeigt Posts und Termine nur dem Team und den Eingeladenen.',
           'Herzen an Terminen zählen wir ohne Kennung. Dein Browser merkt sich auf Deinem Gerät, welche Termine Du geliked hast. Das ist technisch nötig, damit das Herz gefüllt bleibt (§ 25 Abs. 2 Nr. 2 TDDDG).',
           // Zahlen fürs Team (2026-11-23, Migration 20261123000100_schaufenster_zahlen)
-          'Für das Team zählen wir, wie oft ein öffentliches Schaufenster und seine Visitenkarte aufgerufen werden, wie oft jemand die Visitenkarte in die eigenen Kontakte speichert und wie oft jemand dem Schaufenster den eigenen Kontakt schickt. Gespeichert wird nur eine Zahl pro Tag, ohne Kennung, ohne IP-Adresse und ohne etwas auf Deinem Gerät. Das Team sieht die Summen der letzten 30 Tage. Rechtsgrundlage ist unser berechtigtes Interesse, Teams zu zeigen, wie ihr Schaufenster ankommt (Art. 6 Abs. 1 lit. f DSGVO).',
+          'Für das Team zählen wir, wie oft ein öffentliches Schaufenster und seine Visitenkarte aufgerufen werden, wie oft jemand die Visitenkarte in die eigenen Kontakte speichert und wie oft jemand dem Schaufenster den eigenen Kontakt sendet. Gespeichert wird nur eine Zahl pro Tag, ohne Kennung, ohne IP-Adresse und ohne etwas auf Deinem Gerät. Das Team sieht die Summen der letzten 30 Tage. Rechtsgrundlage ist unser berechtigtes Interesse, Teams zu zeigen, wie ihr Schaufenster ankommt (Art. 6 Abs. 1 lit. f DSGVO).',
           'Rechtsgrundlage ist die Erfüllung des Nutzungsvertrags (Art. 6 Abs. 1 lit. b DSGVO).',
         ],
       },
@@ -167,7 +167,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
         heading: 'Diese Dienste verarbeiten Daten in unserem Auftrag',
         paragraphs: [
           'Supabase Inc. hostet Datenbank, Anmeldung und Fotos. Die Server stehen in der EU (Paris, Frankreich). Für mögliche Zugriffe aus den USA gelten EU-Standardvertragsklauseln.',
-          'Brevo (Sendinblue SAS, Paris, Frankreich) verschickt die E-Mails mit Anmeldecodes. Brevo erhält dafür Deine E-Mail-Adresse und den Code.',
+          'Brevo (Sendinblue SAS, Paris, Frankreich) versendet die E-Mails mit Anmeldecodes. Brevo erhält dafür Deine E-Mail-Adresse und den Code.',
           'Vercel Inc. (USA) liefert die Download-Seite und die Web-App aus und verarbeitet dafür Deine IP-Adresse. Grundlage sind das EU-US Data Privacy Framework und EU-Standardvertragsklauseln.',
           'Mit diesen Diensten besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.',
         ],
