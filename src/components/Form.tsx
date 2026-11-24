@@ -208,8 +208,9 @@ export function RequiredMark() {
  */
 /**
  * Einrückung unter Schaltern (Daria, 2026-11-24: „das Input Feld in der Insta Einrichtung [war] nicht nach rechts
- * verschoben“): Nur Unter-Schalter rücken ein, damit sie als Teil des oberen Schalters lesbar sind. Felder, Anleitungen
- * und Fragen stehen bündig mit dem Schalter darüber, wie bei der Einrichtung des Weiterpostens.
+ * verschoben“, dann „Padding“): Nur die Zeile eines Unter-Schalters rückt ein, damit er als Teil des oberen Schalters
+ * lesbar ist. Felder, Knöpfe, Anleitungen und Fragen stehen immer bündig mit dem Rand der Seite, auch unter einem
+ * Unter-Schalter, wie bei der Einrichtung des Weiterpostens.
  */
 const InSwitch = createContext(false);
 
@@ -276,20 +277,22 @@ export function SwitchRow({
       <Toggle label={label} value={value} onValueChange={onValueChange} />
     </View>
   );
+  // Nur die Zeile des Unter-Schalters rückt ein. Was darunter erscheint (Frage, Knopf, Feld), steht bündig mit dem
+  // Rand der Seite wie bei der Einrichtung des Weiterpostens (Daria, 2026-11-24: „Padding“ am Knopf „Google-
+  // Unternehmensprofil anlegen“ unter „Bei Google finden lassen“).
   const nested = useContext(InSwitch);
-  const content = children ? (
+  const line = nested ? <View style={styles.switchNested}>{row}</View> : row;
+  if (!children) return line;
+  return (
     <View style={styles.switchWithContent}>
-      {row}
+      {line}
       {value && !disabled ? (
         <View style={styles.switchContent}>
           <InSwitch.Provider value>{children}</InSwitch.Provider>
         </View>
       ) : null}
     </View>
-  ) : (
-    row
   );
-  return nested ? <View style={styles.switchNested}>{content}</View> : content;
 }
 
 /** Der Schalter allein, ohne Zeile; die Bezeichnung dient dem Screenreader. */
