@@ -24,17 +24,12 @@ export function spaceOfRoute(name: string, post?: { private?: boolean; groupId?:
  * Routen mit Theme „Schaufenster“ (Daria, 2026-11-17): alle Seiten des Schaufensters, auch Verwalten und Bearbeiten
  * (Daria, 2026-11-17: „Falscher Farbmodus“ auf Verwalten in Grün). Dazu das öffentliche Schaufenster und was man von
  * dort aus tut (Post, Termin, Visitenkarte, mit Code beitreten).
+ * Alles unter `schaufenster/` und `s/` statt einer Liste einzelner Seiten: Die Liste vergaß neue Seiten, die Digitale
+ * Visitenkarte für Gäste (`s/[slug]/visitenkarte`), Druck und Einstellungen blieben deshalb lila (Daria, 2026-11-24:
+ * „Wieso Lila?“).
  */
 export function isShowcaseRoute(name: string): boolean {
-  return (
-    name === 'schaufenster/index' ||
-    name === 'schaufenster/[id]/bearbeiten' ||
-    name === 'schaufenster/beitreten' ||
-    name === 'schaufenster/[id]/index' ||
-    name === 'schaufenster/[id]/post' ||
-    name === 'schaufenster/[id]/termin' ||
-    name === 'schaufenster/[id]/visitenkarte'
-  );
+  return name.startsWith('schaufenster/') || name.startsWith('s/');
 }
 
 /**
