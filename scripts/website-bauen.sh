@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Ignored Build Step des Vercel-Projekts für kiezcoins.de (vercel.json im Wurzelordner), wie scripts/web-app-bauen.sh.
 # Vercel baut bei Exit-Code 1 und überspringt den Build bei 0.
+# Ein übersprungener Build zählt trotzdem als Deployment zum Tageslimit (100). Für die Branches claude/* legt Vercel
+# deshalb gar keins an: "git.deploymentEnabled" in vercel.json (Daria, 2026-11-24).
 # Gebaut wird nur auf main und nur, wenn sich seit dem letzten erfolgreichen Deploy etwas an der Website geändert hat
 # (Daria, 2026-11-16: reine Doku- und TODO-Commits sollen keinen Deploy auslösen). Vergleich mit
 # VERCEL_GIT_PREVIOUS_SHA, damit ein am Tageslimit gescheitertes Deploy beim nächsten Push nachgeholt wird.
