@@ -20,7 +20,7 @@ import { Notice, QuestionHint } from '../Content';
 import { CheckOption, EMAIL_FIELD, NAME_FIELD, PHONE_FIELD, TextField } from '../Form';
 import { InviteQr } from '../InviteQr';
 import { scrollIntoView } from '../Nudge';
-import { CardMailButton } from '../ShowcaseShare';
+import { CardMailButton, useRepeatCheck } from '../ShowcaseShare';
 import { Text } from '../T';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -286,6 +286,10 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const first = name.trim().split(/\s+/)[0] ?? '';
+  // Ging die Karte schon an diese Adresse? Erst Hinweis, beim zweiten Tippen senden (Daria, 2026-11-23)
+  const repeat = useRepeatCheck(showcase.slug);
+  const again = sendCard && isEmail(email) ? repeat.shown(email) : null;
+  const mailNow = sendCard && isEmail(email) && !again?.full;
 
   if (Platform.OS !== 'web') {
     return (
@@ -302,13 +306,14 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
   }
 
   const save = async () => {
-    setBusy(true);
     setResult(null);
+    if (mailNow && !(await repeat.check(email))) return;
+    setBusy(true);
     // Kontakt ins eigene Adressbuch: Datei herunterladen, iPhone und Android bieten „Neuer Kontakt“ an
     saveVcard(contactVcard({ name, email, place, note }), contactFileName(name));
     let message = t('Der Kontakt ist gespeichert.');
     let ok = true;
-    if (sendCard && isEmail(email)) {
+    if (mailNow) {
       const r = await sendCardMail(showcase.slug, email);
       ok = r === 'ok';
       message = ok
@@ -318,6 +323,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
     setBusy(false);
     setResult({ ok, message });
     if (ok) {
+      repeat.clear();
       setName('');
       setEmail('');
       setPlace('');
@@ -340,11 +346,12 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
         />
       ) : null}
       <Button
-        label={sendCard && isEmail(email) ? 'Speichern und Digitale Visitenkarte senden' : 'Kontakt speichern'}
+        label={!mailNow ? 'Kontakt speichern' : again ? 'Speichern und trotzdem noch mal senden' : 'Speichern und Digitale Visitenkarte senden'}
         busy={busy}
         disabled={!name.trim() || (!!email.trim() && !isEmail(email))}
         onPress={save}
       />
+      {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
       <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
       <QuestionHint
         question={t('Wo landet der Kontakt, den ich hier eintrage?')}
