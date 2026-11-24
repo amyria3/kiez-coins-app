@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 
 import {
@@ -39,7 +38,6 @@ const BOOKING_STEPS = [
 /** Kostenloses Unternehmensprofil bei Google anlegen (Google Business Profile) */
 const GOOGLE_PROFILE_URL = 'https://business.google.com/create';
 /** Auf diesem Gerät gemerkt: Online-Buchung bewusst ausgeschaltet, solange kein Link gespeichert ist */
-const bookingOffKey = (id: string) => `schaufenster-buchung-aus-${id}`;
 
 /**
  * „Funktionen“ auf der Seite „Schaufenster“ (Daria, 2026-11-23): alles, was sich an- und ausschalten lässt, als
@@ -56,10 +54,10 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
   const [visibility, setVisibility] = useState<Visibility>(s.visibility);
   const [fn, setFn] = useState<Functions | null | undefined>(undefined);
   const [friends, setFriends] = useState<boolean | undefined>(undefined);
-  // Buchungslink: gespeichert (null = keiner), Entwurf im Feld, bewusst aus
+  // Buchungslink: gespeichert (null = keiner), Entwurf im Feld, Einrichtung offen
   const [booking, setBooking] = useState<string | null | undefined>(undefined);
   const [draft, setDraft] = useState('');
-  const [bookingOff, setBookingOff] = useState(false);
+  const [bookingSetup, setBookingSetup] = useState(false);
   const [savingBooking, setSavingBooking] = useState(false);
   const [failed, setFailed] = useState(false);
   const online = s.switches.online;
@@ -77,10 +75,8 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
         },
         () => setBooking(undefined),
       );
-      AsyncStorage.getItem(bookingOffKey(s.id)).then(
-        (v) => setBookingOff(v === '1'),
-        () => {},
-      );
+      // Wer die Seite verlässt, ohne den Link zu speichern, findet den Schalter wieder aus (wie beim Weiterposten)
+      setBookingSetup(false);
     }, [s.id]),
   );
 
@@ -102,9 +98,10 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
   const toggle = (key: keyof Functions, on: boolean) =>
     fn && attempt(() => setFn({ ...fn, [key]: on }), () => setFn((cur) => (cur ? { ...cur, [key]: !on } : cur)), () => setShowcaseFunction(s.id, key, on));
   const toggleFriends = (on: boolean) => attempt(() => setFriends(on), () => setFriends(!on), () => setFriendRequestsSwitch(s.id, on));
+  // Ein Schalter mit Einrichtung ist erst an, wenn sie fertig ist (Daria, 2026-11-24, wie beim Weiterposten).
+  // Einschalten öffnet die Einrichtung, Ausschalten schließt sie.
   const toggleBooking = async (on: boolean) => {
-    setBookingOff(!on);
-    AsyncStorage.setItem(bookingOffKey(s.id), on ? '0' : '1').catch(() => {});
+    setBookingSetup(on);
     // Ausschalten mit Link entfernt den Link; der Entwurf im Feld bleibt, falls sie gleich wieder einschaltet
     if (!on && booking) await attempt(() => setBooking(null), () => setBooking(booking), () => setBookingUrl(s.id, null));
   };
@@ -116,7 +113,7 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
   };
 
   const draftOk = !draft.trim() || BOOKING_PATTERN.test(draft.trim());
-  const bookingOn = !bookingOff || !!booking;
+  const bookingOn = !!booking || bookingSetup;
   const bookingField = (
     <>
       <TextField
