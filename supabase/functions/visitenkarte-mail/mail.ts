@@ -190,12 +190,29 @@ export function cleanMeetingPlace(input: unknown): string {
 }
 
 /** Betreff, HTML und Textfassung der Mail */
-export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?: Meeting): { subject: string; html: string; text: string } {
+/**
+ * Wofür die Mail ist (Daria, 2026-11-24): `self` hat sich die Person die Karte selbst gesendet („An mich per Mail
+ * senden“), `copy` ist ihre Nachricht an das Schaufenster („Nachricht oder Frage senden“), die Mail ist die Kopie.
+ */
+export type CardMailKind = { self?: boolean; copy?: string };
+
+export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?: Meeting, kind: CardMailKind = {}): { subject: string; html: string; text: string } {
   // Eine Mail mit beiden Links (Daria, 2026-11-18): „Tritt der Community bei und abonniere das Schaufenster von …“
   // (App) und „Hier sind das Schaufenster und die Digitale Visitenkarte von …“ (Web, darunter die Karte)
   const subject = `Schaufenster und Digitale Visitenkarte von ${d.name}`;
   const name = `<strong>${esc(d.name)}</strong>`;
-  const intro = sender ? `<br>${esc(sender)} sendet Dir die Links zum Schaufenster von ${name}.` : '';
+  const introText = kind.copy
+    ? `Deine Nachricht an ${d.name} ist angekommen. Hier ist Deine Kopie:`
+    : kind.self
+      ? `Du hast Dir die Digitale Visitenkarte von ${d.name} per Mail gesendet.`
+      : sender
+        ? `${sender} sendet Dir die Links zum Schaufenster von ${d.name}.`
+        : '';
+  const intro = introText ? `<br>${esc(introText).replace(esc(d.name), name)}` : '';
+  // Kopie der Nachricht als eingerückter Block, Zeilenumbrüche bleiben
+  const copyHtml = kind.copy
+    ? `<tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 20px"><div style="border-left:3px solid ${INK};padding:4px 0 4px 14px">${esc(kind.copy).replace(/\n/g, '<br>')}</div></td></tr>`
+    : '';
   const first = meeting?.name?.split(' ')[0] ?? '';
   const hello = first ? `Ahoi ${first}!` : 'Ahoi!';
   const met = meeting?.place ? `Ihr habt Euch am ${meeting.date} getroffen: ${meeting.place}.` : '';
@@ -221,6 +238,7 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
 <tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">
   <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 20px">${esc(hello)}${intro}${met ? `<br>${esc(met)}` : ''}</td></tr>
+  ${copyHtml}
   ${join}
   <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 14px">Hier sind das ${web} und die Digitale Visitenkarte von ${name}.</td></tr>
   <tr><td>${frontHtml(d, qr)}</td></tr>
@@ -249,8 +267,9 @@ export function cardMail(d: CardMailData, qr: QrMatrix, sender: string, meeting?
     .map(([k, v]) => `${k}:\n${v}`);
   const text = [
     hello,
-    ...(sender ? [`${sender} sendet Dir die Links zum Schaufenster von ${d.name}.`] : []),
+    ...(introText ? [introText] : []),
     ...(met ? [met] : []),
+    ...(kind.copy ? ['', ...kind.copy.split('\n').map((l) => `> ${l}`)] : []),
     '',
     ...(d.appUrl ? [`Tritt der Community bei und abonniere das Schaufenster von ${d.name}:`, d.appUrl, ''] : []),
     `Hier sind das Schaufenster und die Digitale Visitenkarte von ${d.name}:`,
@@ -283,16 +302,20 @@ export type ContactData = {
  * speichert sie nicht.
  */
 export function contactMail(showcase: string, url: string, c: ContactData, date: string): { subject: string; html: string; text: string } {
-  const subject = `Neuer Kontakt über Deine Digitale Visitenkarte: ${c.name}`;
+  // Seit 2026-11-24 „Nachricht oder Frage senden“: mit Nachricht heißt die Mail so
+  const what = c.message ? 'eine Nachricht' : 'den eigenen Kontakt';
+  const subject = c.message ? `Neue Nachricht über Deine Digitale Visitenkarte: ${c.name}` : `Neuer Kontakt über Deine Digitale Visitenkarte: ${c.name}`;
   const rows: [string, string][] = [
     ['Name', c.name],
     ['Mail', c.email],
     ...(c.phone ? [['Telefon', c.phone] as [string, string]] : []),
-    ['Kennengelernt', c.place ? `am ${date} bei ${c.place}` : `am ${date}`],
+    c.place ? ['Kennengelernt', `am ${date} bei ${c.place}`] : ['Datum', date],
     ...(c.message ? [['Nachricht', c.message] as [string, string]] : []),
   ];
   const note = c.cardSent
-    ? `${c.name} hat im selben Schritt Eure Digitale Visitenkarte per Mail bekommen.`
+    ? c.message
+      ? `${c.name} hat eine Kopie der Nachricht mit Eurer Digitalen Visitenkarte bekommen.`
+      : `${c.name} hat im selben Schritt Eure Digitale Visitenkarte per Mail bekommen.`
     : `${c.name} hat Euch die Kontaktdaten gesendet, ohne Eure Digitale Visitenkarte per Mail.`;
   const row = ([k, v]: [string, string]) =>
     `<tr><td style="font-family:${BODY};font-size:13px;line-height:20px;color:${MUTED};padding:6px 12px 6px 0;vertical-align:top;white-space:nowrap">${esc(k)}</td>
@@ -306,7 +329,7 @@ export function contactMail(showcase: string, url: string, c: ContactData, date:
 <tr><td align="center" style="padding:28px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px">
   <tr><td style="font-family:${BODY};font-size:17px;line-height:25px;color:${INK};padding:0 4px 18px">
-    Über die Digitale Visitenkarte von <strong>${esc(showcase)}</strong> hat Dir jemand den eigenen Kontakt gesendet.
+    Über die Digitale Visitenkarte von <strong>${esc(showcase)}</strong> hat Dir jemand ${what} gesendet.
   </td></tr>
   <tr><td style="background:${WHITE};border-radius:14px;padding:16px 20px">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0">${rows.map(row).join('')}</table>
@@ -320,7 +343,7 @@ export function contactMail(showcase: string, url: string, c: ContactData, date:
 </td></tr></table>
 </body></html>`;
   const text = [
-    `Über die Digitale Visitenkarte von ${showcase} hat Dir jemand den eigenen Kontakt gesendet.`,
+    `Über die Digitale Visitenkarte von ${showcase} hat Dir jemand ${what} gesendet.`,
     '',
     ...rows.map(([k, v]) => `${k}: ${v}`),
     '',

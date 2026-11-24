@@ -13,7 +13,8 @@
 // laufen über dasselbe Konto; sie sollen nie wegen Visitenkarten ausfallen.
 // Ein verstecktes Feld „website“ fängt einfache Bots ab.
 //
-// Anfrage: POST { slug, to, from?, an?, ort?, website? }  Antwort: { ok: true } oder { error }
+// Anfrage: POST { slug, to, from?, an?, ort?, selbst?, website? }  Antwort: { ok: true } oder { error }
+// `selbst`: Die Person sendet sich die Karte selbst („An mich per Mail senden“, Daria, 2026-11-24).
 // `an` (Name der Person) und `ort` (Ort der Begegnung) zählen nur, wenn ein Mitglied des Teams angemeldet schickt
 // (Daria, 2026-11-24: dieselben Felder wie „Kontakt speichern und per Mail schicken“).
 // Fehler: input, email, name, not_found, limit, mail
@@ -23,6 +24,8 @@
 // Schaufensters („Antworten“ geht an die Person) und, wenn `karte` gesetzt ist, der Person die Visitenkarte. Sie
 // speichert die Angaben nicht; in showcase_card_mails steht je Mail nur eine Zeile mit Prüfsummen, wie oben.
 // Höchstens 20 Kontakte je Schaufenster und Tag. Zusätzliche Fehler: consent, no_contact (Schaufenster ohne Mail).
+// Seit 2026-11-24 heißt das in der App „Nachricht oder Frage senden“: Die Karte an die Person enthält ihre Nachricht
+// als Kopie (cardMail mit `copy`).
 //
 // Secrets (Supabase › Edge Functions › Secrets): BREVO_API_KEY wie bei konto-ohne-mail.
 // SUPABASE_URL und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit.
@@ -212,7 +215,9 @@ Deno.serve(async (req) => {
   }
   if (sendCard) {
     // Antworten gehen an die Kontakt-Mail des Schaufensters, wenn es eine gibt
-    const mail = cardMail(data, qrMatrix(data.url), sender, meeting);
+    // Nachricht oder Frage: die Kopie mit der Nachricht; „An mich per Mail senden“: die Karte an sich selbst
+    const kind = contact ? { copy: person.message || undefined } : { self: input.selbst === true };
+    const mail = cardMail(data, qrMatrix(data.url), kind.self ? '' : sender, meeting, kind);
     const ok = await send(to, mail, data.email ? { email: data.email, name: data.name } : null, 'visitenkarte');
     // Beim Tausch ist der Kontakt schon beim Team: Die Seite sagt dann, dass nur die Karte fehlt
     if (!ok) return reply(contact ? { ok: true, karte: false } : { error: 'mail' }, contact ? 200 : 502);

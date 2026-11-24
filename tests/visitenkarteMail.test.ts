@@ -87,3 +87,17 @@ describe('Begegnung, die das Team einträgt', () => {
     assert.equal(cleanRecipientName("Dr. Anne-Marie O'Neil"), "Dr. Anne-Marie O'Neil");
   });
 });
+
+describe('Kopie der Nachricht und Karte an sich selbst', () => {
+  it('Nachricht oder Frage: Kopie mit der Nachricht', () => {
+    const mail = cardMail(data, qr, '', undefined, { copy: 'Habt Ihr am Samstag offen?\nDanke!' });
+    assert.ok(mail.text.includes('Deine Nachricht an Café <Kiezblick> ist angekommen. Hier ist Deine Kopie:'));
+    assert.ok(mail.text.includes('> Habt Ihr am Samstag offen?\n> Danke!'));
+    assert.ok(mail.html.includes('Habt Ihr am Samstag offen?<br>Danke!'));
+    assert.ok(!mail.html.includes('<Kiezblick>'));
+  });
+  it('An mich per Mail senden', () => {
+    const mail = cardMail(data, qr, 'Lena', undefined, { self: true });
+    assert.ok(mail.text.includes('Du hast Dir die Digitale Visitenkarte von Café <Kiezblick> per Mail gesendet.'));
+  });
+});
