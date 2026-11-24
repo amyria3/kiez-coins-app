@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { placeLine, serviceItems } from '../../data/digitalCard.mjs';
+import { contactGroups, placeLine, serviceItems, socialLink } from '../../data/digitalCard.mjs';
 import { shortLink, type Showcase } from '../../data/showcase';
 import { t } from '../../data/texts';
 import { openLink } from '../../lib/places';
@@ -15,14 +15,33 @@ const INK_SOFT = 'rgba(0, 0, 39, 0.66)';
 
 /**
  * Die Digitale Visitenkarte in der App (Daria, 2026-11-23): dieselben Angaben wie kiezcoins.de/s/<kurzname>/visitenkarte,
- * vollständig und ohne Höhengrenze. Logo, Name und Ort, alle Services, Adresse, Öffnungszeiten, E-Mail und alle Links
- * (antippbar). Das kleine Vorschaubild (visitenkarte.png) bleibt nur für die Linkvorschau in Messengern.
+ * vollständig und ohne Höhengrenze. Logo, Name und Ort, alle Services, Adresse, Öffnungszeiten, Kontakt, Webseiten und
+ * soziale Netzwerke (antippbar). Das kleine Vorschaubild (visitenkarte.png) bleibt nur für die Linkvorschau in Messengern.
  * Mit `onPress` ist die ganze Karte ein Knopf, z. B. in der Verwaltung zu ihrer eigenen Ansicht.
  */
 export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPress?: () => void }) {
   const place = placeLine({ kiez: s.kiez, address: s.address });
   const services = serviceItems(s.services);
-  const contacts = [...(s.email?.trim() ? [`mailto:${s.email.trim()}`] : []), ...s.links.filter((l) => /^https:\/\//i.test(l))];
+  // Kontakt, Webseiten und soziale Netzwerke getrennt wie auf der Schaufenster-Seite (Daria, 2026-11-23)
+  const { email, websites, social } = contactGroups(s);
+  const linkRow = (label: string, links: { href: string; text: string }[]) =>
+    links.length ? (
+      <View style={styles.row}>
+        <Text style={styles.label}>{label}</Text>
+        {links.map((l) => (
+          <Text
+            key={l.href}
+            noTranslate
+            style={styles.link}
+            accessibilityRole="link"
+            onPress={onPress ? undefined : () => openLink(l.href)}
+            suppressHighlighting
+          >
+            {l.text}
+          </Text>
+        ))}
+      </View>
+    ) : null;
   const card = (
     <View style={styles.card}>
       <View style={styles.head}>
@@ -49,23 +68,15 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
       ) : null}
       {s.address?.trim() ? <Row label={t('Adresse')} value={s.address.trim()} /> : null}
       {s.openingHours?.trim() ? <Row label={t('Öffnungszeiten')} value={s.openingHours.trim()} /> : null}
-      {contacts.length ? (
-        <View style={styles.row}>
-          <Text style={styles.label}>{t('Kontakt')}</Text>
-          {contacts.map((c) => (
-            <Text
-              key={c}
-              noTranslate
-              style={styles.link}
-              accessibilityRole="link"
-              onPress={onPress ? undefined : () => openLink(c)}
-              suppressHighlighting
-            >
-              {c.startsWith('mailto:') ? c.slice(7) : shortLink(c)}
-            </Text>
-          ))}
-        </View>
-      ) : null}
+      {linkRow(t('Kontakt'), email ? [{ href: `mailto:${email}`, text: email }] : [])}
+      {linkRow(t(websites.length === 1 ? 'Webseite' : 'Webseiten'), websites.map((l) => ({ href: l, text: shortLink(l) })))}
+      {linkRow(
+        t('Soziale Netzwerke'),
+        social.map((l) => {
+          const n = socialLink(l);
+          return { href: l, text: n ? `${n.network} ${n.handle}` : shortLink(l) };
+        }),
+      )}
       <View style={styles.foot}>
         <Text style={styles.brand}>KiezCoins</Text>
         <Text style={styles.kind}>{t('Digitale Visitenkarte')}</Text>

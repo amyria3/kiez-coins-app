@@ -33,6 +33,7 @@ import {
   type ShowcaseFriendResult,
   type ShowcasePost,
 } from '../../../data/showcase';
+import { contactGroups, socialLink } from '../../../data/digitalCard.mjs';
 import { countShowcaseVisit } from '../../../data/showcaseCard';
 import { useAuth } from '../../../data/auth';
 import { rememberInvite } from '../../../data/pendingInvite';
@@ -388,12 +389,6 @@ type InfoCardData = {
  */
 const isWide = (c: InfoCardData) => !(c.payment && c.title.length <= 12);
 
-/** Link zu einem bekannten sozialen Netzwerk (SERVICES)? */
-const isSocial = (link: string) => {
-  const host = shortLink(link).split('/')[0].toLowerCase();
-  return SERVICES.some(([re]) => re.test(host));
-};
-
 /**
  * Karten für „Gut zu wissen“: Ort, Öffnungszeiten, Termin buchen, Bezahlen, Kontakt, Webseiten, Soziale Netzwerke. Leere Angaben fehlen ganz, auch fürs Team
  * (Daria, 2026-11-18: „Leere Karten noch sichtbar“). Ausfüllen geht über „Verwalten“. Nur Leerzeichen zählt als leer.
@@ -417,9 +412,9 @@ function infoCards(s: Showcase): InfoCardData[] {
   );
   // Eigene Karten für Kontakt, Webseiten und soziale Netzwerke (Daria, 2026-11-23: „Can we do different cards“).
   // Bis dahin standen Mail und alle Links in einer Karte „Kontakt“ (2026-11-17).
-  if (s.email) cards.push({ id: 'kontakt', kicker: 'Kontakt', title: '', icon: 'message', email: s.email });
-  const sites = s.links.filter((l) => !isSocial(l));
-  const social = s.links.filter(isSocial);
+  // Dieselben drei Gruppen wie die Digitale Visitenkarte und die Seite im Web (data/digitalCard.mjs)
+  const { email, websites: sites, social } = contactGroups(s);
+  if (email) cards.push({ id: 'kontakt', kicker: 'Kontakt', title: '', icon: 'message', email });
   if (sites.length) cards.push({ id: 'webseiten', kicker: sites.length === 1 ? 'Webseite' : 'Webseiten', title: '', icon: 'link', links: sites });
   if (social.length) cards.push({ id: 'netzwerke', kicker: 'Soziale Netzwerke', title: '', icon: 'friends', links: social });
   return cards;
@@ -575,29 +570,12 @@ function InfoCard({ kicker, title, body, icon, address, links, email, booking, p
   );
 }
 
-/** Bekannte Dienste mit Namen und @Name, sonst „Webseite“ und die kurze Adresse */
-const SERVICES: [RegExp, string][] = [
-  [/(^|\.)instagram\.com$/, 'Instagram'],
-  [/(^|\.)facebook\.com$/, 'Facebook'],
-  [/(^|\.)tiktok\.com$/, 'TikTok'],
-  [/(^|\.)(youtube\.com|youtu\.be)$/, 'YouTube'],
-  [/(^|\.)linkedin\.com$/, 'LinkedIn'],
-  [/(^|\.)(x\.com|twitter\.com)$/, 'X'],
-  [/(^|\.)bsky\.app$/, 'Bluesky'],
-  [/(^|\.)threads\.net$/, 'Threads'],
-];
-
+/** Zeile einer Link-Karte: Mail, Netzwerk mit @Name oder die kurze Adresse der Webseite */
 function linkParts(link: string): { label: string; sub: string } {
   if (/^mailto:/i.test(link)) return { label: t('E-Mail'), sub: link.slice(7) };
-  const short = shortLink(link);
-  const [host, ...path] = short.split('/');
-  const service = SERVICES.find(([re]) => re.test(host.toLowerCase()))?.[1];
+  const social = socialLink(link);
   // In der Karte „Webseiten“ genügt die Adresse; „Webseite“ über jeder Zeile wiederholte nur die Überschrift (2026-11-23)
-  if (!service) return { label: short, sub: '' };
-  // Bei LinkedIn und Bluesky steht vor dem Namen ein Pfadteil („linkedin.com/in/<name>“, „bsky.app/profile/<name>“);
-  // vorher zeigte die Karte deshalb „@in“ (Daria, 2026-11-18)
-  const handle = path.filter(Boolean).find((p) => !/^(in|company|school|showcase|profile|user|pages)$/i.test(p));
-  return { label: service, sub: handle && service !== 'YouTube' ? `@${handle.replace(/^@/, '')}` : short };
+  return social ? { label: social.network, sub: social.handle } : { label: shortLink(link), sub: '' };
 }
 
 /**
