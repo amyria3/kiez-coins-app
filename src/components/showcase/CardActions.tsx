@@ -9,7 +9,6 @@ import { sendCardMail, showcasePublicLink, type Showcase } from '../../data/show
 import { countShowcaseVisit, sendContactToShowcase, type ContactResult } from '../../data/showcaseCard';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
-import { findPlace } from '../../data/location';
 import { showcaseVcard } from '../../data/vcard.mjs';
 import { contactFileName, contactVcard } from '../../lib/contactCard';
 import { saveVcard } from '../../lib/saveVcard';
@@ -21,6 +20,7 @@ import { CheckOption, EMAIL_FIELD, NAME_FIELD, PHONE_FIELD, TextField } from '..
 import { InviteQr } from '../InviteQr';
 import { scrollIntoView } from '../Nudge';
 import { CardMailButton, useRepeatCheck } from '../ShowcaseShare';
+import { PlaceField } from './PlaceField';
 import { Text } from '../T';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -165,7 +165,7 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                   }
                   open={panel === 'mail'}
                   onOpenChange={(o) => setPanel(o ? 'mail' : null)}
-                  askName={viewer !== 'team'}
+                  team={viewer === 'team'}
                 />
               </View>
             );
@@ -314,7 +314,8 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
     let message = t('Der Kontakt ist gespeichert.');
     let ok = true;
     if (mailNow) {
-      const r = await sendCardMail(showcase.slug, email);
+      // Name und Ort auch in die Mail: Anrede und Ort der Begegnung, wie bei „Nur per Mail schicken“ (2026-11-24)
+      const r = await sendCardMail(showcase.slug, email, undefined, { name, place });
       ok = r === 'ok';
       message = ok
         ? t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })
@@ -340,7 +341,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       <TextField label="Notiz für Dich" value={note} onChangeText={setNote} multiline maxLength={500} helperText="Optional" />
       {isEmail(email) ? (
         <CheckOption
-          label={first ? t('Digitale Visitenkarte per Mail an {name} senden', { name: first }) : t('Digitale Visitenkarte per Mail senden')}
+          label={first ? t('Digitale Visitenkarte per Mail an {name} schicken', { name: first }) : t('Digitale Visitenkarte per Mail schicken')}
           selected={sendCard}
           onPress={() => setSendCard(!sendCard)}
         />
@@ -348,7 +349,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       {/* Hinweis vor dem Knopf (UX-Regeln, Daria, 2026-11-24) */}
       {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
       <Button
-        label={!mailNow ? 'Kontakt speichern' : again ? 'Speichern und trotzdem noch mal senden' : 'Speichern und Digitale Visitenkarte senden'}
+        label={!mailNow ? 'Kontakt speichern' : again ? 'Speichern und trotzdem noch mal schicken' : 'Speichern und Digitale Visitenkarte schicken'}
         busy={busy}
         disabled={!name.trim() || (!!email.trim() && !isEmail(email))}
         onPress={save}
@@ -395,36 +396,6 @@ function SaveContact({ showcase: s, met, onCancel }: { showcase: Showcase; met: 
   );
 }
 
-/**
- * „Wo habt Ihr Euch getroffen?“ mit „Aktuellen Ort einsetzen“ (Daria, 2026-11-23): Erst nach dem Tippen fragt das Gerät
- * nach dem Standort. Den Ort liefert findPlace (data/location.ts). Das Feld bleibt änderbar.
- */
-function PlaceField({ value, onChange, autoFocus }: { value: string; onChange: (v: string) => void; autoFocus?: boolean }) {
-  const [busy, setBusy] = useState(false);
-  const [hint, setHint] = useState('');
-  const locate = async () => {
-    setBusy(true);
-    setHint(t('Ort wird ermittelt …'));
-    try {
-      const found = await findPlace();
-      onChange((found.street ?? found.kiez).slice(0, 120));
-      setHint('');
-    } catch {
-      setHint(t('Kein Ort gefunden. Bitte von Hand eintragen.'));
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <View style={styles.place}>
-      <TextField label="Wo habt Ihr Euch getroffen?" value={value} onChangeText={onChange} maxLength={120} helperText="Optional" placeholder="z. B. Flohmarkt am Kanal" autoFocus={autoFocus} />
-      <Pressable accessibilityRole="button" onPress={locate} disabled={busy} hitSlop={8}>
-        <Text style={[styles.link, busy && styles.dim]}>{t('Aktuellen Ort einsetzen')}</Text>
-      </Pressable>
-      {hint ? <Text style={styles.meta}>{hint}</Text> : null}
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   list: { gap: space[12] },
@@ -433,6 +404,4 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.primary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   meta: { ...text.caption, color: color.text.secondary },
-  place: { gap: space[8] },
-  dim: { opacity: 0.5 },
 });

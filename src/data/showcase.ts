@@ -896,10 +896,16 @@ export type CardMailResult = 'ok' | 'email' | 'name' | 'limit' | 'not_found' | '
  * wie auf der öffentlichen Seite (`visitenkarte-mail`, #408): Mail mit Karte, QR-Code und Link
  * zur Seite, dort geht das Anfreunden. Nur für Schaufenster, die öffentlich und online sind.
  */
-export async function sendCardMail(slug: string, to: string, from?: string): Promise<CardMailResult> {
+export async function sendCardMail(
+  slug: string,
+  to: string,
+  from?: string,
+  /** Nur fürs Team: Name der Person (Anrede) und Ort der Begegnung; die Funktion prüft, ob man zum Team gehört */
+  meeting?: { name?: string; place?: string },
+): Promise<CardMailResult> {
   try {
     const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>('visitenkarte-mail', {
-      body: { slug, to: to.trim(), from: from?.trim() || undefined },
+      body: { slug, to: to.trim(), from: from?.trim() || undefined, an: meeting?.name?.trim() || undefined, ort: meeting?.place?.trim() || undefined },
     });
     if (data?.ok) {
       await noteCardMail(slug, to);
