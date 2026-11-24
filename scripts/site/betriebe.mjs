@@ -81,6 +81,14 @@ ${fensterKopf}
     },
   ];
 
+  // „Funktionen“ auf der Seite „Schaufenster“ (App seit 2026-11-23): Schalter, `tap` ist der Schalter zum Antippen
+  const funktionen = (tap) =>
+    screen(`${kopf(t('Schaufenster', 'Shop window'))}
+<h4>${esc(t('Funktionen', 'Features'))}</h4>
+<span class="b-schalter-zeile">${esc(t('Für alle sichtbar, auch im Web', 'Visible to everyone, also on the web'))}<i class="b-schalter an"></i></span>
+<span class="b-schalter-zeile">${esc(t('Online-Buchung', 'Online booking'))}<i class="b-schalter"${tap === 'buchung' ? ' data-tap="buchung"' : ''}></i></span>
+<span class="b-schalter-zeile">${esc(t('Bezahlen', 'Payments'))}<i class="b-schalter"${tap === 'bezahlen-an' ? ' data-tap="bezahlen-an"' : ''}></i></span>`);
+
   return [
     {
       id: 'kalender',
@@ -325,22 +333,17 @@ ${knopf(t('Eintragen', 'Sign up'), 'eintragen', 'hell')}`)}`)),
       schritte: [
         ...zahnradMenue('einstellungen'),
         {
-          hinweis: t('Tippe unter „Einstellungen“ auf „Online-Buchung“.', 'Under “Settings”, tap “Online booking”.'),
+          hinweis: t('Schalte unter „Funktionen“ die „Online-Buchung“ ein.', 'Under “Features”, switch on “Online booking”.'),
           ziel: 'buchung',
-          bild: screen(`${kopf(t('Schaufenster', 'Shop window'))}
-<h4>${esc(t('Einstellungen', 'Settings'))}</h4>
-<div class="b-menue">
-  <span>${esc(t('Wer sieht das Schaufenster?', 'Who can see the shop window?'))}</span>
-  <span>${esc(t('Wer darf posten?', 'Who can post?'))}</span>
-  <span data-tap="buchung">${esc(t('Online-Buchung', 'Online booking'))}</span>
-</div>`),
+          bild: funktionen('buchung'),
         },
         {
-          hinweis: t('Trage den Link zu Deiner Buchungsseite bei Cal.com ein und tippe auf „Speichern“.', 'Enter the link to your Cal.com booking page and tap “Save”.'),
+          hinweis: t('Trage den Link zu Deiner Buchungsseite bei Cal.com ein und tippe auf „Buchungslink speichern“.', 'Enter the link to your Cal.com booking page and tap “Save booking link”.'),
           ziel: 'speichern',
-          bild: screen(`${kopf(t('Online-Buchung', 'Online booking'))}
+          bild: screen(`${kopf(t('Schaufenster', 'Shop window'))}
+<span class="b-schalter-zeile">${esc(t('Online-Buchung', 'Online booking'))}<i class="b-schalter an"></i></span>
 ${feld(t('Buchungslink', 'Booking link'), 'cal.com/cafe-kiezliebe', true)}
-${knopf(t('Speichern', 'Save'), 'speichern')}`),
+${knopf(t('Buchungslink speichern', 'Save booking link'), 'speichern')}`),
         },
         {
           hinweis: t('Deine Kundschaft tippt auf Deiner Seite auf „Termin buchen“.', 'Your customers tap “Book an appointment” on your page.'),
@@ -374,19 +377,24 @@ ${fakt(t('Adresse', 'Address'), esc(adresse))}`)),
       kosten: t('Gebühren je Zahlung beim Anbieter', 'Fees per payment with the provider'),
       stand: 'app',
       schritte: [
-        ...zahnradMenue('bearbeiten'),
+        ...zahnradMenue('einstellungen'),
+        {
+          hinweis: t('Schalte unter „Funktionen“ „Bezahlen“ ein.', 'Under “Features”, switch on “Payments”.'),
+          ziel: 'bezahlen-an',
+          bild: funktionen('bezahlen-an'),
+        },
         {
           hinweis: t(
-            'Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn unter „Bezahlen“ mit Titel und Betrag ein und tippe auf „Speichern“.',
-            'Create a payment link with Stripe, SumUp or PayPal. Enter it under “Payments” with a title and amount, then tap “Save”.',
+            'Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn mit Titel und Betrag ein und tippe auf „Zahlungslinks speichern“.',
+            'Create a payment link with Stripe, SumUp or PayPal. Enter it with a title and amount, then tap “Save payment links”.',
           ),
           ziel: 'speichern',
-          bild: screen(`${kopf(t('Inhalte bearbeiten', 'Edit content'))}
-<h4>${esc(t('Bezahlen', 'Payments'))}</h4>
+          bild: screen(`${kopf(t('Schaufenster', 'Shop window'))}
+<span class="b-schalter-zeile">${esc(t('Bezahlen', 'Payments'))}<i class="b-schalter an"></i></span>
 ${feld(t('Titel', 'Title'), t('Gutschein: Frühstück für zwei', 'Voucher: breakfast for two'))}
 ${feld(t('Betrag', 'Amount'), '24,00 €')}
 ${feld(t('Link zum Bezahlen', 'Payment link'), 'buy.stripe.com/…', true)}
-${knopf(t('Speichern', 'Save'), 'speichern')}`),
+${knopf(t('Zahlungslinks speichern', 'Save payment links'), 'speichern')}`),
         },
         {
           hinweis: t('Deine Kundschaft tippt auf Deiner Seite auf „Bezahlen“.', 'Your customers tap “Pay” on your page.'),

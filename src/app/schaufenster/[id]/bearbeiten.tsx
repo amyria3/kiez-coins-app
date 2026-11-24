@@ -41,8 +41,6 @@ import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import type { ImageSource } from '../../../data/types';
 import { useGoBack } from '../../../lib/goBack';
-import { useFeature } from '../../../data/unlock';
-import { PAYMENT_AMOUNT_MAX, PAYMENT_LINKS_MAX, PAYMENT_TITLE_MAX, paymentLinkProblem } from '../../../data/paymentLinks.mjs';
 import { shareText } from '../../../lib/share';
 import { color, font, radius, space, text } from '../../../theme/tokens';
 import { useAccentColor } from '../../../theme/signal';
@@ -80,9 +78,6 @@ export default function EditShowcase() {
   const addressRef = useRef<View>(null);
   // Mehrere Links (Daria, 2026-11-10); immer mindestens ein Feld
   const [links, setLinks] = useState<string[]>(['']);
-  // Zahlungslinks (Daria, 2026-11-23): Titel, Betrag, Link zum Anbieter; Funktion `schaufenster_bezahlen`
-  const [payments, setPayments] = useState<{ title: string; amount: string; url: string }[]>([]);
-  const paymentsOn = useFeature('schaufenster_bezahlen');
   const [servicesCollapsed, setServicesCollapsed] = useState(false);
   // Hintergrund der öffentlichen Seite (Daria, 2026-11-10); leer = Standard
   const [bgColor, setBgColor] = useState('');
@@ -119,7 +114,6 @@ export default function EditShowcase() {
         terms: s.terms ?? '',
       });
       setLinks(s.links.length ? s.links : ['']);
-      setPayments(s.paymentLinks.map((p) => ({ title: p.title, amount: p.amount ?? '', url: p.url })));
       setServicesCollapsed(s.servicesCollapsed);
       setBgColor(s.bgColor ?? '');
       setSlug(s.slug);
@@ -175,9 +169,6 @@ export default function EditShowcase() {
   };
   const linkOk = (l: string) => !l.trim() || /^https:\/\/\S+\.\S+$/i.test(l.trim());
   const linksOk = links.every(linkOk);
-  const paymentsOk = payments.every((p) => paymentLinkProblem(p) === null);
-  const setPayment = (i: number, key: 'title' | 'amount' | 'url') => (value: string) =>
-    setPayments((all) => all.map((p, j) => (j === i ? { ...p, [key]: value } : p)));
   const emailOk = !form.email.trim() || EMAIL_PATTERN.test(form.email.trim());
   const phoneOk = !form.phone.trim() || PHONE_PATTERN.test(form.phone.trim());
   const bgOk = !bgColor.trim() || HEX.test(bgColor.trim());
@@ -232,7 +223,6 @@ export default function EditShowcase() {
         slug: slugChanged ? slug : undefined,
         seoTitle: showcase.seoReady ? seoTitle : undefined,
         seoDescription: showcase.seoReady ? seoDescription : undefined,
-        paymentLinks: showcase.paymentReady ? payments : undefined,
         links, servicesCollapsed, bgColor, logo, cover });
       if (showcase.visibility === 'public') notifySearchEngines(showcase.seoReady ? slug : showcase.slug);
       goBack();
@@ -263,7 +253,7 @@ export default function EditShowcase() {
       actions={
         // „Wer darf posten?“ speichert jeden Schalter sofort, „Leute einladen“ hat nichts zu speichern
         area === 'posten' || area === 'sichtbarkeit' ? undefined : (
-          <Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !paymentsOk || !emailOk || !phoneOk || !bgOk || !slugOk} onPress={() => save()} />
+          <Button label="Speichern" busy={busy} disabled={!form.name.trim() || !linksOk || !emailOk || !phoneOk || !bgOk || !slugOk} onPress={() => save()} />
         )
       }
     >
@@ -375,60 +365,6 @@ export default function EditShowcase() {
         {showcase.termsReady ? <RichTextField label="AGB" value={form.terms} onChange={set('terms')} maxLength={20000} /> : null}
       </FieldGroup>
 
-      {/* Zahlungslinks (Daria, 2026-11-23): Der Betrieb legt den Link beim Anbieter selbst an, KiezCoins speichert nur
-          den Link. Auf der Seite erscheint je Eintrag „Bezahlen“. Nur mit Migration 20261123000300 und Funktion an. */}
-      {showcase.paymentReady && paymentsOn ? (
-        <FieldGroup label="Bezahlen">
-          <QuestionHint
-            question="Wie bekomme ich einen Zahlungslink?"
-            answer="Lege bei Stripe, SumUp oder PayPal ein Konto an und erstelle dort einen Zahlungslink, zum Beispiel für einen Gutschein, einen Kurs oder eine Spende. Den Link trägst Du hier ein, auf Deiner Seite steht dann „Bezahlen“. Das Geld geht direkt an Dich, die Gebühr je Zahlung berechnet der Anbieter. Wer bezahlt hat, siehst Du in Deinem Konto beim Anbieter."
-          />
-          {payments.map((p, i) => {
-            const problem = paymentLinkProblem(p);
-            return (
-              <View key={i} style={styles.paymentItem}>
-                <TextField
-                  label={payments.length > 1 ? t('Titel {n}', { n: i + 1 }) : t('Titel')}
-                  value={p.title}
-                  onChangeText={setPayment(i, 'title')}
-                  maxLength={PAYMENT_TITLE_MAX}
-                  placeholder="Gutschein: Frühstück für zwei"
-                  error={problem === 'title' ? 'Bitte gib einen Titel ein.' : undefined}
-                />
-                <TextField label="Betrag" value={p.amount} onChangeText={setPayment(i, 'amount')} maxLength={PAYMENT_AMOUNT_MAX} placeholder="24 €" helperText="Optional" />
-                <TextField
-                  label="Link zum Bezahlen"
-                  value={p.url}
-                  onChangeText={setPayment(i, 'url')}
-                  maxLength={300}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="url"
-                  placeholder="https://buy.stripe.com/…"
-                  error={problem === 'url' ? 'Der Link beginnt mit https://' : undefined}
-                />
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('Zahlungslink {n} entfernen', { n: i + 1 })}
-                  hitSlop={8}
-                  onPress={() => setPayments((all) => all.filter((_, j) => j !== i))}
-                  style={styles.paymentRemove}
-                >
-                  <Text style={styles.linkOrderText}>Entfernen</Text>
-                </Pressable>
-              </View>
-            );
-          })}
-          {payments.length < PAYMENT_LINKS_MAX ? (
-            <Button
-              label={payments.length ? 'Weiteren Zahlungslink hinzufügen' : 'Zahlungslink hinzufügen'}
-              icon="plus"
-              variant="ghost"
-              onPress={() => setPayments((all) => [...all, { title: '', amount: '', url: '' }])}
-            />
-          ) : null}
-        </FieldGroup>
-      ) : null}
       </>
       )}
 
@@ -730,8 +666,6 @@ function AddressCheck({
 }
 
 const styles = StyleSheet.create({
-  paymentItem: { gap: space[12], paddingBottom: space[12], borderBottomWidth: 1, borderBottomColor: color.line.hairline },
-  paymentRemove: { alignSelf: 'flex-end' },
   linkItem: { gap: space[6] },
   linkOrder: { flexDirection: 'row', justifyContent: 'flex-end', gap: space[16] },
   linkOrderText: { ...text.caption, color: color.text.secondary, textDecorationLine: 'underline' },

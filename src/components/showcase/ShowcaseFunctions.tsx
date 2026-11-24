@@ -6,20 +6,26 @@ import {
   BOOKING_PATTERN,
   loadBookingUrl,
   loadFriendRequestsSwitch,
+  loadPaymentLinks,
   loadShowcaseFunctions,
   setBookingUrl,
   setFriendRequestsSwitch,
+  setPaymentLinks,
   setShowcaseFunction,
   setShowcaseVisibility,
   type Showcase,
   type ShowcaseFunctions as Functions,
+  type PaymentLink,
   type Visibility,
 } from '../../data/showcase';
+import { paymentLinkProblem } from '../../data/paymentLinks.mjs';
+import { useFeature } from '../../data/unlock';
 import { space } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup, Notice, QuestionHint } from '../Content';
 import { SwitchRow, TextField } from '../Form';
 import { SetupSteps } from '../SetupSteps';
+import { PaymentLinksEditor, type PaymentDraft } from './PaymentLinksEditor';
 
 /**
  * Einrichtung der Online-Buchung als Anleitung wie beim Weiterposten (Daria, 2026-11-24: „inkonsistent zu unserem
@@ -35,6 +41,24 @@ const BOOKING_STEPS = [
   '2. Kopiere den Link zu Deiner Buchungsseite, zum Beispiel https://cal.com/kiezblick, und trage ihn unten ein.',
 ];
 
+/**
+ * Zahlungslinks unter „Funktionen“ wie die Online-Buchung (Daria, 2026-11-24: Der Zahlungslink soll bei den Funktionen
+ * auftauchen). Vorher standen die Felder unter „Inhalte bearbeiten“ ganz unten, dort hat sie niemand gefunden.
+ */
+const PAYMENT_QUESTION = 'Wie bekomme ich einen Zahlungslink?';
+const PAYMENT_INTRO =
+  'Das geht in 2 Schritten. Du brauchst dafür ein Konto bei Stripe, SumUp oder PayPal. Möchtest Du jetzt loslegen?';
+const PAYMENT_STEPS = [
+  '1. Erstelle bei Stripe, SumUp oder PayPal einen Zahlungslink, zum Beispiel für einen Gutschein, einen Kurs oder eine Spende.',
+  '2. Kopiere den Link und trage ihn unten mit Titel und Betrag ein. Das Geld geht direkt an Dich, die Gebühr je Zahlung berechnet der Anbieter.',
+];
+
+const toDrafts = (links: PaymentLink[]): PaymentDraft[] => links.map((p) => ({ title: p.title, amount: p.amount ?? '', url: p.url }));
+/** Gleicher Inhalt wie gespeichert? Leere Zeilen zählen nicht */
+const sameLinks = (drafts: PaymentDraft[], saved: PaymentLink[]) =>
+  JSON.stringify(drafts.filter((d) => d.title.trim() || d.url.trim() || d.amount.trim()).map((d) => [d.title.trim(), d.amount.trim(), d.url.trim()])) ===
+  JSON.stringify(saved.map((p) => [p.title, p.amount ?? '', p.url]));
+
 /** Kostenloses Unternehmensprofil bei Google anlegen (Google Business Profile) */
 const GOOGLE_PROFILE_URL = 'https://business.google.com/create';
 /** Auf diesem Gerät gemerkt: Online-Buchung bewusst ausgeschaltet, solange kein Link gespeichert ist */
@@ -47,6 +71,9 @@ const GOOGLE_PROFILE_URL = 'https://business.google.com/create';
  *   nur mit einer Seite im Web wirken; aus zeigt den Weg zur Einladung.
  * - „Online-Buchung“: an zeigt das Feld für den Buchungslink mit Frage. Ohne Link ist der Schalter an (nichts ist von
  *   Anfang an aus); bewusst ausgeschaltet merkt sich das Gerät, mit Link entfernt Ausschalten den Link.
+ * - „Bezahlen“ (2026-11-24): wie die Online-Buchung. An zeigt die Zahlungslinks mit Frage und Anleitung; ohne Link ist
+ *   der Schalter erst an, wenn die Einrichtung offen ist. Ausschalten entfernt alle Links, die Felder bleiben bis zum
+ *   Verlassen der Seite stehen. Nur mit Funktion `schaufenster_bezahlen`.
  * - „Freundschaftsanfragen über das Schaufenster“.
  * Ohne die Migrationen fehlen die jeweiligen Schalter.
  */
@@ -59,6 +86,12 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
   const [draft, setDraft] = useState('');
   const [bookingSetup, setBookingSetup] = useState(false);
   const [savingBooking, setSavingBooking] = useState(false);
+  // Zahlungslinks: gespeichert (undefined = Spalte fehlt), Entwürfe in den Feldern, Einrichtung offen
+  const paymentsAllowed = useFeature('schaufenster_bezahlen');
+  const [payments, setPayments] = useState<PaymentLink[] | undefined>(undefined);
+  const [paymentDrafts, setPaymentDrafts] = useState<PaymentDraft[]>([]);
+  const [paymentSetup, setPaymentSetup] = useState(false);
+  const [savingPayments, setSavingPayments] = useState(false);
   const [failed, setFailed] = useState(false);
   const online = s.switches.online;
   const isPublic = visibility === 'public';
@@ -75,8 +108,16 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
         },
         () => setBooking(undefined),
       );
+      loadPaymentLinks(s.id).then(
+        (links) => {
+          setPayments(links);
+          setPaymentDrafts(links?.length ? toDrafts(links) : [{ title: '', amount: '', url: '' }]);
+        },
+        () => setPayments(undefined),
+      );
       // Wer die Seite verlässt, ohne den Link zu speichern, findet den Schalter wieder aus (wie beim Weiterposten)
       setBookingSetup(false);
+      setPaymentSetup(false);
     }, [s.id]),
   );
 
@@ -111,6 +152,30 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
     await attempt(() => setBooking(url || null), () => setBooking(booking), () => setBookingUrl(s.id, url || null));
     setSavingBooking(false);
   };
+
+  const togglePayments = async (on: boolean) => {
+    setPaymentSetup(on);
+    if (!on && payments?.length) await attempt(() => setPayments([]), () => setPayments(payments), () => setPaymentLinks(s.id, []));
+  };
+  const savePayments = async () => {
+    setSavingPayments(true);
+    const next = paymentDrafts
+      .filter((d) => d.title.trim() && d.url.trim())
+      .map((d) => ({ title: d.title.trim(), url: d.url.trim(), ...(d.amount.trim() ? { amount: d.amount.trim() } : {}) }));
+    if (await attempt(() => setPayments(next), () => setPayments(payments), () => setPaymentLinks(s.id, next))) {
+      setPaymentDrafts(next.length ? toDrafts(next) : [{ title: '', amount: '', url: '' }]);
+    }
+    setSavingPayments(false);
+  };
+  const paymentsOk = paymentDrafts.every((d) => paymentLinkProblem(d) === null);
+  const paymentsOn = !!payments?.length || paymentSetup;
+  const paymentsChanged = payments !== undefined && !sameLinks(paymentDrafts, payments);
+  const paymentFields = (
+    <>
+      <PaymentLinksEditor value={paymentDrafts} onChange={setPaymentDrafts} />
+      {paymentsChanged ? <Button label="Zahlungslinks speichern" busy={savingPayments} disabled={!paymentsOk} onPress={savePayments} /> : null}
+    </>
+  );
 
   const draftOk = !draft.trim() || BOOKING_PATTERN.test(draft.trim());
   const bookingOn = !!booking || bookingSetup;
@@ -209,6 +274,29 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
             ) : (
               <SetupSteps question={BOOKING_QUESTION} intro={BOOKING_INTRO} steps={BOOKING_STEPS}>
                 {bookingField}
+              </SetupSteps>
+            )}
+          </SwitchRow>
+        ) : null}
+
+        {payments !== undefined && paymentsAllowed ? (
+          <SwitchRow
+            label="Bezahlen"
+            description={
+              !paymentsOn
+                ? 'Auf Deiner Seite gibt es keinen Knopf zum Bezahlen.'
+                : payments.length
+                  ? 'Auf Deiner Seite steht bei jedem Zahlungslink „Bezahlen“.'
+                  : 'Trag Deinen Zahlungslink ein, dann steht auf Deiner Seite „Bezahlen“.'
+            }
+            value={paymentsOn}
+            onValueChange={togglePayments}
+          >
+            {payments.length ? (
+              paymentFields
+            ) : (
+              <SetupSteps question={PAYMENT_QUESTION} intro={PAYMENT_INTRO} steps={PAYMENT_STEPS}>
+                {paymentFields}
               </SetupSteps>
             )}
           </SwitchRow>
