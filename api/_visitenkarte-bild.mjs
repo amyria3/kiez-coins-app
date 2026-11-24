@@ -7,11 +7,12 @@ import { readFileSync } from "node:fs";
 
 import { ortZeile, serviceListe } from "./_visitenkarte.mjs";
 
-// Bildmarke für die Fußzeile (Daria, 2026-11-24: „KiezCoins <Katze Icon> Digitale …“, rechtsbündig). Die Datei
-// kommt über import.meta.url mit in die Vercel-Funktion. Fehlt sie, bleibt die Fußzeile ohne Kater.
+// Bildmarke für die Fußzeile (Daria, 2026-11-24: „KiezCoins <Katze Icon> Digitale …“, rechtsbündig), mit dickem Ring:
+// Der gelbgrüne Kreis der einfachen Bildmarke verschwände auf dem gelbgrünen Bild. Die Datei kommt über
+// import.meta.url mit in die Vercel-Funktion. Fehlt sie, bleibt die Fußzeile ohne Kater.
 let bildmarke = null;
 try {
-  bildmarke = `data:image/svg+xml,${encodeURIComponent(readFileSync(new URL("../assets/marke/bildmarke.svg", import.meta.url), "utf8"))}`;
+  bildmarke = `data:image/svg+xml,${encodeURIComponent(readFileSync(new URL("../assets/marke/bildmarke-ring-dick.svg", import.meta.url), "utf8"))}`;
 } catch {
   bildmarke = null;
 }
