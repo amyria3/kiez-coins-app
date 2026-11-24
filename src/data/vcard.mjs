@@ -47,7 +47,7 @@ export const cardLink = (slug) => `${SITE}/s/${slug}/visitenkarte`;
 /**
  * vCard 3.0 des Schaufensters. Die Notiz beginnt mit dem Datum und, wenn angegeben, dem Ort der Begegnung, danach
  * folgen die eigene Notiz, Kompetenzen & Services und Öffnungszeiten.
- * @param {{ name: string, slug: string, address?: string | null, email?: string | null, links?: string[] | null, website?: string | null, services?: string | null, openingHours?: string | null }} s
+ * @param {{ name: string, slug: string, address?: string | null, email?: string | null, phone?: string | null, links?: string[] | null, website?: string | null, services?: string | null, openingHours?: string | null }} s
  * @param {{ place?: string, note?: string }} [input]
  * @param {Date} [now]
  */
@@ -74,6 +74,7 @@ export function showcaseVcard(s, { place = '', note = '' } = {}, now = new Date(
     'X-ABShowAs:COMPANY',
     s.address?.trim() ? `ADR;TYPE=WORK:;;${icsText(s.address.trim().replace(/\s*\n\s*/g, ', '))};;;;` : '',
     s.email?.trim() ? `EMAIL;TYPE=WORK:${icsText(s.email.trim())}` : '',
+    s.phone?.trim() ? `TEL;TYPE=WORK,VOICE:${icsText(s.phone.trim())}` : '',
     website ? `URL;TYPE=WORK:${icsText(website)}` : '',
     `item1.URL:${icsText(cardLink(s.slug))}`,
     'item1.X-ABLabel:KiezCoins',

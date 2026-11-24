@@ -9,7 +9,7 @@ export function VeryPrivateSwitch({ value, onChange }: { value: boolean; onChang
   return (
     <SwitchRow
       label="Sehr privat"
-      description="Niemand kann diesen Post teilen. Schon verschickte Links zu den Fotos funktionieren nicht mehr."
+      description="Niemand kann diesen Post teilen. Schon versendete Links zu den Fotos funktionieren nicht mehr."
       value={value}
       onValueChange={onChange}
     />

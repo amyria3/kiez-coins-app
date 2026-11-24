@@ -373,7 +373,7 @@ ${filterDefs}
       </button>
       <button type="button" class="mehr-karte" data-mehr="nachrichten" style="--c:${C.purple}">
         <span class="mehr-icon">${sized(icon('message', C.dark), 30)}</span>
-        <b>${t('Nachrichten an Freunde schicken', 'Send messages to friends')}</b>
+        <b>${t('Nachrichten an Freunde senden', 'Send messages to friends')}</b>
         <span class="mehr-buehne mehr-chat" aria-hidden="true"></span>
         <span class="mehr-status" aria-live="polite">${t('Tipp und schreib Lena.', 'Tap to text Lena.')}</span>
       </button>
@@ -880,7 +880,7 @@ const einladung = `<!doctype html>
 <section class="download einladung" id="download" aria-labelledby="einladung-titel">
   <h2 id="einladung-titel">Du bist eingeladen.</h2>
   <p>KiezCoins ist in der Testphase. Dein Einladungscode steckt schon im Link, Du musst nichts eintippen.</p>
-  <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frage bei der Person nach, die ihn Dir geschickt hat.</p>
+  <p class="error" id="ohne-code" hidden>In diesem Link fehlt der Einladungscode. Frage bei der Person nach, die ihn Dir gesendet hat.</p>
   <div class="karten">
     <div class="card" id="android">
       <h3>Android</h3>
@@ -1013,7 +1013,7 @@ const ladenSeite = `<!doctype html>
     <h3>Instant-Download</h3>
     <p>Öffne die Kamera Deines Telefons und richte sie auf den Code. Das Telefon zeigt dann den passenden Weg.</p>
     <div class="qr" role="img" aria-label="Instant-Download: ${ladenUrl}">${ladenQr}</div>
-    <p class="klein">Oder schick Dir diesen Link: <a href="/laden">${ladenUrl.replace('https://', '')}</a></p>
+    <p class="klein">Oder sende Dir diesen Link: <a href="/laden">${ladenUrl.replace('https://', '')}</a></p>
     <a class="button button-zweit" href="${APP_URL}/">Hier am Computer im Browser ausprobieren</a>
   </div>
 

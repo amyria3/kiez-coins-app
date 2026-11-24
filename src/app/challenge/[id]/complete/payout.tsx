@@ -80,10 +80,10 @@ export default function PayoutShareScreen() {
       <Notice
         message={`${
           onlyShare
-            ? tAbout(author, 'Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
+            ? tAbout(author, 'Wohin soll {name} Dir Deinen Anteil von {betrag} senden?', { name, betrag: amount })
             : shared
-              ? tAbout(author, 'Gemeldet! Wohin soll {name} Dir Deinen Anteil von {betrag} schicken?', { name, betrag: amount })
-              : tAbout(author, 'Gemeldet! Wohin soll {name} Dir die {betrag} schicken?', { name, betrag: amount })
+              ? tAbout(author, 'Gemeldet! Wohin soll {name} Dir Deinen Anteil von {betrag} senden?', { name, betrag: amount })
+              : tAbout(author, 'Gemeldet! Wohin soll {name} Dir die {betrag} senden?', { name, betrag: amount })
         }${saved ? '' : ` ${t('Gib mindestens Deine IBAN oder PayPal an.')}`}`}
       />
       <View style={styles.group}>

@@ -4,12 +4,12 @@ import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 
 import { cardActions, cardActionTemplate, type CardOrigin, type CardViewer } from '../../data/cardActions.mjs';
+import { visibleEmail } from '../../data/auth';
 import { WEB_APP_URL } from '../../data/groups';
 import { sendCardMail, showcasePublicLink, type Showcase } from '../../data/showcase';
 import { countShowcaseVisit, sendContactToShowcase, type ContactResult } from '../../data/showcaseCard';
 import { useStore } from '../../data/store';
 import { t } from '../../data/texts';
-import { findPlace } from '../../data/location';
 import { showcaseVcard } from '../../data/vcard.mjs';
 import { contactFileName, contactVcard } from '../../lib/contactCard';
 import { saveVcard } from '../../lib/saveVcard';
@@ -21,11 +21,12 @@ import { CheckOption, EMAIL_FIELD, NAME_FIELD, PHONE_FIELD, TextField } from '..
 import { InviteQr } from '../InviteQr';
 import { scrollIntoView } from '../Nudge';
 import { CardMailButton, useRepeatCheck } from '../ShowcaseShare';
+import { PlaceField } from './PlaceField';
 import { Text } from '../T';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
-type Panel = 'saveContact' | 'sendContact' | 'exchange' | 'addContact' | 'qr' | 'mail';
+type Panel = 'saveContact' | 'message' | 'addContact' | 'qr' | 'mail' | 'mailSelf';
 
 type Props = {
   showcase: Showcase;
@@ -112,14 +113,13 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                 ) : null}
               </View>
             );
-          case 'sendContact':
-          case 'exchange':
+          case 'message':
             return (
               <View key={id} style={styles.item}>
                 <Button label={label(id)} variant={variant} onPress={() => toggle(id)} />
                 {panel === id ? (
                   <View ref={panelRef} collapsable={false}>
-                    <ContactForm showcase={s} exchange={id === 'exchange'} onCancel={close} />
+                    <MessageForm showcase={s} met={origin === 'card'} onCancel={close} />
                   </View>
                 ) : null}
               </View>
@@ -143,7 +143,7 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
                   <View ref={panelRef} collapsable={false} style={styles.panel}>
                     <Text style={styles.body}>
                       {viewer === 'team' && hasContactMail
-                        ? t('Die andere Person scannt den QR-Code mit der Kamera. Sie speichert Eure Digitale Visitenkarte und kann Euch ihren Kontakt schicken.')
+                        ? t('Die andere Person scannt den QR-Code mit der Kamera. Sie speichert Eure Digitale Visitenkarte und kann Euch ihren Kontakt senden.')
                         : t('Mit der Kamera scannen, um die Digitale Visitenkarte zu öffnen.')}
                     </Text>
                     <InviteQr value={codeLink} label={t('QR-Code zur Digitalen Visitenkarte')} />
@@ -153,19 +153,17 @@ export function CardActions({ showcase: s, viewer, origin, canBefriend, followin
               </View>
             );
           case 'mail':
+          case 'mailSelf':
             return (
-              <View key={id} ref={panel === 'mail' ? panelRef : undefined} collapsable={false}>
+              <View key={id} ref={panel === id ? panelRef : undefined} collapsable={false}>
                 <CardMailButton
                   showcase={s}
                   label={label(id)}
-                  intro={
-                    viewer === 'team'
-                      ? 'Schickt Eure Digitale Visitenkarte per Mail an die Adresse, die Du einträgst. Auf diesem Handy wird kein Kontakt gespeichert.'
-                      : 'Schickt diese Digitale Visitenkarte per Mail an die Adresse, die Du einträgst.'
-                  }
-                  open={panel === 'mail'}
-                  onOpenChange={(o) => setPanel(o ? 'mail' : null)}
-                  askName={viewer !== 'team'}
+                  intro={id === 'mail' ? 'Sendet Eure Digitale Visitenkarte per Mail an die Adresse, die Du einträgst. Auf diesem Handy wird kein Kontakt gespeichert.' : undefined}
+                  open={panel === id}
+                  onOpenChange={(o) => setPanel(o ? id : null)}
+                  team={id === 'mail'}
+                  self={id === 'mailSelf'}
                 />
               </View>
             );
@@ -188,24 +186,26 @@ const CONTACT_MESSAGES: Record<Exclude<ContactResult, 'ok' | 'card_failed'>, str
   name: 'Bitte trage Deinen Namen ein.',
   phone: 'Bitte prüfe die Telefonnummer.',
   consent: 'Bitte bestätige die Einwilligung.',
-  limit: 'Für heute sind genug Kontakte verschickt. Probier es morgen wieder.',
+  limit: 'Für heute sind genug Nachrichten gesendet. Probier es morgen wieder.',
   no_contact: 'Dieses Schaufenster hat keine Kontakt-Mail.',
   error: 'Das hat nicht geklappt. Probier es gleich nochmal.',
 };
 
 /**
- * „Deinen Kontakt schicken“ und „Kontakte tauschen“ für Mitglieder (2026-11-23): Name und Mail kommen aus dem Profil
- * und lassen sich ändern. Beim Tausch kommt die Digitale Visitenkarte immer per Mail zurück, beim Schicken nur auf Wunsch.
+ * „Nachricht oder Frage senden“ (Daria, 2026-11-24), ersetzt „Deinen Kontakt senden“ und „Kontakte tauschen“: Die
+ * Nachricht geht mit Name und Mail-Adresse an die Kontakt-Mail des Schaufensters, „Antworten“ geht an die Person.
+ * Die Person bekommt eine Kopie ihrer Nachricht mit der Digitalen Visitenkarte. Die Mail-Adresse ist Pflicht, sonst
+ * kann das Schaufenster nicht antworten (Daria, 2026-11-24). Angemeldete finden Name und Mail aus dem Profil vor.
+ * Nach dem QR-Code der Karte fragt das Formular zusätzlich nach dem Ort der Begegnung.
  */
-function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; exchange: boolean; onCancel: () => void }) {
+function MessageForm({ showcase: s, met, onCancel }: { showcase: Showcase; met: boolean; onCancel: () => void }) {
   const router = useRouter();
   const { profile } = useStore();
   const [name, setName] = useState(profile.handle ?? '');
-  const [email, setEmail] = useState(profile.email ?? '');
+  const [email, setEmail] = useState(visibleEmail(profile.email));
   const [phone, setPhone] = useState('');
   const [place, setPlace] = useState('');
   const [message, setMessage] = useState('');
-  const [sendCard, setSendCard] = useState(true);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
@@ -213,19 +213,16 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
   const send = async () => {
     setBusy(true);
     setResult(null);
-    const withCard = exchange || sendCard;
-    const r = await sendContactToShowcase(s.slug, { name, email, phone: exchange ? '' : phone, place, message: exchange ? '' : message, sendCard: withCard });
+    const r = await sendContactToShowcase(s.slug, { name, email, phone, place, message, sendCard: true });
     setBusy(false);
     if (r === 'ok' || r === 'card_failed') {
-      const done = t('{name} hat Deinen Kontakt erhalten.', { name: s.name });
+      const done = t('{name} hat Deine Nachricht erhalten.', { name: s.name });
       setResult({
         ok: true,
         message:
           r === 'card_failed'
-            ? `${done} ${t('Die Digitale Visitenkarte konnte nicht verschickt werden.')}`
-            : withCard
-              ? `${done} ${t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })}`
-              : done,
+            ? `${done} ${t('Die Kopie konnte nicht gesendet werden.')}`
+            : `${done} ${t('Eine Kopie mit der Digitalen Visitenkarte ist unterwegs an {to}.', { to: email.trim() })}`,
       });
       setPhone('');
       setPlace('');
@@ -238,35 +235,24 @@ function ContactForm({ showcase: s, exchange, onCancel }: { showcase: Showcase; 
 
   return (
     <View style={styles.panel}>
-      <Text style={styles.body}>
-        {exchange
-          ? t('Du erhältst den Kontakt von {name}, {name} erhält Deinen Kontakt.', { name: s.name })
-          : t('{name} erhält Deine Kontaktdaten per Mail.', { name: s.name })}
-      </Text>
+      <Text style={styles.body}>{t('{name} erhält Deine Nachricht per Mail und kann Dir antworten. Du erhältst eine Kopie mit der Digitalen Visitenkarte.', { name: s.name })}</Text>
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
-      {exchange ? null : <TextField label="Telefon" value={phone} onChangeText={setPhone} maxLength={30} helperText="Optional" {...PHONE_FIELD} />}
-      <PlaceField value={place} onChange={setPlace} />
-      {exchange ? null : <TextField label="Nachricht" value={message} onChangeText={setMessage} multiline maxLength={1000} helperText="Optional" />}
-      {exchange ? null : (
-        <CheckOption label={t('Digitale Visitenkarte von {name} per Mail erhalten', { name: s.name })} selected={sendCard} onPress={() => setSendCard(!sendCard)} />
-      )}
+      <TextField label="Telefon" value={phone} onChangeText={setPhone} maxLength={30} helperText="Optional" {...PHONE_FIELD} />
+      {met ? <PlaceField value={place} onChange={setPlace} /> : null}
+      <TextField label="Nachricht oder Frage" value={message} onChangeText={setMessage} multiline maxLength={1000} />
       <CheckOption label={t('Ich willige ein, dass {name} meine Angaben erhält.', { name: s.name })} selected={consent} onPress={() => setConsent(!consent)} />
       <Pressable accessibilityRole="link" onPress={() => router.push('/legal/datenschutz')} hitSlop={8}>
         <Text style={styles.link}>{t('Datenschutz lesen')}</Text>
       </Pressable>
-      <Button
-        label={exchange ? 'Kontakte tauschen' : 'Kontakt schicken'}
-        busy={busy}
-        disabled={!name.trim() || !isEmail(email) || !consent}
-        onPress={send}
-      />
+      <Button label="Nachricht senden" busy={busy} disabled={!name.trim() || !isEmail(email) || !message.trim() || !consent} onPress={send} />
+      {/* Rückmeldung direkt unter dem Knopf (UX-Regeln) */}
+      {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
       <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
       <QuestionHint
         question={t('Was passiert mit meinen Angaben?')}
-        answer={t('KiezCoins schickt sie per Mail an {name} und speichert sie nicht.', { name: s.name })}
+        answer={t('KiezCoins sendet sie per Mail an {name} und speichert sie nicht.', { name: s.name })}
       />
-      {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
     </View>
   );
 }
@@ -314,11 +300,12 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
     let message = t('Der Kontakt ist gespeichert.');
     let ok = true;
     if (mailNow) {
-      const r = await sendCardMail(showcase.slug, email);
+      // Name und Ort auch in die Mail: Anrede und Ort der Begegnung, wie bei „Nur per Mail schicken“ (2026-11-24)
+      const r = await sendCardMail(showcase.slug, email, undefined, { name, place });
       ok = r === 'ok';
       message = ok
         ? t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte ist unterwegs an {to}.', { to: email.trim() })
-        : t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte konnte nicht verschickt werden.');
+        : t('Der Kontakt ist gespeichert. Die Digitale Visitenkarte konnte nicht gesendet werden.');
     }
     setBusy(false);
     setResult({ ok, message });
@@ -333,7 +320,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
 
   return (
     <View style={styles.panel}>
-      <Text style={styles.body}>{t('Speichert den Kontakt der Person auf diesem Handy und schickt ihr Eure Digitale Visitenkarte per Mail. Gut, wenn jemand ohne Handy vor Dir steht.')}</Text>
+      <Text style={styles.body}>{t('Speichert den Kontakt der Person auf diesem Handy und sendet ihr Eure Digitale Visitenkarte per Mail. Gut, wenn jemand ohne Handy vor Dir steht.')}</Text>
       <TextField label="Name" value={name} onChangeText={setName} maxLength={80} autoFocus {...NAME_FIELD} />
       <TextField label="Mail-Adresse" value={email} onChangeText={setEmail} maxLength={254} {...EMAIL_FIELD} />
       <PlaceField value={place} onChange={setPlace} />
@@ -357,7 +344,7 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
       <QuestionHint
         question={t('Wo landet der Kontakt, den ich hier eintrage?')}
         answer={t(
-          'In Deinem Adressbuch: Dein Handy bietet an, die Person mit Name, Mail-Adresse, Treffpunkt und Notiz als neuen Kontakt anzulegen. KiezCoins speichert davon nichts. Die Mail-Adresse braucht KiezCoins nur, um ihr die Digitale Visitenkarte zu schicken.',
+          'In Deinem Adressbuch: Dein Handy bietet an, die Person mit Name, Mail-Adresse, Treffpunkt und Notiz als neuen Kontakt anzulegen. KiezCoins speichert davon nichts. Die Mail-Adresse braucht KiezCoins nur, um ihr die Digitale Visitenkarte zu senden.',
         )}
       />
       {result ? <Notice variant={result.ok ? undefined : 'warning'} message={result.message} onClose={() => setResult(null)} /> : null}
@@ -395,36 +382,6 @@ function SaveContact({ showcase: s, met, onCancel }: { showcase: Showcase; met: 
   );
 }
 
-/**
- * „Wo habt Ihr Euch getroffen?“ mit „Aktuellen Ort einsetzen“ (Daria, 2026-11-23): Erst nach dem Tippen fragt das Gerät
- * nach dem Standort. Den Ort liefert findPlace (data/location.ts). Das Feld bleibt änderbar.
- */
-function PlaceField({ value, onChange, autoFocus }: { value: string; onChange: (v: string) => void; autoFocus?: boolean }) {
-  const [busy, setBusy] = useState(false);
-  const [hint, setHint] = useState('');
-  const locate = async () => {
-    setBusy(true);
-    setHint(t('Ort wird ermittelt …'));
-    try {
-      const found = await findPlace();
-      onChange((found.street ?? found.kiez).slice(0, 120));
-      setHint('');
-    } catch {
-      setHint(t('Kein Ort gefunden. Bitte von Hand eintragen.'));
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <View style={styles.place}>
-      <TextField label="Wo habt Ihr Euch getroffen?" value={value} onChangeText={onChange} maxLength={120} helperText="Optional" placeholder="z. B. Flohmarkt am Kanal" autoFocus={autoFocus} />
-      <Pressable accessibilityRole="button" onPress={locate} disabled={busy} hitSlop={8}>
-        <Text style={[styles.link, busy && styles.dim]}>{t('Aktuellen Ort einsetzen')}</Text>
-      </Pressable>
-      {hint ? <Text style={styles.meta}>{hint}</Text> : null}
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   list: { gap: space[12] },
@@ -433,6 +390,4 @@ const styles = StyleSheet.create({
   body: { ...text.body, color: color.text.primary },
   link: { ...text.caption, color: color.text.primary, textDecorationLine: 'underline' },
   meta: { ...text.caption, color: color.text.secondary },
-  place: { gap: space[8] },
-  dim: { opacity: 0.5 },
 });

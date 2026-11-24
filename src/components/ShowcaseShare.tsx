@@ -4,14 +4,17 @@ import { StyleSheet, View } from 'react-native';
 import { CARD_MAILS_PER_ADDRESS, cardMailsSent } from '../data/cardMailLog';
 import { localDate } from '../data/reminders';
 import { sendCardMail, type CardMailResult, type Showcase } from '../data/showcase';
+import { useStore } from '../data/store';
+import { visibleEmail } from '../data/auth';
 import { t } from '../data/texts';
-import { color, space, text } from '../theme/tokens';
+import { color, radius, space, text } from '../theme/tokens';
 import { Button } from './Button';
 import { Notice } from './Content';
-import { EMAIL_FIELD, GIVEN_NAME_FIELD, TextField } from './Form';
+import { EMAIL_FIELD, GIVEN_NAME_FIELD, NAME_FIELD, TextField } from './Form';
 import { useKeyboardHeight } from './Keyboard';
 import { scrollIntoView } from './Nudge';
 import { Text } from './T';
+import { PlaceField } from './showcase/PlaceField';
 import type { IconName } from './icons/svgs';
 
 const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -19,7 +22,7 @@ const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim(
 const MESSAGES: Record<Exclude<CardMailResult, 'ok'>, string> = {
   email: 'Bitte prüfe die Mail-Adresse.',
   name: 'Beim Vornamen gehen nur Buchstaben, höchstens 30.',
-  limit: 'Für heute sind genug Mails verschickt. Probier es morgen wieder.',
+  limit: 'Für heute sind genug Mails gesendet. Probier es morgen wieder.',
   not_found: 'Die Mail geht nur, wenn Dein Schaufenster öffentlich und online ist.',
   error: 'Das hat nicht geklappt. Probier es gleich nochmal.',
 };
@@ -44,10 +47,10 @@ function sentAt(at: number): string {
 export function repeatMessage(times: number[]): string {
   const last = times[times.length - 1];
   if (times.length < CARD_MAILS_PER_ADDRESS) {
-    return t('Du hast die Digitale Visitenkarte {wann} schon an diese Adresse geschickt.', { wann: sentAt(last) });
+    return t('Du hast die Digitale Visitenkarte {wann} schon an diese Adresse gesendet.', { wann: sentAt(last) });
   }
   return t(
-    'Du hast die Digitale Visitenkarte schon zweimal an diese Adresse geschickt, zuletzt {wann}. Mehr als zwei Mails in 24 Stunden gehen nicht an dieselbe Adresse. Ab {ab} geht es wieder.',
+    'Du hast die Digitale Visitenkarte schon zweimal an diese Adresse gesendet, zuletzt {wann}. Mehr als zwei Mails in 24 Stunden gehen nicht an dieselbe Adresse. Ab {ab} geht es wieder.',
     { wann: sentAt(last), ab: untilAt(times[0] + 86400e3) },
   );
 }
@@ -92,7 +95,8 @@ export function CardMailButton({
   icon,
   open: openProp,
   onOpenChange,
-  askName = true,
+  team = false,
+  self = false,
   intro,
 }: {
   showcase: Showcase;
@@ -104,26 +108,40 @@ export function CardMailButton({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   /**
-   * Nach dem Vornamen fragen (steht in der Mail als Absender). Das Team schickt im Namen des Schaufensters, dort fällt
-   * das Feld weg (Daria, 2026-11-23).
+   * Das Team schickt im Namen des Schaufensters: kein Feld „Dein Vorname“ (Daria, 2026-11-23). Dafür dieselben Felder wie
+   * „Kontakt speichern und per Mail schicken“: Name und „Wo habt Ihr Euch getroffen?“, beide für die Mail (Anrede und
+   * Ort der Begegnung). Nur „Notiz für Dich“ fehlt, weil kein Kontakt gespeichert wird (UX-Regeln, „So bleiben ähnliche
+   * Formulare gleich“, Daria, 2026-11-24). Gäste nennen ihren Vornamen als Absender.
    */
-  askName?: boolean;
+  team?: boolean;
+  /**
+   * „An mich per Mail senden“ für Fremde (Daria, 2026-11-24: „eine andere User Persona“): Die Person sendet sich die
+   * Karte selbst. Ein Feld „Deine Mail-Adresse“, bei Angemeldeten aus dem Profil; kein Vorname.
+   */
+  self?: boolean;
 }) {
   const [openState, setOpenState] = useState(false);
   const controlled = openProp !== undefined;
   const open = controlled ? openProp : openState;
   const setOpen = (v: boolean) => (controlled ? onOpenChange?.(v) : setOpenState(v));
   const repeat = useRepeatCheck(showcase.slug);
+  // Bei „An mich per Mail senden“ steht die eigene Adresse schon da, wenn die Person angemeldet ist
+  const { profile } = useStore();
+  const ownMail = self ? visibleEmail(profile.email) : '';
   // Abbrechen schließt das Formular und verwirft die Eingaben (UX-Regeln, 2026-11-23)
   const cancel = () => {
     setOpen(false);
-    setTo('');
+    setTo(ownMail);
     setFrom('');
+    setName('');
+    setPlace('');
     setResult(null);
     repeat.clear();
   };
-  const [to, setTo] = useState('');
+  const [to, setTo] = useState(ownMail);
   const [from, setFrom] = useState('');
+  const [name, setName] = useState('');
+  const [place, setPlace] = useState('');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
   const [focused, setFocused] = useState(false);
@@ -144,15 +162,17 @@ export function CardMailButton({
     setResult(null);
     if (!(await repeat.check(to))) return;
     setBusy(true);
-    const r = await sendCardMail(showcase.slug, to, from);
+    const r = await sendCardMail(showcase.slug, to, team || self ? undefined : from, team ? { name, place } : undefined, self);
     setBusy(false);
     if (r === 'ok') {
       // Erfolg (Daria, 2026-11-23: „Where is success message?“): Das Formular klappt zu, die Meldung steht direkt unter
       // dem Knopf, wo der Blick gerade ist. Vorher lag sie unter dem Formular und oft außerhalb des Bildschirms.
       setResult({ ok: true, message: t('Die Digitale Visitenkarte ist unterwegs an {to}.', { to: to.trim() }) });
       repeat.clear();
-      setTo('');
+      setTo(ownMail);
       setFrom('');
+      setName('');
+      setPlace('');
       setOpen(false);
     } else {
       setResult({ ok: false, message: t(MESSAGES[r]) });
@@ -174,21 +194,26 @@ export function CardMailButton({
       ) : null}
       {result?.ok && !open ? <Notice message={result.message} onClose={() => setResult(null)} /> : null}
       {open ? (
-        <View style={styles.form}>
+        // Grauer Rahmen wie die anderen aufgeklappten Optionen der Visitenkarte (UX-Regeln, ähnliche Formulare gleich)
+        <View style={[styles.form, styles.panel]}>
           {intro ? <Text style={styles.body}>{t(intro)}</Text> : null}
+          {team ? (
+            <TextField label="Name" value={name} onChangeText={setName} maxLength={80} helperText="Optional" autoFocus {...NAME_FIELD} {...focusProps} />
+          ) : null}
           <TextField
-            label="An welche Adresse?"
+            label={team ? 'Mail-Adresse' : self ? 'Deine Mail-Adresse' : 'An welche Adresse?'}
             value={to}
             onChangeText={setTo}
             maxLength={254}
-            placeholder="name@beispiel.de"
-            autoFocus
+            placeholder={team || self ? undefined : 'name@beispiel.de'}
+            autoFocus={!team}
             {...EMAIL_FIELD}
             {...focusProps}
           />
+          {team ? <PlaceField value={place} onChange={setPlace} /> : null}
           {/* Früher „Optional, steht in der Mail.“: DeepL machte daraus „'Optional' is stated in the email.“ (Daria,
               2026-11-23). Jetzt sagt der Hinweis, wozu der Name dient. */}
-          {askName ? (
+          {!team && !self ? (
             <TextField
               label="Dein Vorname (optional)"
               value={from}
@@ -203,7 +228,7 @@ export function CardMailButton({
             {/* Hinweis vor dem Knopf: Er sagt, was ein erneutes Tippen bewirkt (UX-Regeln, Daria, 2026-11-24) */}
             {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
             <Button
-              label={again && !again.full ? 'Trotzdem noch mal schicken' : 'Digitale Visitenkarte schicken'}
+              label={again && !again.full ? 'Trotzdem noch mal senden' : self ? 'An mich senden' : 'Digitale Visitenkarte senden'}
               busy={busy}
               disabled={!isEmail(to) || !!again?.full}
               onPress={send}
@@ -224,6 +249,7 @@ export function CardMailButton({
 const styles = StyleSheet.create({
   wrap: { gap: space[16] },
   form: { gap: space[16] },
+  panel: { padding: space[16], borderRadius: radius.md, backgroundColor: color.bg.surface },
   meta: { ...text.caption, color: color.text.secondary },
   body: { ...text.body, color: color.text.primary },
 });

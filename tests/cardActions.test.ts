@@ -29,19 +29,19 @@ describe('Knöpfe der Visitenkarte', () => {
     assert.equal(primary({ viewer: 'team', origin: 'manage' }), 'share');
   });
 
-  it('Mitglied: Kontakt speichern zuerst, Kontakt schicken nur mit Kontakt-Mail', () => {
-    assert.deepEqual(ids({ viewer: 'member', origin: 'showcase', hasContactMail: true }), [
-      'saveContact',
-      'share',
-      'sendContact',
-      'exchange',
-      'qr',
-      'mail',
+  it('Mitglied: Folgen und Anfreunden zuerst, Teilen als Hauptknopf ganz unten (Daria, 2026-11-24)', () => {
+    assert.deepEqual(ids({ viewer: 'member', origin: 'showcase', hasContactMail: true, canBefriend: true }), [
       'follow',
+      'befriend',
       'showcase',
+      'message',
+      'mailSelf',
+      'saveContact',
+      'qr',
+      'share',
     ]);
-    const without = ids({ viewer: 'member', origin: 'showcase', hasContactMail: false });
-    assert.ok(!without.includes('sendContact') && !without.includes('exchange'));
+    assert.equal(primary({ viewer: 'member', origin: 'showcase' }), 'share');
+    assert.ok(!ids({ viewer: 'member', origin: 'showcase', hasContactMail: false }).includes('message'));
   });
 
   it('Mitglied, das schon folgt, bekommt keinen Folgen-Knopf; Anfreunden nur, wenn möglich', () => {
@@ -50,18 +50,21 @@ describe('Knöpfe der Visitenkarte', () => {
     assert.ok(!ids({ viewer: 'member', origin: 'link' }).includes('befriend'));
   });
 
-  it('Gast nach dem QR-Code der Karte: speichern zuerst, schicken und tauschen, kein QR-Code', () => {
-    const list = ids({ viewer: 'guest', origin: 'card', hasContactMail: true });
-    assert.equal(list[0], 'saveContact');
-    assert.ok(list.includes('sendContact') && list.includes('exchange'));
-    assert.ok(!list.includes('qr') && !list.includes('copyLink') && !list.includes('addContact'));
-  });
-
-  it('Gast über Link: Teilen zuerst, kein Kontakt schicken', () => {
-    const list = ids({ viewer: 'guest', origin: 'link', hasContactMail: true });
-    assert.equal(list[0], 'share');
-    assert.ok(list.includes('saveContact') && list.includes('qr') && list.includes('follow'));
-    assert.ok(!list.includes('sendContact') && !list.includes('exchange'));
+  it('Gast: Nachricht oder Frage zuerst, auch nach dem QR-Code mit QR-Code vor Teilen', () => {
+    for (const origin of ['card', 'link', 'showcase'] as const) {
+      assert.deepEqual(ids({ viewer: 'guest', origin, hasContactMail: true }), [
+        'message',
+        'follow',
+        'showcase',
+        'mailSelf',
+        'saveContact',
+        'qr',
+        'share',
+      ], origin);
+    }
+    const list = ids({ viewer: 'guest', origin: 'link', hasContactMail: false });
+    assert.equal(list[0], 'follow');
+    assert.ok(!list.includes('copyLink') && !list.includes('addContact') && !list.includes('mail'));
   });
 
   it('genau ein Hauptknopf, nie doppelt', () => {
@@ -79,8 +82,9 @@ describe('Knöpfe der Visitenkarte', () => {
       assert.equal(list.indexOf('mail'), list.indexOf('addContact') + 1, origin);
       assert.equal(list.at(-1), 'copyLink', origin);
     }
-    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'team', origin: 'manage' }), 'Nur per Mail schicken');
-    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'guest', origin: 'link' }), 'Per Mail schicken');
+    assert.equal(cardActionLabel('mail', { name: 'X', viewer: 'team', origin: 'manage' }), 'Nur per Mail senden');
+    assert.equal(cardActionLabel('mailSelf', { name: 'X', viewer: 'guest', origin: 'link' }), 'An mich per Mail senden');
+    assert.equal(cardActionLabel('message', { name: 'X', viewer: 'guest', origin: 'link' }), 'Nachricht oder Frage senden');
   });
 
   it('setzt den Namen ein und nennt den Rückweg zum Schaufenster', () => {

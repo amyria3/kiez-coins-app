@@ -1,11 +1,13 @@
 import { Pressable, StyleSheet, View } from 'react-native';
+import { SvgXml } from 'react-native-svg';
 
-import { contactGroups, placeLine, serviceItems, socialLink } from '../../data/digitalCard.mjs';
+import { contactGroups, placeLine, serviceItems, socialLink, telLink } from '../../data/digitalCard.mjs';
 import { shortLink, type Showcase } from '../../data/showcase';
 import { t } from '../../data/texts';
 import { openLink } from '../../lib/places';
 import { font, radius, space, text } from '../../theme/tokens';
 import { ShowcaseLogo } from '../ShowcasePlaceholder';
+import { katerAvatarSvg } from '../icons/katerAvatarSvg';
 import { Text } from '../T';
 
 // Inhaltspalette der Visitenkarte (wie die Druckbare Visitenkarte und kiezcoins.de/s/…/visitenkarte): Gelbgrün, Tinte
@@ -23,7 +25,7 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
   const place = placeLine({ kiez: s.kiez, address: s.address });
   const services = serviceItems(s.services);
   // Kontakt, Webseiten und soziale Netzwerke getrennt wie auf der Schaufenster-Seite (Daria, 2026-11-23)
-  const { email, websites, social } = contactGroups(s);
+  const { email, phone, websites, social } = contactGroups(s);
   const linkRow = (label: string, links: { href: string; text: string }[]) =>
     links.length ? (
       <View style={styles.row}>
@@ -68,7 +70,7 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
       ) : null}
       {s.address?.trim() ? <Row label={t('Adresse')} value={s.address.trim()} /> : null}
       {s.openingHours?.trim() ? <Row label={t('Öffnungszeiten')} value={s.openingHours.trim()} /> : null}
-      {linkRow(t('Kontakt'), email ? [{ href: `mailto:${email}`, text: email }] : [])}
+      {linkRow(t('Kontakt'), [...(email ? [{ href: `mailto:${email}`, text: email }] : []), ...(phone ? [{ href: telLink(phone), text: phone }] : [])])}
       {linkRow(t(websites.length === 1 ? 'Webseite' : 'Webseiten'), websites.map((l) => ({ href: l, text: shortLink(l) })))}
       {linkRow(
         t('Soziale Netzwerke'),
@@ -77,8 +79,10 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
           return { href: l, text: n ? `${n.network} ${n.handle}` : shortLink(l) };
         }),
       )}
+      {/* Fußzeile rechtsbündig: KiezCoins, Bildmarke, Digitale Visitenkarte (Daria, 2026-11-24) */}
       <View style={styles.foot}>
         <Text style={styles.brand}>KiezCoins</Text>
+        <SvgXml xml={katerAvatarSvg()} width={24} height={24} />
         <Text style={styles.kind}>{t('Digitale Visitenkarte')}</Text>
       </View>
     </View>
@@ -124,7 +128,7 @@ const styles = StyleSheet.create({
   label: { ...text.caption, fontFamily: font.semiBold, color: INK_SOFT },
   value: { ...text.body, color: INK },
   link: { ...text.body, color: INK, textDecorationLine: 'underline' },
-  foot: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginTop: space[4] },
+  foot: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', gap: space[8], marginTop: space[4] },
   brand: { ...text.bodyStrong, fontFamily: font.onPhoto, color: INK },
   kind: { ...text.caption, color: INK },
 });

@@ -263,7 +263,7 @@ export default function Email() {
             disabled={digits.length < MIN_DIGITS || busy}
             whyDisabled={() => !busy && codeField.nudge(t('Der Code hat {MIN_DIGITS} Ziffern.', { MIN_DIGITS }))}
           />
-          <Button label="Neuen Code schicken" variant="ghost" onPress={resend} disabled={busy} />
+          <Button label="Neuen Code senden" variant="ghost" onPress={resend} disabled={busy} />
           <Button
             label="Doch mit Passwort"
             variant="ghost"
