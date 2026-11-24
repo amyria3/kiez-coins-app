@@ -269,6 +269,22 @@ export async function setBookingUrl(id: string, url: string | null): Promise<boo
 }
 
 /**
+ * Zahlungslinks für den Schalter „Bezahlen“ unter „Funktionen“ (Daria, 2026-11-24, wie die Online-Buchung): die Links,
+ * `undefined` solange die Spalte fehlt (Migration 20261123000300) oder nichts zurückkommt; dann fehlt der Schalter.
+ */
+export async function loadPaymentLinks(id: string): Promise<PaymentLink[] | undefined> {
+  const { data, error } = await supabase.from('showcases').select('payment_links').eq('id', id).maybeSingle();
+  if (error || !data) return undefined;
+  return cleanPaymentLinks((data as { payment_links: unknown }).payment_links);
+}
+
+/** Zahlungslinks sofort speichern, eine leere Liste entfernt alle; leere Zeilen fallen weg. false bei einem Fehler */
+export async function setPaymentLinks(id: string, links: { title: string; amount?: string; url: string }[]): Promise<boolean> {
+  const { error } = await supabase.from('showcases').update({ payment_links: cleanPaymentLinks(links) }).eq('id', id);
+  return !error;
+}
+
+/**
  * „Für alle sichtbar, auch im Web“ (2026-11-23): Sichtbarkeit sofort speichern. Öffentlich meldet die Seite an die
  * Suchmaschinen wie beim Speichern unter „Inhalte bearbeiten“. false bei einem Fehler.
  */
