@@ -101,3 +101,11 @@ describe('Kopie der Nachricht und Karte an sich selbst', () => {
     assert.ok(mail.text.includes('Du hast Dir die Digitale Visitenkarte von Café <Kiezblick> per Mail gesendet.'));
   });
 });
+
+describe('Nachricht des Teams in der Mail', () => {
+  it('steht eingerückt unter der Anrede', () => {
+    const mail = cardMail(data, qr, '', { name: 'Anna', date: '24.11.2026', message: 'Schön, Dich kennenzulernen!\nBis bald' });
+    assert.ok(mail.text.includes('> Schön, Dich kennenzulernen!\n> Bis bald'));
+    assert.ok(mail.html.includes('Schön, Dich kennenzulernen!<br>Bis bald'));
+  });
+});

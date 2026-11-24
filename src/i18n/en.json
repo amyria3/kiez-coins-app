@@ -1911,5 +1911,6 @@
   "Die Kopie konnte nicht gesendet werden.": "The copy could not be sent.",
   "Eine Kopie mit der Digitalen Visitenkarte ist unterwegs an {to}.": "A copy with the Digital Business Card is on its way to {to}.",
   "{name} erhält Deine Nachricht per Mail und kann Dir antworten. Du erhältst eine Kopie mit der Digitalen Visitenkarte.": "{name} receives your message by email and can reply to you. You receive a copy with the Digital Business Card.",
-  "Für heute sind genug Nachrichten gesendet. Probier es morgen wieder.": "Enough messages have been sent for today. Try again tomorrow."
+  "Für heute sind genug Nachrichten gesendet. Probier es morgen wieder.": "Enough messages have been sent for today. Try again tomorrow.",
+  "Nachricht in der Mail": "Message in the email"
 }
