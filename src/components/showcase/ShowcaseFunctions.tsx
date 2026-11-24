@@ -5,7 +5,6 @@ import { useFocusEffect } from 'expo-router';
 
 import {
   BOOKING_PATTERN,
-  CAL_SIGNUP_URL,
   loadBookingUrl,
   loadFriendRequestsSwitch,
   loadShowcaseFunctions,
@@ -21,6 +20,21 @@ import { space } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup, Notice, QuestionHint } from '../Content';
 import { SwitchRow, TextField } from '../Form';
+import { SetupSteps } from '../SetupSteps';
+
+/**
+ * Einrichtung der Online-Buchung als Anleitung wie beim Weiterposten (Daria, 2026-11-24: „inkonsistent zu unserem
+ * Layout für Features, und das letztere war besser“): Frage, Umfang mit „Ja, los!“, Schritte mit „Verstanden, weiter“,
+ * zuletzt Feld und Knopf. Vorher standen Feld und Knopf oben und die Erklärung zugeklappt darunter, also in der
+ * umgekehrten Reihenfolge der Arbeit. Den Link hat man erst nach den Schritten.
+ */
+const BOOKING_QUESTION = 'Wie richte ich die Online-Buchung ein?';
+const BOOKING_INTRO =
+  'Das geht in 2 Schritten. Du brauchst dafür ein kostenloses Konto bei Cal.com oder einem anderen Buchungsdienst. Möchtest Du jetzt loslegen?';
+const BOOKING_STEPS = [
+  '1. Lege auf cal.com/signup ein kostenloses Konto an. Dort legst Du fest, wann man bei Dir Termine buchen kann.',
+  '2. Kopiere den Link zu Deiner Buchungsseite, zum Beispiel https://cal.com/kiezblick, und trage ihn unten ein.',
+];
 
 /** Kostenloses Unternehmensprofil bei Google anlegen (Google Business Profile) */
 const GOOGLE_PROFILE_URL = 'https://business.google.com/create';
@@ -103,6 +117,24 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
 
   const draftOk = !draft.trim() || BOOKING_PATTERN.test(draft.trim());
   const bookingOn = !bookingOff || !!booking;
+  const bookingField = (
+    <>
+      <TextField
+        label="Buchungslink"
+        value={draft}
+        onChangeText={setDraft}
+        maxLength={300}
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="url"
+        placeholder="https://cal.com/kiezblick"
+        error={draftOk ? undefined : 'Der Link beginnt mit https://'}
+      />
+      {draft.trim() !== (booking ?? '') ? (
+        <Button label="Buchungslink speichern" busy={savingBooking} disabled={!draftOk} onPress={saveBooking} />
+      ) : null}
+    </>
+  );
 
   return (
     <FieldGroup heading label="Funktionen">
@@ -174,25 +206,14 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
             value={bookingOn}
             onValueChange={toggleBooking}
           >
-            <TextField
-              label="Buchungslink"
-              value={draft}
-              onChangeText={setDraft}
-              maxLength={300}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="url"
-              placeholder="https://cal.com/kiezblick"
-              error={draftOk ? undefined : 'Der Link beginnt mit https://'}
-            />
-            {draft.trim() !== (booking ?? '') ? (
-              <Button label="Buchungslink speichern" busy={savingBooking} disabled={!draftOk} onPress={saveBooking} />
-            ) : null}
-            <QuestionHint
-              question="Wie bekomme ich einen Buchungslink?"
-              answer="Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch."
-              then={<Button label="Cal.com-Konto anlegen" variant="secondary" iconEnd="external" onPress={() => Linking.openURL(CAL_SIGNUP_URL)} />}
-            />
+            {booking ? (
+              // Eingerichtet: Feld mit dem gespeicherten Link, Speichern erst nach einer Änderung
+              bookingField
+            ) : (
+              <SetupSteps question={BOOKING_QUESTION} intro={BOOKING_INTRO} steps={BOOKING_STEPS}>
+                {bookingField}
+              </SetupSteps>
+            )}
           </SwitchRow>
         ) : null}
 

@@ -1894,5 +1894,10 @@
   "Trotzdem noch mal schicken": "Send again anyway",
   "Speichern und trotzdem noch mal senden": "Save and send again anyway",
   "Webseiten": "Websites",
-  "Soziale Netzwerke": "Social networks"
+  "Soziale Netzwerke": "Social networks",
+  "4. Im App-Dashboard einen Zugangs-Token erzeugen, mit dem Recht instagram_business_content_publish, und unten eintragen.": "4. In the app dashboard, generate an access token with the permission instagram_business_content_publish and enter it below.",
+  "Wie richte ich die Online-Buchung ein?": "How do I set up online booking?",
+  "Das geht in 2 Schritten. Du brauchst dafür ein kostenloses Konto bei Cal.com oder einem anderen Buchungsdienst. Möchtest Du jetzt loslegen?": "It takes 2 steps. You need a free account with Cal.com or another booking service. Do you want to start now?",
+  "1. Lege auf cal.com/signup ein kostenloses Konto an. Dort legst Du fest, wann man bei Dir Termine buchen kann.": "1. Create a free account at cal.com/signup. There you set when people can book appointments with you.",
+  "2. Kopiere den Link zu Deiner Buchungsseite, zum Beispiel https://cal.com/kiezblick, und trage ihn unten ein.": "2. Copy the link to your booking page, for example https://cal.com/kiezblick, and enter it below."
 }
