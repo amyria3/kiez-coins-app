@@ -40,4 +40,12 @@ describe('Mail an das Team bei Kontakt über die Visitenkarte', () => {
     assert.ok(m.text.includes('im selben Schritt Eure Digitale Visitenkarte'));
     assert.ok(!m.text.includes('Telefon'));
   });
+  it('mit Nachricht: eigener Betreff, Kopie an die Person, Datum ohne Ort', () => {
+    const m = contactMail('Lindenhof', 'https://kiezcoins.de/s/lindenhof', { name: 'Jana', email: 'jana@example.org', message: 'Habt Ihr Samstag offen?', cardSent: true }, '24.11.2026');
+    assert.equal(m.subject, 'Neue Nachricht über Deine Digitale Visitenkarte: Jana');
+    assert.ok(m.text.includes('hat Dir jemand eine Nachricht gesendet.'));
+    assert.ok(m.text.includes('Datum: 24.11.2026'));
+    assert.ok(m.text.includes('Nachricht: Habt Ihr Samstag offen?'));
+    assert.ok(m.text.includes('eine Kopie der Nachricht'));
+  });
 });

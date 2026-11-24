@@ -908,10 +908,12 @@ export async function sendCardMail(
   from?: string,
   /** Nur fürs Team: Name der Person (Anrede) und Ort der Begegnung; die Funktion prüft, ob man zum Team gehört */
   meeting?: { name?: string; place?: string },
+  /** „An mich per Mail senden“: Die Person sendet sich die Karte selbst (Daria, 2026-11-24) */
+  self?: boolean,
 ): Promise<CardMailResult> {
   try {
     const { data, error } = await supabase.functions.invoke<{ ok?: boolean; error?: string }>('visitenkarte-mail', {
-      body: { slug, to: to.trim(), from: from?.trim() || undefined, an: meeting?.name?.trim() || undefined, ort: meeting?.place?.trim() || undefined },
+      body: { slug, to: to.trim(), from: from?.trim() || undefined, an: meeting?.name?.trim() || undefined, ort: meeting?.place?.trim() || undefined, selbst: self || undefined },
     });
     if (data?.ok) {
       await noteCardMail(slug, to);

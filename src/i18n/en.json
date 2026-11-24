@@ -1896,5 +1896,15 @@
   "Speichern und trotzdem noch mal senden": "Save and send again anyway",
   "Speichern und Digitale Visitenkarte senden": "Save and send Digital Business Card",
   "Digitale Visitenkarte per Mail an {name} senden": "Send Digital Business Card to {name} by email",
-  "Digitale Visitenkarte per Mail senden": "Send Digital Business Card by email"
+  "Digitale Visitenkarte per Mail senden": "Send Digital Business Card by email",
+  "Nachricht oder Frage senden": "Send a message or question",
+  "An mich per Mail senden": "Email it to myself",
+  "An mich senden": "Send to me",
+  "Deine Mail-Adresse": "Your email address",
+  "Nachricht oder Frage": "Message or question",
+  "{name} hat Deine Nachricht erhalten.": "{name} has received your message.",
+  "Die Kopie konnte nicht gesendet werden.": "The copy could not be sent.",
+  "Eine Kopie mit der Digitalen Visitenkarte ist unterwegs an {to}.": "A copy with the Digital Business Card is on its way to {to}.",
+  "{name} erhält Deine Nachricht per Mail und kann Dir antworten. Du erhältst eine Kopie mit der Digitalen Visitenkarte.": "{name} receives your message by email and can reply to you. You receive a copy with the Digital Business Card.",
+  "Für heute sind genug Nachrichten gesendet. Probier es morgen wieder.": "Enough messages have been sent for today. Try again tomorrow."
 }
