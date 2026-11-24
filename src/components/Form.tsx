@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { isTouchWeb } from '../lib/touchWeb';
 import { useKeyboardHeight } from './Keyboard';
 import { Alert, Animated, Platform, Pressable, StyleSheet, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
@@ -203,6 +203,13 @@ export function RequiredMark() {
  * erscheint nur, solange er an ist und wirkt. So steht keine Frage unter einem Schalter, den sie gerade nicht betrifft.
  * Ausgegraut (`disabled`) sagt die Beschreibung, warum.
  */
+/**
+ * Einrückung unter Schaltern (Daria, 2026-11-24: „das Input Feld in der Insta Einrichtung [war] nicht nach rechts
+ * verschoben“): Nur Unter-Schalter rücken ein, damit sie als Teil des oberen Schalters lesbar sind. Felder, Anleitungen
+ * und Fragen stehen bündig mit dem Schalter darüber, wie bei der Einrichtung des Weiterpostens.
+ */
+const InSwitch = createContext(false);
+
 export function SwitchRow({
   label,
   description,
@@ -266,13 +273,20 @@ export function SwitchRow({
       <Toggle label={label} value={value} onValueChange={onValueChange} />
     </View>
   );
-  if (!children) return row;
-  return (
+  const nested = useContext(InSwitch);
+  const content = children ? (
     <View style={styles.switchWithContent}>
       {row}
-      {value && !disabled ? <View style={styles.switchContent}>{children}</View> : null}
+      {value && !disabled ? (
+        <View style={styles.switchContent}>
+          <InSwitch.Provider value>{children}</InSwitch.Provider>
+        </View>
+      ) : null}
     </View>
+  ) : (
+    row
   );
+  return nested ? <View style={styles.switchNested}>{content}</View> : content;
 }
 
 /** Der Schalter allein, ohne Zeile; die Bezeichnung dient dem Screenreader. */
@@ -722,7 +736,8 @@ export function PhotoPicker({
 const styles = StyleSheet.create({
   // Inhalt eines eingeschalteten Schalters: gleicher Abstand wie zwischen Zeilen, Unter-Schalter leicht eingerückt
   switchWithContent: { gap: space[12] },
-  switchContent: { gap: space[12], paddingLeft: space[16] },
+  switchContent: { gap: space[12] },
+  switchNested: { paddingLeft: space[16] },
   switchDisabled: { opacity: 0.45 },
   handTrack: { width: HAND_W, height: HAND_H },
   handKnob: { position: 'absolute', left: 0, top: (HAND_H - HAND_KH) / 2 },
