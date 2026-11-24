@@ -2,6 +2,8 @@ import { forwardRef, Children, useCallback, type ReactNode } from 'react';
 import { Alert, Platform, StyleSheet, Text as RNText, type TextProps } from 'react-native';
 
 import { tPadded, t, useTexts } from '../data/texts';
+import { useSpaceText } from '../theme/signal';
+import { color } from '../theme/tokens';
 
 /**
  * `Text` mit Übersetzung: Reine Textstücke in den Kindern laufen durch `t()` (data/texts.ts).
@@ -40,8 +42,22 @@ const WRAP_WEB = { hyphens: 'auto', hyphenateLimitChars: '8 4 4', WebkitHyphenat
 const WRAP_WEB_NAMES = { hyphens: 'manual', overflowWrap: 'break-word', textWrap: 'pretty' } as object;
 const wrapStyle = (noTranslate?: boolean) => (Platform.OS === 'web' ? (noTranslate ? WRAP_WEB_NAMES : WRAP_WEB) : null);
 
+/**
+ * Schrift im Ton des Themes (Daria, 2026-11-24: „eine weniger rosa Farbe, … konsistent mit gelben Buttons“): Haupt- und
+ * Nebenschrift (`color.text.primary`, `color.text.secondary`) nehmen im Schaufenster, in Me & Myself und in Functional
+ * den Farbton des Akzents an (`color.textTone`). Alle anderen Farben bleiben, wie der Stil sie setzt.
+ */
+function toneColor(style: TextProps['style'], tone: { primary: string; secondary: string }): TextProps['style'] {
+  if (tone.primary === color.text.primary) return style;
+  const c = StyleSheet.flatten(style)?.color;
+  if (c === color.text.primary) return [style, { color: tone.primary }];
+  if (c === color.text.secondary) return [style, { color: tone.secondary }];
+  return style;
+}
+
 export const Text = forwardRef<RNText, Props>(function Text({ children, accessibilityLabel, noTranslate, style, ...props }, ref) {
   useTexts();
+  const tone = useSpaceText();
   const setRef = useCallback(
     (node: RNText | null) => {
       if (noTranslate && Platform.OS === 'web' && node) {
@@ -59,7 +75,7 @@ export const Text = forwardRef<RNText, Props>(function Text({ children, accessib
       ref={setRef}
       accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel}
       android_hyphenationFrequency={noTranslate ? 'none' : 'normal'}
-      style={[wrapStyle(noTranslate), withKarlaSpacing(style)]}
+      style={[wrapStyle(noTranslate), toneColor(withKarlaSpacing(style), tone)]}
       {...props}
     >
       {noTranslate ? children : translateChildren(children)}
