@@ -74,6 +74,17 @@ const swatch = {
   /** Schaufenster: dunkles Oliv, passend zum Gelbgrün */
   schalterAusOliv: '#4A4E34',
   /**
+   * Schrift im Ton des Themes (Daria, 2026-11-24: „eine weniger rosa Farbe, … konsistent mit gelben Buttons“). Gleiche
+   * Helligkeit und Sättigung wie Puder (Haupt S 60 % L 96 %, Neben S 27 % L 83 %), nur der Farbton folgt dem Akzent:
+   * Gelbgrün 70°, Senf 48°, Grün 135°. Friendship bleibt Puder 342°.
+   */
+  schriftGelbgruen: '#F9FBEF',
+  schriftGelbgruenNeben: '#DBDFC8',
+  schriftSenf: '#FBF8EF',
+  schriftSenfNeben: '#DFDBC8',
+  schriftGruen: '#EFFBF2',
+  schriftGruenNeben: '#C8DFCE',
+  /**
    * Startfarben der Kontoseite (Daria, 2026-11-17: „alle Startfarben ähnlich hell und intensiv“). Abgeglichen über die
    * Helligkeit in OKLCH: Senf, Rosa und Grün liegen bei L 0,85. Lila startet heller als der Akzent (L 0,79 statt 0,70),
    * Gelbgrün dunkler als die Signalfarbe (L 0,92 statt 0,97). Blau und Gelb wirken bei gleicher Zahl unterschiedlich hell.
@@ -317,6 +328,12 @@ export const color = {
     post: 'rgba(255, 240, 225, 0.06)',
   },
   /** An/Aus-Schalter im Kiez-Look */
+  /** Haupt- und Nebenschrift je Theme (siehe swatch.schriftGelbgruen); `text.primary` und `text.secondary` sind Friendship */
+  textTone: {
+    showcase: { primary: swatch.schriftGelbgruen, secondary: swatch.schriftGelbgruenNeben },
+    me: { primary: swatch.schriftSenf, secondary: swatch.schriftSenfNeben },
+    functional: { primary: swatch.schriftGruen, secondary: swatch.schriftGruenNeben },
+  },
   toggle: {
     /** Friendship: dunkles Lila */
     off: swatch.schalterAus,

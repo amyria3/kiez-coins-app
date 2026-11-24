@@ -9,8 +9,8 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
-import { color, radius, scheme, space, stroke, text } from '../theme/tokens';
-import { useAccentColor, useFocusColor, useToggleOffColor } from '../theme/signal';
+import { color, radius, scheme, space, stroke, text, withAlpha } from '../theme/tokens';
+import { useAccentColor, useFocusColor, useSpaceText, useToggleOffColor } from '../theme/signal';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
@@ -78,7 +78,9 @@ export function TextField({
   const advances = !multiline && !onSubmitEditing && !!goNext;
   const hinted = !error && !!nudge?.hint;
   const accent = useFocusColor();
-  const borderColor = error || hinted ? color.accent.error : focused ? accent : color.text.secondary;
+  // Schrift, Rand und Platzhalter im Ton des Themes (Daria, 2026-11-24), in Friendship Puder
+  const tone = useSpaceText();
+  const borderColor = error || hinted ? color.accent.error : focused ? accent : tone.secondary;
   const helper = error ?? nudge?.hint ?? helperText;
   const showEnd = !multiline && (showEndProp ?? inputProps.keyboardType === 'url');
   const value = inputProps.value ?? '';
@@ -129,7 +131,7 @@ export function TextField({
               }
             : undefined
         }
-        placeholderTextColor={color.text.placeholder}
+        placeholderTextColor={tone.secondary === color.text.secondary ? color.text.placeholder : withAlpha(tone.secondary, 0.45)}
         selectionColor={accent}
         onChangeText={(v) => {
           nudge?.clear();
@@ -150,7 +152,7 @@ export function TextField({
           error ? styles.inputError : null,
           // Aktives Feld mit kräftigerem Rand; das Innere rückt um die Differenz ein, damit nichts springt
           focused || hinted ? styles.inputFocused : null,
-          { borderColor },
+          { borderColor, color: tone.primary },
         ]}
       />
       {helper ? (
