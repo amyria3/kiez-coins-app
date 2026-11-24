@@ -24,6 +24,22 @@ function withKarlaSpacing(style: TextProps['style']): TextProps['style'] {
   return [style, { letterSpacing: KARLA_SPACING }];
 }
 
+/**
+ * Zeilenumbruch an einer Stelle für die ganze App (Daria, 2026-11-24: „Solche Umbrüche sind seltsam … nicht erlauben
+ * und zentral steuern“). Vorher brach der Browser zu lange Wörter an beliebiger Stelle ohne Trennstrich
+ * („Öffnungsze|iten“, „Teeprob|e“), weil react-native-web `word-wrap: break-word` setzt.
+ * - Web: Silbentrennung nach den Regeln der Sprache (`hyphens: auto`, Sprache aus `<html lang>`, gesetzt in
+ *   data/texts.ts), nur bei Wörtern ab 8 Zeichen und mit mindestens 4 Zeichen vor und nach dem Strich. Erst wenn ein
+ *   Wort auch so nicht passt, bricht es hart um (`overflow-wrap: break-word`). `text-wrap: pretty` vermeidet einzelne
+ *   Wörter allein in der letzten Zeile. Browser ohne diese Angaben ignorieren sie.
+ * - Android: Silbentrennung des Systems (`android_hyphenationFrequency`).
+ * - Namen, Adressen, Mail und Links (`noTranslate`) werden nie getrennt, nur im Notfall umgebrochen.
+ * Die Layouts geben Text trotzdem genug Breite (UX-Regeln, „So brechen Texte um“).
+ */
+const WRAP_WEB = { hyphens: 'auto', hyphenateLimitChars: '8 4 4', WebkitHyphenateLimitBefore: 4, WebkitHyphenateLimitAfter: 4, overflowWrap: 'break-word', textWrap: 'pretty' } as object;
+const WRAP_WEB_NAMES = { hyphens: 'manual', overflowWrap: 'break-word', textWrap: 'pretty' } as object;
+const wrapStyle = (noTranslate?: boolean) => (Platform.OS === 'web' ? (noTranslate ? WRAP_WEB_NAMES : WRAP_WEB) : null);
+
 export const Text = forwardRef<RNText, Props>(function Text({ children, accessibilityLabel, noTranslate, style, ...props }, ref) {
   useTexts();
   const setRef = useCallback(
@@ -39,7 +55,13 @@ export const Text = forwardRef<RNText, Props>(function Text({ children, accessib
     [ref, noTranslate],
   );
   return (
-    <RNText ref={setRef} accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel} style={withKarlaSpacing(style)} {...props}>
+    <RNText
+      ref={setRef}
+      accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel}
+      android_hyphenationFrequency={noTranslate ? 'none' : 'normal'}
+      style={[wrapStyle(noTranslate), withKarlaSpacing(style)]}
+      {...props}
+    >
       {noTranslate ? children : translateChildren(children)}
     </RNText>
   );
