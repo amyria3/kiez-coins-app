@@ -200,13 +200,14 @@ export function CardMailButton({
             />
           ) : null}
           <View ref={end} style={styles.form}>
+            {/* Hinweis vor dem Knopf: Er sagt, was ein erneutes Tippen bewirkt (UX-Regeln, Daria, 2026-11-24) */}
+            {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
             <Button
               label={again && !again.full ? 'Trotzdem noch mal schicken' : 'Digitale Visitenkarte schicken'}
               busy={busy}
               disabled={!isEmail(to) || !!again?.full}
               onPress={send}
             />
-            {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
             {/* Fehler direkt unter dem Knopf, das Formular bleibt offen */}
             {result && !result.ok ? <Notice variant="warning" message={result.message} onClose={() => setResult(null)} /> : null}
           </View>

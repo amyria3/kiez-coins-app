@@ -345,13 +345,14 @@ function ManualContact({ showcase, onCancel }: { showcase: Showcase; onCancel: (
           onPress={() => setSendCard(!sendCard)}
         />
       ) : null}
+      {/* Hinweis vor dem Knopf (UX-Regeln, Daria, 2026-11-24) */}
+      {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
       <Button
         label={!mailNow ? 'Kontakt speichern' : again ? 'Speichern und trotzdem noch mal senden' : 'Speichern und Digitale Visitenkarte senden'}
         busy={busy}
         disabled={!name.trim() || (!!email.trim() && !isEmail(email))}
         onPress={save}
       />
-      {again ? <Notice message={again.message} onClose={repeat.clear} /> : null}
       <Button label="Abbrechen" variant="ghost" onPress={onCancel} />
       <QuestionHint
         question={t('Wo landet der Kontakt, den ich hier eintrage?')}

@@ -12,7 +12,7 @@ describe('Bereich jeder Seite (RouteSpace)', () => {
   });
 
   it('Alle Schaufenster-Seiten, auch Verwalten und Bearbeiten: Schaufenster', () => {
-    for (const name of ['schaufenster/index', 'schaufenster/[id]/bearbeiten', 'schaufenster/[id]/index', 'schaufenster/[id]/post', 'schaufenster/[id]/termin', 'schaufenster/[id]/visitenkarte', 'schaufenster/beitreten']) {
+    for (const name of ['schaufenster/index', 'schaufenster/[id]/bearbeiten', 'schaufenster/[id]/index', 'schaufenster/[id]/post', 'schaufenster/[id]/termin', 'schaufenster/[id]/visitenkarte', 'schaufenster/[id]/druck', 'schaufenster/[id]/einstellungen', 'schaufenster/beitreten', 's/[slug]/visitenkarte']) {
       assert.equal(spaceOfRoute(name), 'showcase', name);
     }
   });
