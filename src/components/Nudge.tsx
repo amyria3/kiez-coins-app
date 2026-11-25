@@ -21,7 +21,7 @@ type ScrollAlign = 'start' | 'end';
 type ScrollTarget = {
   scrollToView: (view: View | null, align?: ScrollAlign) => void;
   /** Führt `change` aus und hält die Ansicht dabei an ihrer Stelle auf dem Bildschirm. */
-  holdView: (view: View | null, change: () => void) => void;
+  holdView: (view: View | null, change: () => unknown) => void;
   /** iPhone und Android: aktives Feld und nächstes Feld nach der Regel in data/reveal.mjs ins Bild holen */
   revealField: (field: View, next: View | null) => void;
 };
@@ -76,12 +76,15 @@ export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
     [scrollRef],
   );
   const holdView = useCallback(
-    (view: View | null, change: () => void) => {
+    (view: View | null, change: () => unknown) => {
       const scroll = scrollRef.current;
-      if (!view || !scroll) return change();
+      if (!view || !scroll) {
+        change();
+        return;
+      }
       // Erst messen, dann ändern: Das Messen läuft nicht sofort, sonst stünde der neue Inhalt schon da
       view.measureInWindow((_x, before) => {
-        change();
+        const result = change();
         const restore = () =>
           view.measureInWindow((_x2, after) => {
             const delta = after - before;
@@ -89,9 +92,15 @@ export function useNudgeScroll(scrollRef: RefObject<ScrollView | null>) {
             offset.current = Math.max(0, offset.current + delta);
             scroll.scrollTo({ y: offset.current, animated: false });
           });
-        // Einmal gleich nach dem neuen Layout, einmal später, falls noch etwas nachlädt
-        setTimeout(restore, 50);
-        setTimeout(restore, 400);
+        // Einmal gleich nach dem neuen Layout, einmal später, falls noch etwas nachlädt. Lädt `change` erst Daten
+        // (Promise), zählt die Zeit ab dann: So bleibt ein Schalter unter dem Finger, auch wenn darüber nach dem
+        // Speichern neue Abschnitte erscheinen (Daria, 2026-11-25, „Für alle sichtbar“ im Safari am iPhone).
+        const settle = () => {
+          setTimeout(restore, 50);
+          setTimeout(restore, 400);
+        };
+        if (result instanceof Promise) result.then(settle, settle);
+        else settle();
       });
     },
     [scrollRef],
@@ -267,7 +276,7 @@ export function revealFocused() {
  * Ansicht an ihrer Stelle auf dem Bildschirm halten, während sich darüber etwas ändert, z. B. das Kommentarfeld
  * nach dem Abschicken (Daria, 2026-11-09). `change` führt die Änderung aus.
  */
-export function holdInView(view: View | null, change: () => void) {
+export function holdInView(view: View | null, change: () => unknown) {
   const target = topTarget();
   if (target) target.scroll.holdView(view, change);
   else change();
