@@ -8,6 +8,8 @@ import { readFileSync, rmSync } from 'node:fs';
 const out = 'web-app/dist';
 const env = { ...process.env };
 delete env.EXPO_WEB_BASE_URL;
+// Schaltet in app.config.js die Seite /_sitemap ab (25.11.2026).
+env.KIEZ_WEB_APP_BUILD = '1';
 
 rmSync(out, { recursive: true, force: true });
 execSync(`npx expo export -p web --output-dir ${out}`, { stdio: 'inherit', env });
