@@ -3,11 +3,11 @@ import { Alert, Pressable, StyleSheet, View, type GestureResponderEvent } from '
 import { canShare, useShareChallenge } from '../../../data/shareChallenge';
 import { Text } from '../../../components/T';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { BlurView } from 'expo-blur';
 
 import { AuthorRow } from '../../../components/AuthorRow';
 import { DeadlineBadge, DoneReward, StatusBadge } from '../../../components/Badges';
 import { CoinsIcon, LivingCrystal } from '../../../components/icons/Brand';
+import { FloatingMenu, type Rect } from '../../../components/FloatingMenu';
 import { GlassIconButton } from '../../../components/Glass';
 import { IconButton } from '../../../components/IconButton';
 import { Button } from '../../../components/Button';
@@ -36,7 +36,7 @@ import { useFeature } from '../../../data/unlock';
 import { coordsIfAllowed, distanceMeters, KIEZ_RADIUS_METERS, type Coords } from '../../../data/location';
 import { useChallenge, useStore } from '../../../data/store';
 import { isPostOnly, SHOW_OPERATION_NAME, type ChallengeStatus } from '../../../data/types';
-import { color, radius, scheme, size, space, stroke, text } from '../../../theme/tokens';
+import { color, radius, size, space, stroke, text } from '../../../theme/tokens';
 import { askCrosspost, restoreWithChoice } from '../../../components/CrosspostDialog';
 import { crosspostTargets } from '../../../data/crosspost';
 import { t, tAbout } from '../../../data/texts';
@@ -92,8 +92,23 @@ export default function ChallengeDetail() {
   }, []);
   // Tipp irgendwo außerhalb schließt das Zahnrad-Menü (Daria, 22.10.2026). Der Tipp selbst geht normal weiter.
   const menuClosedAt = useRef(0);
-  const menuRef = useRef<View>(null);
-  const menuRect = useRef<{ x: number; y: number; w: number; h: number } | undefined>(undefined);
+  const menuRect = useRef<Rect | undefined>(undefined);
+  // Lage von Knopf und Ansicht im Fenster, gemessen beim Öffnen
+  const rootRef = useRef<View>(null);
+  const menuButtonRef = useRef<View>(null);
+  const [menuAnchor, setMenuAnchor] = useState<{ anchor: Rect; bounds: Rect } | null>(null);
+  const toggleMenu = () => {
+    // Gerade durch den Tipp geschlossen: nicht gleich wieder öffnen
+    if (Date.now() - menuClosedAt.current <= 400) return;
+    if (menuOpen) return setMenuOpen(false);
+    menuRect.current = undefined;
+    menuButtonRef.current?.measureInWindow((x, y, w, h) =>
+      rootRef.current?.measureInWindow((bx, by, bw, bh) => {
+        setMenuAnchor({ anchor: { x, y, w, h }, bounds: { x: bx, y: by, w: bw, h: bh } });
+        setMenuOpen(true);
+      }),
+    );
+  };
   const closeMenuOnTouch = (e: GestureResponderEvent) => {
     const r = menuRect.current;
     const { pageX: px, pageY: py } = e.nativeEvent;
@@ -342,59 +357,13 @@ export default function ChallengeDetail() {
   // Belohnung: offen mit Kristall und Münzen, erledigt mit Haken, geschlossen gar nicht (wie im Feed)
   const rewardsDone = REWARD_DONE.has(challenge.status);
   const rewardsShown = challenge.status !== 'closed';
-  const summary = (
-    <>
-      <View style={styles.statusWrap}>
-        <View style={styles.statusRow}>
-          <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} textOnly={!!textPages} />
-          <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
-          {isAuthor ? (
-            <GlassIconButton
-              icon="settings"
-              variant="regular"
-              accessibilityLabel={t('Challenge verwalten')}
-              // Gerade durch den Tipp geschlossen: nicht gleich wieder öffnen
-              onPress={() => Date.now() - menuClosedAt.current > 400 && setMenuOpen((open) => !open)}
-              style={[styles.gear, menuOpen && styles.gearOpen]}
-            />
-          ) : challenge.status !== 'draft' && challenge.status !== 'deleted' ? (
-            // Melden versteckt hinter drei Punkten (Daria, 22.10.2026)
-            <IconButton
-              icon="more"
-              iconSize={size.icon}
-              iconColor={color.text.secondary}
-              accessibilityLabel={t('Weitere Aktionen')}
-              onPress={() => Date.now() - menuClosedAt.current > 400 && setMenuOpen((open) => !open)}
-            />
-          ) : null}
-        </View>
-        {!isAuthor && menuOpen ? (
-          <View
-            ref={menuRef}
-            style={styles.menu}
-            accessibilityRole="menu"
-            onLayout={() => menuRef.current?.measureInWindow((x, y, w, h) => (menuRect.current = { x, y, w, h }))}
-          >
-            <MenuBackdrop />
-            <MenuItem
-              label="Melden"
-              tone="error"
-              last
-              onPress={() => {
-                setMenuOpen(false);
-                router.push(`/challenge/${challenge.id}/report`);
-              }}
-            />
-          </View>
-        ) : null}
-        {isAuthor && menuOpen ? (
-          <View
-            ref={menuRef}
-            style={styles.menu}
-            accessibilityRole="menu"
-            onLayout={() => menuRef.current?.measureInWindow((x, y, w, h) => (menuRect.current = { x, y, w, h }))}
-          >
-            <MenuBackdrop />
+  // Zahnrad-Menü (eigene Challenge) bzw. „Weitere Aktionen“: liegt über der ganzen Ansicht, damit es nirgends
+  // abgeschnitten wird, und klappt dahin auf, wo Platz ist (Daria, 2026-11-25)
+  const menu =
+    menuOpen && menuAnchor ? (
+      <FloatingMenu anchor={menuAnchor.anchor} bounds={menuAnchor.bounds} onRect={(r) => (menuRect.current = r)}>
+        {isAuthor ? (
+          <>
             {canManage ? (
               <>
                 <MenuItem
@@ -459,8 +428,47 @@ export default function ChallengeDetail() {
                 router.push({ pathname: '/manage', params: { fokus: challenge.id } });
               }}
             />
+          </>
+        ) : (
+          <MenuItem
+            label="Melden"
+            tone="error"
+            last
+            onPress={() => {
+              setMenuOpen(false);
+              router.push(`/challenge/${challenge.id}/report`);
+            }}
+          />
+        )}
+      </FloatingMenu>
+    ) : null;
+  const summary = (
+    <>
+      <View style={styles.statusWrap}>
+        <View style={styles.statusRow}>
+          <StatusBadge status={challenge.status} challenge={challenge} photo={isPhoto && !isBeforeAfter} beforeAfter={isBeforeAfter} textOnly={!!textPages} />
+          <Text style={[styles.caption, styles.flex]}>{running ? formatRelative(challenge.createdAt) : ''}</Text>
+          <View ref={menuButtonRef} collapsable={false}>
+            {isAuthor ? (
+              <GlassIconButton
+                icon="settings"
+                variant="regular"
+                accessibilityLabel={t('Challenge verwalten')}
+                onPress={toggleMenu}
+                style={[styles.gear, menuOpen && styles.gearOpen]}
+              />
+            ) : challenge.status !== 'draft' && challenge.status !== 'deleted' ? (
+              // Melden versteckt hinter drei Punkten (Daria, 22.10.2026)
+              <IconButton
+                icon="more"
+                iconSize={size.icon}
+                iconColor={color.text.secondary}
+                accessibilityLabel={t('Weitere Aktionen')}
+                onPress={toggleMenu}
+              />
+            ) : null}
           </View>
-        ) : null}
+        </View>
       </View>
       {/* Ohne Titel keine Zeile (Daria, 06.11.2026). Beim Text-Post steht er auf dem ersten Blatt. */}
       {challenge.title.trim() && !textPages ? (
@@ -695,7 +703,7 @@ export default function ChallengeDetail() {
   // Ohne Bild (z. B. Gruppenaufgabe): Auch hier schließt ein Tipp außerhalb das Zahnrad-Menü
   if (!image && !textPages) {
     return (
-      <View style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
+      <View ref={rootRef} collapsable={false} style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
         <SubScreen
           title={challenge.groupId ? 'We-Challenge in der Gruppe' : 'Challenge'}
           navigation="back"
@@ -705,12 +713,13 @@ export default function ChallengeDetail() {
           {summary}
           {details}
         </SubScreen>
+        {menu}
       </View>
     );
   }
 
   return (
-    <View style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
+    <View ref={rootRef} collapsable={false} style={styles.flex} onStartShouldSetResponderCapture={closeMenuOnTouch}>
     <HeroScreen
       scrollToEndOnOpen={!!commentsParam}
       slideIn
@@ -727,17 +736,8 @@ export default function ChallengeDetail() {
     >
       {details}
     </HeroScreen>
+    {menu}
     </View>
-  );
-}
-
-/** Grund des Zahnrad-Menüs: Blur und halbdurchsichtige Kartenfarbe (Daria, 2026-11-06) */
-function MenuBackdrop() {
-  return (
-    <>
-      <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} pointerEvents="none" />
-      <View style={[StyleSheet.absoluteFill, styles.menuTint]} pointerEvents="none" />
-    </>
   );
 }
 
@@ -780,22 +780,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   gear: { marginRight: -space[4] },
   gearOpen: { opacity: 0.7 },
-  menu: {
-    position: 'absolute',
-    top: size.touchTarget + space[6],
-    right: 0,
-    minWidth: 200,
-    borderRadius: radius.lg,
-    borderWidth: stroke.ultraThin,
-    borderColor: color.line.hairline,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  menuTint: { backgroundColor: color.bg.menu },
   // Eigene Ebene: Sonst liegen Blur und Tönung im Web über den Einträgen
   menuItem: { position: 'relative', minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
   menuDivider: { borderBottomWidth: stroke.ultraThin, borderBottomColor: color.line.hairline },
