@@ -1,15 +1,17 @@
 // Look der App. „Kiez“ ist das eigene Design: bunte Akzente auf dunklem Grund. Der „Light-Modus“ (Daria, 2026-11-25:
 // „das cleane Design, gleiche UI“, Name „einfach Light-Modus“) hat dieselbe Bedienung und denselben Aufbau, nur hellen
 // Grund. Er löst den alten Look „Fashionable“ ab (Git-Tag `fashionable-archiv`). Entwurf: vorerst nur im Web über den
-// Link `?look=light` wählbar.
+// Link `?look=light` wählbar. „Mono“ (Daria, 2026-11-25: „noch cleaner, überwiegend schwarz-weiß mit dem anderen Set an
+// Icons“) baut auf dem Light-Modus auf: weißer Grund, Schwarz als einzige Bedienfarbe, Linien-Icons (Phosphor).
+// Im Web über `?look=mono`.
 // Die Tokens lesen den Look einmal beim Start, da StyleSheet.create die Farben beim Laden festschreibt.
 // Ein Wechsel lädt die App deshalb neu. Der Browser merkt sich die Wahl.
 import { Platform } from 'react-native';
 
-export type Look = 'kiez' | 'light';
+export type Look = 'kiez' | 'light' | 'mono';
 
 const KEY = 'kiez-look';
-const isLook = (v: unknown): v is Look => v === 'kiez' || v === 'light';
+const isLook = (v: unknown): v is Look => v === 'kiez' || v === 'light' || v === 'mono';
 
 function readLook(): Look {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return 'kiez';
@@ -27,13 +29,15 @@ function readLook(): Look {
 
 export const look: Look = readLook();
 
-/** Light-Modus: heller Grund, sonst wie Kiez */
-export const isLight = look === 'light';
+/** Heller Grund: Light-Modus und Mono */
+export const isLight = look === 'light' || look === 'mono';
+/** Mono: schwarz-weiß mit Linien-Icons */
+export const isMono = look === 'mono';
 
 // Seite hinter der App und Statusleiste der PWA im Papierweiß des Light-Modus (public/index.html setzt das Kiez-Grau)
 if (isLight && typeof document !== 'undefined') {
-  const paper = '#F6F4F0';
-  const ink = '#24221F';
+  const paper = isMono ? '#FFFFFF' : '#F6F4F0';
+  const ink = isMono ? '#111111' : '#24221F';
   document.documentElement.style.backgroundColor = paper;
   document.documentElement.style.colorScheme = 'light';
   document.documentElement.style.setProperty('accent-color', ink);

@@ -8,6 +8,8 @@ const regular = [
   'copy', 'eye', 'squares-four', 'check-circle', 'users-three', 'handshake', 'translate', 'palette',
   'gift', 'thumbs-up', 'heart', 'coins', 'toggle-right', 'text-aa',
   'hand-waving', 'arrow-right', 'question', 'eye-slash', 'dots-three-vertical', 'magnifying-glass', 'list-bullets',
+  // Linien-Icons im Look Mono (2026-11-25)
+  'arrow-square-out', 'calendar-blank', 'tree', 'hands-clapping',
 ];
 const fill = ['heart'];
 

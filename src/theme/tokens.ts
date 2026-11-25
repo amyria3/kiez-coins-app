@@ -4,7 +4,7 @@
 
 import type { TextStyle } from 'react-native';
 
-import { isLight } from './look';
+import { isLight, isMono } from './look';
 
 /** Für BlurView, Systemglas und Statusleiste: dunkel im Kiez-Look, hell im Light-Modus (seit 2026-11-25) */
 export const scheme: 'dark' | 'light' = isLight ? 'light' : 'dark';
@@ -193,6 +193,8 @@ const kiezColor = {
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
     signature: palette.purple,
+    /** Schriftzug im Logo: im Kiez-Look und Light-Modus wie in der Marke (undefined), in Mono Schwarz */
+    wordmark: undefined as string | undefined,
   },
   accent: {
     primary: palette.purple,
@@ -481,6 +483,119 @@ const lightOverrides = {
   toggle: { off: light.aus, offFunctional: light.aus, offPrivate: light.aus, offShowcase: light.aus },
 };
 
+/**
+ * Mono (Daria, 2026-11-25: „noch cleaner, überwiegend schwarz-weiß mit dem anderen Set an Icons“): baut auf dem
+ * Light-Modus auf. Weißer Grund, Schwarz als einzige Bedienfarbe (Knöpfe, Fokus, Schalter, gewählte Reiter), Flächen
+ * in hellem Grau. Farbe tragen nur noch das Herz und Fehler. Die Icons sind Linien (Phosphor, `icons/lineSvgs.ts`).
+ */
+const mono = {
+  white: '#FFFFFF',
+  /** Flächen: Umschalter, Suchfeld, Karten */
+  surface: '#F2F2F2',
+  /** Zweite Grau-Stufe, z. B. feste Termine */
+  surface2: '#E4E4E4',
+  /** Schwarz: Schrift und alle Bedienelemente, 18,9 : 1 auf Weiß */
+  ink: '#111111',
+  /** Nebenschrift: 5,3 : 1 auf Weiß */
+  inkSoft: '#6B6B6B',
+  /** Herz: einziges Rot, 3,9 : 1 auf Weiß (Symbol, keine Schrift) */
+  herz: '#E5484D',
+  /** Fehler als Schrift: 4,9 : 1 auf Weiß */
+  fehler: '#C93A1E',
+  /** Ausgeschaltete Schalter */
+  aus: '#D4D4D4',
+} as const;
+
+const monoOverrides = {
+  bg: {
+    screen: mono.white,
+    surface: mono.surface,
+    glass: withAlpha(mono.white, 0.92),
+    sheet: withAlpha(mono.white, 0.7),
+    frost: withAlpha(mono.white, 0.8),
+    scrim: withAlpha(mono.ink, 0.2),
+    menu: withAlpha(mono.white, 0.94),
+  },
+  line: {
+    hairline: withAlpha(mono.ink, 0.1),
+    raised: withAlpha(mono.ink, 0.06),
+    confirmation: withAlpha(mono.ink, 0.15),
+  },
+  text: {
+    primary: mono.ink,
+    secondary: mono.inkSoft,
+    placeholder: withAlpha(mono.inkSoft, 0.6),
+    onAccent: mono.white,
+    mention: mono.ink,
+    onPhotoAccent: mono.white,
+  },
+  icon: { large: mono.ink, startGears: { 3: mono.ink, 4: mono.ink, 5: mono.ink } as Record<number, string> },
+  nav: {
+    bar: withAlpha(mono.white, 0.96),
+    icon: mono.ink,
+    bubble: mono.surface,
+    calendar: mono.ink,
+    feed: mono.ink,
+    chat: mono.ink,
+    menu: mono.ink,
+    create: mono.ink,
+    onCreate: mono.white,
+  },
+  brand: { signature: mono.ink, wordmark: mono.ink },
+  accent: {
+    primary: mono.ink,
+    outline: mono.ink,
+    primaryLine: undefined,
+    affection: mono.herz,
+    private: mono.ink,
+    turn: mono.ink,
+    confirmation: mono.ink,
+    focus: mono.ink,
+    functional: mono.ink,
+    showcase: mono.ink,
+    signal: mono.fehler,
+    error: mono.fehler,
+  },
+  routine: {
+    task: mono.surface2,
+    fixed: '#D9D9D9',
+    saved: mono.surface,
+    showcase: '#EBEBEB',
+    ink: mono.ink,
+    pill: mono.inkSoft,
+  },
+  system: { bg: mono.surface, text: mono.ink, crab: mono.ink },
+  kater: { bubbleSolid: mono.surface, close: mono.inkSoft },
+  heart: { fill: mono.herz, outline: mono.white },
+  financeDotInactive: mono.aus,
+  showcasePlaceholder: { cover: ['#EDEDED', '#F7F7F7', '#E2E2E2'] },
+  accountCards: {
+    activity: mono.surface,
+    posts: mono.surface,
+    friendship: [mono.surface, mono.surface],
+    showcase: mono.surface,
+    functional: [mono.surface, mono.surface, mono.surface],
+    cat: mono.ink,
+    catInk: mono.white,
+    catInkSoft: mono.aus,
+  },
+  showcaseCards: {
+    card: mono.surface,
+    event: mono.surface2,
+    secondaryOnDark: mono.ink,
+    highlight: mono.surface2,
+    underlineOnCard: withAlpha(mono.ink, 0.5),
+    band: mono.surface,
+    post: mono.white,
+  },
+  textTone: {
+    showcase: { primary: mono.ink, secondary: mono.inkSoft },
+    me: { primary: mono.ink, secondary: mono.inkSoft },
+    functional: { primary: mono.ink, secondary: mono.inkSoft },
+  },
+  toggle: { off: mono.aus, offFunctional: mono.aus, offPrivate: mono.aus, offShowcase: mono.aus },
+};
+
 /** Überschreibt Blätter eines verschachtelten Objekts, Arrays als Ganzes */
 function override<T>(base: T, patch: unknown): T {
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return (patch ?? base) as T;
@@ -490,7 +605,11 @@ function override<T>(base: T, patch: unknown): T {
 }
 
 // Theme (semantische Farben, nur diese in Komponenten verwenden)
-export const color: typeof kiezColor = isLight ? override(kiezColor, lightOverrides) : kiezColor;
+export const color: typeof kiezColor = isMono
+  ? override(override(kiezColor, lightOverrides), monoOverrides)
+  : isLight
+    ? override(kiezColor, lightOverrides)
+    : kiezColor;
 
 // Spacing
 export const space = {
