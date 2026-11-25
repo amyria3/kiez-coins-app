@@ -297,7 +297,6 @@
   "Wähle „Termin erstellen“.": "اختر «إنشاء موعد».",
   "Post erstellen": "إنشاء منشور",
   "Termin erstellen": "إنشاء موعد",
-  "Schaufenster bearbeiten": "تعديل نافذة العرض",
   "Trage Titel, Tag und Uhrzeit ein. Danach tippe auf „Termin erstellen“.": "أدخل العنوان واليوم والوقت. بعدها انقر على «إنشاء موعد».",
   "Wann?": "متى؟",
   "Morgen": "غدًا",
@@ -331,9 +330,6 @@
   "Google-Unternehmensprofil": "الملف التجاري على Google",
   "Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Mit einem kostenlosen Unternehmensprofil erscheinst Du auch in Google Maps.": "يقرأ Google صفحتك على الويب: الاسم والعنوان والخريطة وأوقات العمل والمواعيد. مع ملف تجاري مجاني تظهر أيضًا في خرائط Google.",
   "15 Minuten, dazu einige Tage Prüfung durch Google": "15 دقيقة، إضافة إلى بضعة أيام من مراجعة Google",
-  "Öffne „Dein Schaufenster“. Im Abschnitt „Google“ tippe auf „Google-Unternehmensprofil anlegen“.": "افتح «واجهة متجرك». في قسم «Google» انقر على «إنشاء ملف تجاري على Google».",
-  "Deine Seite": "صفحتك",
-  "Schaufenster im Web": "واجهة العرض على الويب",
   "Wie finden mich Leute bei Google Maps?": "كيف يجدني الناس على خرائط Google؟",
   "Google liest Deine Seite im Web. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein.": "يقرأ Google صفحتك على الويب. لخرائط Google تنشئ ملفًا تجاريًا مجانًا وتضع فيه رابط صفحتك كموقع إلكتروني.",
   "Google-Unternehmensprofil anlegen": "إنشاء ملف تجاري على Google",
@@ -443,5 +439,9 @@
   "Buchungslink speichern": "حفظ رابط الحجز",
   "Schalte unter „Funktionen“ „Bezahlen“ ein.": "في «الميزات» شغّل «الدفع».",
   "Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn mit Titel und Betrag ein und tippe auf „Zahlungslinks speichern“.": "أنشئ رابط دفع لدى Stripe أو SumUp أو PayPal. أدخله مع عنوان ومبلغ، ثم انقر على «حفظ روابط الدفع».",
-  "Zahlungslinks speichern": "حفظ روابط الدفع"
+  "Zahlungslinks speichern": "حفظ روابط الدفع",
+  "Unter „Funktionen“ ist „Bei Google finden lassen“ schon an. Tippe darunter auf „Google-Unternehmensprofil anlegen“.": "في «الميزات» يكون «الظهور في نتائج بحث Google» مفعّلًا. انقر تحته على «إنشاء ملف تجاري على Google».",
+  "Bei Google finden lassen": "الظهور في نتائج بحث Google",
+  "Digitale Visitenkarte teilen": "مشاركة بطاقة العمل الرقمية",
+  "Druckbare Visitenkarte (PDF)": "بطاقة عمل قابلة للطباعة (PDF)"
 }

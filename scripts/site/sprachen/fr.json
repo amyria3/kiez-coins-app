@@ -294,7 +294,6 @@
   "Wähle „Termin erstellen“.": "Choisis « Créer un rendez-vous ».",
   "Post erstellen": "Créer un message",
   "Termin erstellen": "Créer un rendez-vous",
-  "Schaufenster bearbeiten": "Modifier la vitrine",
   "Trage Titel, Tag und Uhrzeit ein. Danach tippe auf „Termin erstellen“.": "Saisis le titre, le jour et l’heure. Ensuite, touche « Créer un rendez-vous ».",
   "Wann?": "Quand ?",
   "Morgen": "Demain",
@@ -328,9 +327,6 @@
   "Google-Unternehmensprofil": "Fiche d’établissement Google",
   "Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Mit einem kostenlosen Unternehmensprofil erscheinst Du auch in Google Maps.": "Google lit ta page sur le web : nom, adresse, carte, horaires et rendez-vous. Avec une fiche d’établissement gratuite, tu apparais aussi dans Google Maps.",
   "15 Minuten, dazu einige Tage Prüfung durch Google": "15 minutes, plus quelques jours de vérification par Google",
-  "Öffne „Dein Schaufenster“. Im Abschnitt „Google“ tippe auf „Google-Unternehmensprofil anlegen“.": "Ouvre « Ta vitrine ». Dans la section « Google », touche « Créer une fiche d’établissement Google ».",
-  "Deine Seite": "Ta page",
-  "Schaufenster im Web": "Vitrine sur le web",
   "Wie finden mich Leute bei Google Maps?": "Comment me trouve-t-on sur Google Maps ?",
   "Google liest Deine Seite im Web. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein.": "Google lit ta page sur le web. Pour Google Maps, tu crées gratuitement une fiche d’établissement et tu y indiques le lien vers ta page comme site web.",
   "Google-Unternehmensprofil anlegen": "Créer une fiche d’établissement Google",
@@ -440,5 +436,9 @@
   "Buchungslink speichern": "Enregistrer le lien de réservation",
   "Schalte unter „Funktionen“ „Bezahlen“ ein.": "Sous « Fonctions », active « Paiement ».",
   "Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn mit Titel und Betrag ein und tippe auf „Zahlungslinks speichern“.": "Crée un lien de paiement chez Stripe, SumUp ou PayPal. Saisis-le avec un titre et un montant, puis touche « Enregistrer les liens de paiement ».",
-  "Zahlungslinks speichern": "Enregistrer les liens de paiement"
+  "Zahlungslinks speichern": "Enregistrer les liens de paiement",
+  "Unter „Funktionen“ ist „Bei Google finden lassen“ schon an. Tippe darunter auf „Google-Unternehmensprofil anlegen“.": "Sous « Fonctions », « Apparaître dans les résultats de recherche Google » est déjà activé. Juste en dessous, touche « Créer une fiche d’établissement Google ».",
+  "Bei Google finden lassen": "Apparaître dans les résultats de recherche Google",
+  "Digitale Visitenkarte teilen": "Partager ta carte de visite numérique",
+  "Druckbare Visitenkarte (PDF)": "Carte de visite imprimable (PDF)"
 }

@@ -297,7 +297,6 @@
   "Wähle „Termin erstellen“.": "Выбери «Создать встречу».",
   "Post erstellen": "Создать сообщение",
   "Termin erstellen": "Создать встречу",
-  "Schaufenster bearbeiten": "Редактировать витрину",
   "Trage Titel, Tag und Uhrzeit ein. Danach tippe auf „Termin erstellen“.": "Введи название, день и время. Потом коснись «Создать встречу».",
   "Wann?": "Когда?",
   "Morgen": "Завтра",
@@ -331,9 +330,6 @@
   "Google-Unternehmensprofil": "Профиль компании в Google",
   "Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Mit einem kostenlosen Unternehmensprofil erscheinst Du auch in Google Maps.": "Google читает твою страницу в интернете: название, адрес, карту, часы работы и события. С бесплатным профилем компании ты появляешься и в Google Maps.",
   "15 Minuten, dazu einige Tage Prüfung durch Google": "15 минут, плюс несколько дней проверки от Google",
-  "Öffne „Dein Schaufenster“. Im Abschnitt „Google“ tippe auf „Google-Unternehmensprofil anlegen“.": "Открой «Твоя витрина». В разделе «Google» коснись «Создать профиль компании в Google».",
-  "Deine Seite": "Твой сайт",
-  "Schaufenster im Web": "Витрина в интернете",
   "Wie finden mich Leute bei Google Maps?": "Как люди найдут меня в Google Maps?",
   "Google liest Deine Seite im Web. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein.": "Google читает твою страницу в интернете. Для Google Maps ты бесплатно создаёшь профиль компании и указываешь там ссылку на свою страницу как сайт.",
   "Google-Unternehmensprofil anlegen": "Создать профиль компании в Google",
@@ -443,5 +439,9 @@
   "Buchungslink speichern": "Сохранить ссылку для бронирования",
   "Schalte unter „Funktionen“ „Bezahlen“ ein.": "В разделе «Функции» включи «Оплата».",
   "Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn mit Titel und Betrag ein und tippe auf „Zahlungslinks speichern“.": "Создай платёжную ссылку в Stripe, SumUp или PayPal. Добавь её с названием и суммой и коснись «Сохранить платёжные ссылки».",
-  "Zahlungslinks speichern": "Сохранить платёжные ссылки"
+  "Zahlungslinks speichern": "Сохранить платёжные ссылки",
+  "Unter „Funktionen“ ist „Bei Google finden lassen“ schon an. Tippe darunter auf „Google-Unternehmensprofil anlegen“.": "В разделе «Функции» переключатель «Чтобы тебя нашли в Google» уже включён. Под ним коснись «Создать профиль компании в Google».",
+  "Bei Google finden lassen": "Чтобы тебя нашли в Google",
+  "Digitale Visitenkarte teilen": "Поделиться цифровой визиткой",
+  "Druckbare Visitenkarte (PDF)": "Визитная карточка для печати (PDF)"
 }
