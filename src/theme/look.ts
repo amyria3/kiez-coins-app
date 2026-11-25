@@ -1,20 +1,38 @@
-// Look der App. „Kiez“ ist das eigene Design: bunte Akzente auf dunklem Grund. Der „Light-Modus“ (Daria, 2026-11-25:
-// „das cleane Design, gleiche UI“, Name „einfach Light-Modus“) hat dieselbe Bedienung und denselben Aufbau, nur hellen
-// Grund. Er löst den alten Look „Fashionable“ ab (Git-Tag `fashionable-archiv`). Entwurf: vorerst nur im Web über den
-// Link `?look=light` wählbar. „Mono“ (Daria, 2026-11-25: „noch cleaner, überwiegend schwarz-weiß mit dem anderen Set an
-// Icons“) baut auf dem Light-Modus auf: weißer Grund, Schwarz als einzige Bedienfarbe, Linien-Icons (Phosphor).
-// Im Web über `?look=mono`.
-// Die Tokens lesen den Look einmal beim Start, da StyleSheet.create die Farben beim Laden festschreibt.
-// Ein Wechsel lädt die App deshalb neu. Der Browser merkt sich die Wahl.
-import { Platform } from 'react-native';
+// Look der App, wählbar unter Dein Konto › Look (Daria, 2026-11-25: „als Look-Option in den Einstellungen“).
+// „Kiez“ ist das eigene Design: bunte Akzente auf dunklem Grund, Standard für alle.
+// „Light-Modus“ (Daria, 2026-11-25: „das cleane Design, gleiche UI“, Name „einfach Light-Modus“): dieselbe Bedienung und
+// derselbe Aufbau, heller Grund, die bunten Akzente leicht angepasst. Löst den alten Look „Fashionable“ ab (Git-Tag
+// `fashionable-archiv`).
+// „Mono“ (Daria, 2026-11-25: „noch cleaner, überwiegend schwarz-weiß mit dem anderen Set an Icons“, „ohne
+// handgezeichnete Elemente“): baut auf dem Light-Modus auf, Schwarz als einzige Bedienfarbe, Linien-Icons, glatte Formen.
+// Die Tokens lesen den Look einmal beim Start, da StyleSheet.create die Farben beim Laden festschreibt. Ein Wechsel
+// startet die App deshalb neu. Gespeichert im Web in localStorage (Link `?look=light|mono|kiez` wählt vor), auf iOS
+// und Android in SecureStore, das sich beim Start synchron lesen lässt.
+import { DevSettings, Platform } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
+import * as Updates from 'expo-updates';
 
 export type Look = 'kiez' | 'light' | 'mono';
+
+/** Auswahl unter Dein Konto › Look */
+export const looks: { code: Look; name: string; description: string }[] = [
+  { code: 'kiez', name: 'Kiez', description: 'Bunt auf dunklem Grund' },
+  { code: 'light', name: 'Light-Modus', description: 'Hell, mit bunten Akzenten' },
+  { code: 'mono', name: 'Mono', description: 'Schwarz-weiß, schlichte Icons' },
+];
 
 const KEY = 'kiez-look';
 const isLook = (v: unknown): v is Look => v === 'kiez' || v === 'light' || v === 'mono';
 
 function readLook(): Look {
-  if (Platform.OS !== 'web' || typeof window === 'undefined') return 'kiez';
+  if (Platform.OS !== 'web') {
+    try {
+      const saved = SecureStore.getItem(KEY);
+      if (isLook(saved)) return saved;
+    } catch {}
+    return 'kiez';
+  }
+  if (typeof window === 'undefined') return 'kiez';
   try {
     const fromLink = new URLSearchParams(window.location.search).get('look');
     if (isLook(fromLink)) {
@@ -61,13 +79,23 @@ if (isLight && typeof document !== 'undefined') {
   document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.setAttribute('content', 'default');
 }
 
-/** Look speichern und die App neu laden. Der Parameter `look` im Link fällt dabei weg. */
-export function setLook(next: Look) {
-  if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+/** Look speichern und die App neu starten. Im Web fällt der Parameter `look` im Link dabei weg. */
+export async function setLook(next: Look) {
+  if (Platform.OS === 'web') {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(KEY, next);
+    } catch {}
+    const url = new URL(window.location.href);
+    url.searchParams.delete('look');
+    window.location.replace(url.toString());
+    return;
+  }
+  await SecureStore.setItemAsync(KEY, next);
   try {
-    window.localStorage.setItem(KEY, next);
-  } catch {}
-  const url = new URL(window.location.href);
-  url.searchParams.delete('look');
-  window.location.replace(url.toString());
+    await Updates.reloadAsync();
+  } catch {
+    // Entwicklung ohne expo-updates
+    if (__DEV__) DevSettings.reload();
+  }
 }
