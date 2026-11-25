@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { SUPABASE_URL, supabase } from '../lib/supabase';
+import { calBookingId } from './calBooking';
 import { addDays, localDate } from './reminders';
 
 /**
@@ -21,6 +22,8 @@ export type CalendarEvent = {
   allDay: boolean;
   /** Name des Kalenders */
   calendar: string;
+  /** Buchungsnummer bei Cal.com (Daria, 2026-11-25): Die Karte bietet dann „Absagen“ an, siehe calBooking.ts */
+  calBooking?: string;
 };
 
 /** `shown`: eigener Schalter je Kalender, aus blendet seine Termine in Routine aus (Daria, 2026-11-13) */
@@ -178,6 +181,7 @@ async function deviceEvents(days: number): Promise<CalendarEvent[]> {
     );
     return events.map((e) => {
       const s = new Date(e.startDate);
+      const calBooking = calBookingId(null, e.notes);
       return {
         id: `device:${e.id}:${s.toISOString()}`,
         title: e.title || '(ohne Titel)',
@@ -185,6 +189,7 @@ async function deviceEvents(days: number): Promise<CalendarEvent[]> {
         end: e.endDate ? new Date(e.endDate).toISOString() : undefined,
         allDay: !!e.allDay,
         calendar: names.get(e.calendarId) ?? '',
+        ...(calBooking ? { calBooking } : {}),
       };
     });
   } catch {
