@@ -7,6 +7,7 @@ import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { Image } from 'expo-image';
 
 import type { Challenge } from '../data/types';
+import { handDrawn } from '../theme/look';
 import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { useAccentColor, usePrivateSignal } from '../theme/signal';
 import { Notice } from './Content';
@@ -590,7 +591,7 @@ function HandKnob({
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: left - m, top: BAR_PAD - m }}>
       <Svg width={width + 2 * m} height={height + 2 * m}>
-        <G transform={`translate(${m} ${m}) rotate(2 ${width / 2} ${height / 2})`}>
+        <G transform={`translate(${m} ${m}) rotate(${handDrawn ? 2 : 0} ${width / 2} ${height / 2})`}>
           <Path d={d} fill={shown} />
         </G>
       </Svg>

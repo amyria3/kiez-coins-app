@@ -43,6 +43,7 @@ import { t } from '../../../data/texts';
 import { useGoBack } from '../../../lib/goBack';
 import { openInMaps, openLink, sharePlace } from '../../../lib/places';
 import { shareLink } from '../../../lib/share';
+import { handDrawn } from '../../../theme/look';
 import { color, radius, space, text, withAlpha } from '../../../theme/tokens';
 
 /**
@@ -497,7 +498,7 @@ function CardRow({ title, count, children }: { title: string; count: number; chi
         >
           {items.map((c, i) => (
             // Leicht schräg wie die Karten in Routine, abwechselnd
-            <View key={i} style={[styles.slot, { width: cardWidth, transform: [{ rotate: i % 2 ? '0.7deg' : '-0.7deg' }] }]}>
+            <View key={i} style={[styles.slot, { width: cardWidth, transform: [{ rotate: handDrawn ? (i % 2 ? '0.7deg' : '-0.7deg') : '0deg' }] }]}>
               {c}
             </View>
           ))}
@@ -522,7 +523,7 @@ function CardGrid({ title, count, wide, children }: { title: string; count: numb
       <View style={styles.grid}>
         {items.map((c, i) => (
           // Leicht schräg wie die Karten in Routine, abwechselnd
-          <View key={i} style={[styles.cell, wide[i] ? styles.cellWide : styles.cellNarrow, { transform: [{ rotate: i % 2 ? '0.7deg' : '-0.7deg' }] }]}>
+          <View key={i} style={[styles.cell, wide[i] ? styles.cellWide : styles.cellNarrow, { transform: [{ rotate: handDrawn ? (i % 2 ? '0.7deg' : '-0.7deg') : '0deg' }] }]}>
             {c}
           </View>
         ))}

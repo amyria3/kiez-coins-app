@@ -33,6 +33,21 @@ export const look: Look = readLook();
 export const isLight = look === 'light' || look === 'mono';
 /** Mono: schwarz-weiß mit Linien-Icons */
 export const isMono = look === 'mono';
+/**
+ * Handgezeichnete Formen (Knöpfe, Schalter, Reiter) und schräge Karten. In Mono glatt und gerade (Daria, 2026-11-25:
+ * „bitte ohne handgezeichnete Elemente“).
+ */
+export const handDrawn = !isMono;
+
+/** Glatte Pille für Breite × Höhe, ab `inset` nach innen gerückt: Ersatz für die gezeichneten Formen in Mono */
+export function pillPath(width: number, height: number, inset = 0): string {
+  const w = Math.max(1, width - 2 * inset);
+  const h = Math.max(1, height - 2 * inset);
+  const r = Math.min(h, w) / 2;
+  const x = inset;
+  const y = inset;
+  return `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + h}H${x + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`;
+}
 
 // Seite hinter der App und Statusleiste der PWA im Papierweiß des Light-Modus (public/index.html setzt das Kiez-Grau)
 if (isLight && typeof document !== 'undefined') {
