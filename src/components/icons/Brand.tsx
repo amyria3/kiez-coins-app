@@ -54,8 +54,7 @@ export function tintWordmark(svg: string, ink: string): string {
  */
 export const Logo = memo(function Logo({ height = 24, tint }: { height?: number; tint?: string }) {
   const art = brandArt.wortbildmarke;
-  const ink = tint ?? color.brand.wordmark;
-  const xml = ink ? tintWordmark(art.svg, ink) : art.svg;
+  const xml = tint ? tintWordmark(art.svg, tint) : art.svg;
   return <SvgXml xml={xml} width={(art.width / art.height) * height} height={height} />;
 });
 

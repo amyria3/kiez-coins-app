@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   fallback: { backgroundColor: color.accent.primary, alignItems: 'center', justifyContent: 'center' },
   // Ausnahme: Initialen passen sich der Größe des Kreises an, keine Textrolle
   // eslint-disable-next-line no-restricted-syntax
-  initials: { fontFamily: font.semiBold, fontSize: 14, color: color.bg.screen },
+  initials: { fontFamily: font.semiBold, fontSize: 14, color: color.text.onAccent },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

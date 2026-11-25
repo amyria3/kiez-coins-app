@@ -126,9 +126,10 @@ export function Button({ label: original, onPress: press, onPressIn, variant = '
 const variants: Record<ButtonVariant, { fill?: string; line?: string; label: string; filled?: boolean }> = {
   primary: { fill: color.accent.primary, label: color.text.onAccent, filled: true },
   // Secondary und Ghost in Lila (Daria, 2026-11-11)
-  secondary: { line: color.accent.primary, label: color.accent.primary },
+  // Ruhiger Look (2026-11-25): Rand und Schrift in Tinte über `accent.outline`, im Kiez-Look derselbe Wert wie der Akzent
+  secondary: { line: color.accent.outline, label: color.accent.outline },
   // Upgrade „Nachtschicht“: Text ohne Rahmen, für die zweite Wahl unter einem Primary
-  ghost: { label: color.accent.primary },
+  ghost: { label: color.accent.outline },
   signal: { fill: color.accent.signal, label: color.bg.screen, filled: true },
   signalOutline: { line: color.accent.signal, label: color.accent.signal },
   danger: { line: color.accent.error, label: color.accent.error },

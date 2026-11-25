@@ -159,10 +159,8 @@ const kiezColor = {
     onPhoto: kiezPalette.white,
     /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im ruhigen Look Tannengrün */
     mention: palette.green,
-    /** Kleine Marke auf dunklem Glas über dem Foto (z. B. „Wave“): im Kiez-Look Rosa, im ruhigen Look hell wie die Schrift auf Fotos */
+    /** Kleine Marke auf dunklem Glas über dem Foto (z. B. „Wave“), in beiden Looks Rosa */
     onPhotoAccent: palette.pink,
-    /** Marke #InDiesemMoment auf dem Foto: im Kiez-Look die Farbe der Marke (undefined), im ruhigen Look hell, da die gedeckten Töne auf Fotos untergehen */
-    onPhotoTag: undefined as string | undefined,
   },
   /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
   icon: {
@@ -195,11 +193,14 @@ const kiezColor = {
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
     signature: palette.purple,
-    /** Schriftzug im Logo: im Kiez-Look wie in der Marke (undefined), im ruhigen Look in Tinte */
-    wordmark: undefined as string | undefined,
   },
   accent: {
     primary: palette.purple,
+    /**
+     * Rand und Schrift zweitrangiger Knöpfe: im Kiez-Look der Akzent (derselbe Wert wie `primary`, damit die Bereiche
+     * ihn umfärben), im ruhigen Look Tinte, da helle Akzente auf Papier nicht lesbar sind.
+     */
+    outline: palette.purple,
     affection: palette.pink,
     /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
     private: swatch.senf,
@@ -364,34 +365,42 @@ const kiezColor = {
 
 /**
  * Ruhiger Look „Fashionable“ (Daria, 2026-11-25: „das cleane Design, gleiche UI“). Gleicher Aufbau und dieselben
- * Rollen wie im Kiez-Look, nur ein zurückhaltendes Farbkonzept: warmes Papierweiß als Grund, Tinte als Schrift und
- * Hauptfarbe, die Bereiche (Me & Myself, Functional, Schaufenster) in gedeckten Tönen statt Leuchtfarben. Kein Lila
- * („Lila wirkt ungemütlich“, 2026-10-26). Schrift auf den Akzentflächen ist weiß; alle Akzente erreichen mit weißer
- * Schrift mindestens 4,5 : 1, Haupt- und Nebenschrift auf dem Grund mindestens 4,5 : 1.
- * Hier stehen nur die Rollen, die sich gegenüber dem Kiez-Look ändern.
+ * Rollen wie im Kiez-Look, nur auf hellem Grund: warmes Papierweiß, Tinte als Schrift. Die bunten Akzente des
+ * Kiez-Looks bleiben (Daria, 2026-11-25: „Stick with bright accent colors, adjust subtle“), leicht angepasst an den
+ * hellen Grund. Sie stehen als Flächen mit Tinte darauf (mindestens 4,7 : 1). Schrift und Ränder auf dem Grund sind
+ * Tinte, da die hellen Akzente dort nicht lesbar wären. Die Leiste unten ist dunkel, darauf leuchten die Akzente wie
+ * im Kiez-Look. Hier stehen nur die Rollen, die sich gegenüber dem Kiez-Look ändern.
  */
 const calm = {
   /** Grund: warmes Papierweiß */
   paper: '#F6F4F0',
-  /** Flächen: Umschalter, Suchfeld, Karten ohne Rand */
+  /** Flächen: Umschalter, Suchfeld, Hinweise */
   surface: '#ECE9E3',
-  /** Karten, die sich vom Grund abheben (Schaufenster, Konto) */
+  /** Karten, die sich vom Grund abheben (Schaufenster) */
   card: '#FFFFFF',
-  /** Tinte: Hauptschrift und Hauptfarbe, 14,4 : 1 auf Papier */
+  /** Tinte: Hauptschrift, Ränder und Schrift auf den Akzentflächen, 14,4 : 1 auf Papier */
   ink: '#24221F',
   /** Nebenschrift: 5,6 : 1 auf Papier */
   inkSoft: '#66615A',
   /** Icons: eine Stufe weicher als die Tinte */
   icon: '#3B3732',
-  /** Me & Myself: Ocker, 5,3 : 1 mit Weiß */
-  ocker: '#8A6618',
-  /** Functional und Bestätigung: Tannengrün, 6,4 : 1 mit Weiß */
+  /** Leiste unten: dunkle Tinte, darauf die Akzente */
+  bar: '#2E2B28',
+  /** Icons in der dunklen Leiste */
+  barIcon: '#EEE6D8',
+  /** Lila etwas tiefer als im Kiez-Look (#8F90FA): 3,1 : 1 auf Papier, Tinte darauf 4,7 : 1 */
+  lila: '#7F80F2',
+  /** Senf etwas kräftiger als #ECCF55, damit er auf Papier nicht verblasst */
+  senf: '#E8C640',
+  /** Grün etwas kräftiger als #7EE798 */
+  gruen: '#5FDB82',
+  /** Gelbgrün kräftiger als #F0FFA6, das auf Papier fast verschwindet */
+  gelbgruen: '#DDF26B',
+  /** Rosa etwas kräftiger als #FFB2E5 */
+  rosa: '#F79BD6',
+  /** Tannengrün: @-Namen als Schrift auf Papier, 5,8 : 1 */
   tanne: '#2E6A49',
-  /** Schaufenster: Oliv, 6,6 : 1 mit Weiß */
-  oliv: '#55631A',
-  /** Herz und Feed: gedecktes Rot, 4,6 : 1 auf Papier */
-  herz: '#C2414F',
-  /** Fehler und Signal: Rost, 5,1 : 1 auf Papier */
+  /** Fehler und Signal als Schrift: Rost, 5,1 : 1 auf Papier */
   rost: '#B0461A',
   /** Ausgeschaltete Schalter */
   aus: '#D3CEC6',
@@ -416,69 +425,48 @@ const calmOverrides = {
     primary: calm.ink,
     secondary: calm.inkSoft,
     placeholder: withAlpha(calm.inkSoft, 0.6),
-    onAccent: swatch.weiss,
+    onAccent: calm.ink,
     mention: calm.tanne,
-    onPhotoAccent: kiezPalette.white,
-    onPhotoTag: kiezPalette.white,
+    onPhotoAccent: calm.rosa,
   },
-  icon: {
-    large: calm.icon,
-    startGears: { 3: calm.herz, 4: calm.ocker, 5: calm.tanne } as Record<number, string>,
-  },
+  icon: { large: calm.icon },
   nav: {
-    bar: withAlpha(calm.card, 0.94),
-    icon: calm.icon,
-    bubble: calm.surface,
-    calendar: calm.ocker,
-    feed: calm.herz,
-    chat: calm.ink,
-    menu: calm.tanne,
-    create: calm.ink,
-    onCreate: swatch.weiss,
+    bar: withAlpha(calm.bar, 0.96),
+    icon: calm.barIcon,
+    bubble: '#45413C',
+    calendar: calm.senf,
+    feed: calm.rosa,
+    chat: swatch.schnee,
+    menu: calm.gruen,
+    create: calm.lila,
+    onCreate: calm.ink,
   },
-  brand: { signature: calm.ink, wordmark: calm.ink },
   accent: {
-    primary: calm.ink,
-    affection: calm.herz,
-    private: calm.ocker,
-    turn: calm.ocker,
-    confirmation: calm.tanne,
-    focus: calm.ink,
-    functional: calm.tanne,
-    showcase: calm.oliv,
+    primary: calm.lila,
+    outline: calm.ink,
+    affection: calm.rosa,
+    private: calm.senf,
+    turn: calm.senf,
+    confirmation: calm.gruen,
+    focus: calm.lila,
+    functional: calm.gruen,
+    showcase: calm.gelbgruen,
     signal: calm.rost,
     error: calm.rost,
   },
   routine: {
-    task: '#EFE2B4',
-    fixed: '#DFE5C6',
-    saved: '#EEE4D6',
-    showcase: '#E5ECC0',
     day: withAlpha(calm.ink, 0.06),
     hatch: withAlpha(calm.ink, 0.12),
     pill: calm.inkSoft,
   },
-  system: { bg: '#DCEADF', text: calm.ink, crab: calm.tanne },
+  system: { bg: calm.gruen, text: calm.ink, crab: calm.tanne },
   kater: { bubbleSolid: calm.card, close: calm.inkSoft },
-  heart: { fill: calm.herz, outline: swatch.weiss },
+  heart: { fill: calm.gruen, outline: calm.ink },
   financeDotInactive: calm.aus,
-  /** Leeres Schaufenster: sanfter Verlauf aus Sand, Salbei und Rosé statt Lila, Rosa und Orange */
-  showcasePlaceholder: { cover: ['#E4DDD0', '#DCE3CF', '#EBD9D3'] },
-  accountCards: {
-    activity: '#F1E5BF',
-    posts: '#F4DCE0',
-    friendship: ['#E2E1DC', '#EAE9E4'],
-    showcase: '#E8EDC9',
-    functional: ['#D6E8DB', '#E0EEE4', '#EAF3ED'],
-    cat: calm.card,
-    catInk: calm.ink,
-    catInkSoft: calm.inkSoft,
-  },
   showcaseCards: {
     card: calm.card,
-    event: '#E3EBB8',
-    secondaryOnDark: calm.oliv,
-    highlight: '#EAF0C4',
+    event: calm.gelbgruen,
+    secondaryOnDark: calm.ink,
     band: calm.surface,
     post: calm.card,
   },

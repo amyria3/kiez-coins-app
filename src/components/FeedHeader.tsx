@@ -350,7 +350,9 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   // „Privat“ gewählt: Knopf gelb, in jedem Umschalter, auch beim Erstellen (Daria, 2026-11-12)
   // In „Me & Myself“ und beim Erstellen unter „Privat“ ist jeder gewählte Knopf gelb (Daria, 2026-11-12)
   const privateOn = (lead?.active ? !!lead.private : selectedKey === 'private') || (signal && accent);
-  const on = accent && !privateOn ? color.text.onAccent : color.bg.screen;
+  // Schrift auf Akzentflächen (Gelb, Lila, Gelbgrün) in `text.onAccent`, auf dem Knopf in Icon-Farbe im Ton des Grunds.
+  // Im Kiez-Look sind beide gleich, im ruhigen Look ist `onAccent` Tinte (2026-11-25).
+  const on = accent || privateOn ? color.text.onAccent : color.bg.screen;
   /**
    * Knopf im Ruhezustand: papierweiß in der Farbe der großen Icons nur im Umschalter des Feeds (Daria, 2026-11-12:
    * Puder biss sich mit dem Feed). Sonst (`accent`) in der Akzentfarbe des Bereichs: lila, gelb oder gelbgrün

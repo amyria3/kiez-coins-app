@@ -381,7 +381,7 @@ function KiezPost({
                     { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
                   ]}
                 >
-                  <Text noTranslate style={[styles.tagOnPhotoText, { color: color.text.onPhotoTag ?? tagColorHere(PHOTO_TAG) }]} numberOfLines={1}>
+                  <Text noTranslate style={[styles.tagOnPhotoText, { color: tagColorHere(PHOTO_TAG) }]} numberOfLines={1}>
                     {PHOTO_TAG}
                   </Text>
                 </Animated.View>
