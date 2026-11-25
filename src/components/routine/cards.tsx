@@ -1,8 +1,9 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Alert, Animated, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { Alert, Animated, Linking, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { markCardSwipe } from '../../lib/cardSwipe';
 
+import { calCancelUrl, canCancel, minutesUntil, shortNoticeKind } from '../../data/calBooking';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { hideEvent } from '../../data/hiddenEvents';
 import { dayName, goalText, katerMood, whenText, type KaterMood } from '../../data/katerRoutine';
@@ -613,11 +614,17 @@ function CardHead({ meta, title }: { meta: string; title: string }) {
 /**
  * Termin aus einem verbundenen Kalender. Ausblenden (Daria, 2026-11-14): Tippen öffnet das Menü mit „Ausblenden“,
  * nach links ziehen blendet ohne Rückfrage aus. Im eigenen Kalender bleibt der Termin.
+ * Absagen (Daria, 2026-11-25): Nur bei Buchungen aus Cal.com und nur, solange der Termin nicht vorbei ist. Die Absage
+ * läuft auf der Absageseite von Cal.com, denn nur dort wird die Buchung storniert und die andere Seite bekommt eine
+ * Mail. KiezCoins liest den Kalender nur und blendet den Termin nicht selbst aus: Bricht man bei Cal.com ab, bleibt er.
  */
 export function CalendarCard({ event: e }: { event: CalendarEvent }) {
   const when = `${dayName(eventDate(e))} ${e.allDay ? t('ganztägig') : t('um {time}', { time: eventTime(e.start) })}`;
   const menu = useRef<(() => void) | null>(null);
   const hide = () => hideEvent(e);
+  const booking = e.calBooking && canCancel(e) ? e.calBooking : undefined;
+  const cancel = () => booking && confirmCalCancel(e, booking);
+  const items = [...(booking ? [{ label: 'Absagen', onPress: cancel }] : []), { label: 'Ausblenden', onPress: hide }];
   return (
     <Card
       bg={OLIVE}
@@ -639,10 +646,40 @@ export function CalendarCard({ event: e }: { event: CalendarEvent }) {
         <Text noTranslate style={styles.state}>
           {e.calendar || t('Aus Deinem Kalender')}
         </Text>
-        <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" openRef={menu} items={[{ label: 'Ausblenden', onPress: hide }]} />
+        <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" openRef={menu} items={items} />
       </View>
     </Card>
   );
+}
+
+/**
+ * Rückfrage vor dem Wechsel zu Cal.com (Daria, 2026-11-25): sagt, wo abgesagt wird und wer davon erfährt. Unter 24
+ * Stunden kommt ein Satz dazu, dass die Mail zu spät ankommen kann.
+ */
+function confirmCalCancel(e: CalendarEvent, booking: string) {
+  const soon = shortNoticeKind(e);
+  const minutes = minutesUntil(e) ?? 0;
+  const lead = t('Abgesagt wird bei Cal.com, dort wurde der Termin gebucht. Cal.com schreibt allen Gästen eine Mail und nimmt den Termin aus Deinem Kalender. Hier verschwindet er, sobald Dein Kalender das meldet.');
+  const late =
+    soon === 'running'
+      ? t('Der Termin läuft schon. Die Mail kommt vielleicht zu spät an, sag am besten auch direkt Bescheid.')
+      : soon === 'soon'
+        ? minutes < 60
+          ? t('Der Termin beginnt in {n} Minuten. Die Mail kommt vielleicht zu spät an, sag am besten auch direkt Bescheid.', { n: String(minutes) })
+          : t('Der Termin beginnt {when}. Die Mail kommt vielleicht zu spät an, sag am besten auch direkt Bescheid.', {
+              when: `${dayName(eventDate(e)).toLowerCase()} ${t('um {time}', { time: eventTime(e.start) })}`,
+            })
+        : '';
+  Alert.alert(t('Termin absagen?'), late ? `${lead}\n\n${late}` : lead, [
+    { text: t('Zurück'), style: 'cancel' },
+    {
+      text: t('Weiter zu Cal.com'),
+      onPress: () =>
+        Linking.openURL(calCancelUrl(booking)).catch(() =>
+          Alert.alert(t('Hat nicht geklappt'), t('Cal.com ließ sich gerade nicht öffnen.')),
+        ),
+    },
+  ]);
 }
 
 /** Gespeicherter Termin aus einem Schaufenster: Entfernen oder in den eigenen Kalender */

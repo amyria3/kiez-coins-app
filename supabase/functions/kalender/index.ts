@@ -6,7 +6,8 @@
 //    Exportiert werden einmalige Erinnerungen und feste Wochentage; „x-mal pro Woche“ hat keine Zeit im Kalender.
 //
 // 2. Import aus eigenen Kalendern, mit Anmeldung der Person im Header Authorization:
-//      POST { action: 'events', days?: number }  → { events: [{ id, title, start, end, allDay, calendar }] }
+//      POST { action: 'events', days?: number }  → { events: [{ id, title, start, end, allDay, calendar, calBooking? }] }
+//    calBooking: Buchungsnummer bei Terminen aus Cal.com (2026-11-25), die App bietet damit „Absagen“ über Cal.com an.
 //    Liest die iCal-Adressen aus routine_calendars (nur die eigenen, RLS) und gibt die Termine der nächsten
 //    `days` Tage zurück, nur von Kalendern mit Schalter an (Spalte shown, Migration 20261113000100) (Standard 14, höchstens 60). Der Abruf läuft hier, weil Google und iCloud dem Browser
 //    den Abruf verbieten (CORS).
@@ -214,7 +215,19 @@ async function fetchIcs(start: string): Promise<string | null> {
   }
 }
 
-type Out = { id: string; title: string; start: string; end?: string; allDay: boolean; calendar: string };
+/** `calBooking`: Buchungsnummer, wenn der Termin aus Cal.com kommt (Daria, 2026-11-25); damit bietet die App „Absagen“ an */
+type Out = { id: string; title: string; start: string; end?: string; allDay: boolean; calendar: string; calBooking?: string };
+
+// Cal.com-Buchung erkennen: UID „<nummer>@Cal.com“ oder Link cal.com/booking/<nummer> in der Beschreibung.
+// Dieselbe Regel steht in der App (src/data/calBooking.ts); ändert sich eine, die andere mitändern.
+const CAL_UID = /^([A-Za-z0-9_-]{6,64})@cal\.com$/i;
+const CAL_LINK = /https:\/\/(?:app\.)?cal\.com\/booking\/([A-Za-z0-9_-]{6,64})/i;
+function calBookingId(uid?: string | null, description?: string | null): string | undefined {
+  const fromUid = uid ? CAL_UID.exec(uid.trim()) : null;
+  if (fromUid) return fromUid[1];
+  const fromText = description ? CAL_LINK.exec(description) : null;
+  return fromText ? fromText[1] : undefined;
+}
 
 const asOut = (t: { isDate: boolean; toJSDate: () => Date; toString: () => string }) =>
   t.isDate ? t.toString().slice(0, 10) : t.toJSDate().toISOString();
@@ -240,7 +253,16 @@ function eventsOf(text: string, calendar: string, from: Date, to: Date): Out[] {
       const s = start.toJSDate();
       const en = end ? end.toJSDate() : s;
       if (en < from || s > to) return;
-      out.push({ id: `${e.uid}:${asOut(start)}`, title: title || '(ohne Titel)', start: asOut(start), end: end ? asOut(end) : undefined, allDay: start.isDate, calendar });
+      const calBooking = calBookingId(e.uid, e.description);
+      out.push({
+        id: `${e.uid}:${asOut(start)}`,
+        title: title || '(ohne Titel)',
+        start: asOut(start),
+        end: end ? asOut(end) : undefined,
+        allDay: start.isDate,
+        calendar,
+        ...(calBooking ? { calBooking } : {}),
+      });
     };
     if (!e.isRecurring()) {
       push(e.startDate, e.endDate, e.summary);

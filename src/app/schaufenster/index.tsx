@@ -244,9 +244,15 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
   const groupRef = useRef<string | null>(null);
 
   const reload = useCallback(() => {
-    if (currentUserId) myShowcases(currentUserId).then(setList, () => setList([]));
+    // Liefert das Laden zurück, damit holdInView nach dem neuen Layout ausgleichen kann
+    return currentUserId ? myShowcases(currentUserId).then(setList, () => setList([])) : undefined;
   }, [currentUserId]);
-  useFocusEffect(reload);
+  // Ohne Rückgabe: useFocusEffect nimmt nur eine Aufräum-Funktion an, keine Promise
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
   const openSettings = (s: Showcase, area: SettingsArea) =>
     router.push({ pathname: '/schaufenster/[id]/einstellungen', params: { id: s.id, bereich: area } });
 
