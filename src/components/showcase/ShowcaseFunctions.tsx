@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 
@@ -24,6 +24,7 @@ import { space } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup, Notice, QuestionHint } from '../Content';
 import { SwitchRow, TextField } from '../Form';
+import { holdInView } from '../Nudge';
 import { SetupSteps } from '../SetupSteps';
 import { PaymentLinksEditor, type PaymentDraft } from './PaymentLinksEditor';
 
@@ -77,7 +78,7 @@ const GOOGLE_PROFILE_URL = 'https://business.google.com/create';
  * - „Freundschaftsanfragen über das Schaufenster“.
  * Ohne die Migrationen fehlen die jeweiligen Schalter.
  */
-export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { showcase: Showcase; onOpenInvite: () => void; onChanged: () => void }) {
+export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { showcase: Showcase; onOpenInvite: () => void; onChanged: () => unknown }) {
   const [visibility, setVisibility] = useState<Visibility>(s.visibility);
   const [fn, setFn] = useState<Functions | null | undefined>(undefined);
   const [friends, setFriends] = useState<boolean | undefined>(undefined);
@@ -93,6 +94,7 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
   const [paymentSetup, setPaymentSetup] = useState(false);
   const [savingPayments, setSavingPayments] = useState(false);
   const [failed, setFailed] = useState(false);
+  const visibilityRow = useRef<View>(null);
   const online = s.switches.online;
   const isPublic = visibility === 'public';
 
@@ -134,7 +136,10 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
   };
   const toggleVisibility = async (on: boolean) => {
     const next: Visibility = on ? 'public' : 'invite';
-    if (await attempt(() => setVisibility(next), () => setVisibility(on ? 'invite' : 'public'), () => setShowcaseVisibility(s, next))) onChanged();
+    // Nach dem Speichern erscheinen oder verschwinden über „Funktionen“ die Abschnitte zu den Visitenkarten. Die Zeile
+    // mit dem Schalter bleibt dabei unter dem Finger, die Seite springt nicht (Daria, 2026-11-25).
+    if (await attempt(() => setVisibility(next), () => setVisibility(on ? 'invite' : 'public'), () => setShowcaseVisibility(s, next)))
+      holdInView(visibilityRow.current, onChanged);
   };
   const toggle = (key: keyof Functions, on: boolean) =>
     fn && attempt(() => setFn({ ...fn, [key]: on }), () => setFn((cur) => (cur ? { ...cur, [key]: !on } : cur)), () => setShowcaseFunction(s.id, key, on));
@@ -201,6 +206,7 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
   return (
     <FieldGroup heading label="Funktionen">
       <View style={styles.list}>
+        <View ref={visibilityRow} collapsable={false}>
         <SwitchRow
           label="Für alle sichtbar, auch im Web"
           description={
@@ -253,6 +259,7 @@ export function ShowcaseFunctions({ showcase: s, onOpenInvite, onChanged }: { sh
             </>
           ) : null}
         </SwitchRow>
+        </View>
         {!isPublic ? <Button label="Leute einladen" variant="secondary" icon="friends" onPress={onOpenInvite} /> : null}
 
         {booking !== undefined ? (
