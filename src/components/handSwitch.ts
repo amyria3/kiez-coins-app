@@ -1,3 +1,4 @@
+import { handDrawn, pillPath } from '../theme/look';
 import { iconSvgs } from './icons/svgs';
 
 /**
@@ -16,6 +17,8 @@ export const SWITCH_KNOB = { path: KNOB, x0: 5.03, x1: 32.87, y0: 5.01, y1: 31.3
  * fast wie gezeichnet. Der Pfad besteht nur aus absoluten M/L/C/Z mit Zahlenpaaren.
  */
 export function fitShape(shape: { path: string; x0: number; x1: number; y0: number; y1: number }, width: number, height: number): string {
+  // Mono: glatte Pille statt der gezeichneten Form (Daria, 2026-11-25)
+  if (!handDrawn) return pillPath(width, height);
   const { path, x0, x1, y0, y1 } = shape;
   const s = height / (y1 - y0);
   const L = x1 - x0;

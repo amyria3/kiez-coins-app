@@ -3,6 +3,8 @@
 // Alle Punkte rechts der Mitte rücken um die Mehrbreite nach rechts, die Form wird
 // dabei gleichmäßig auf die Höhe des Buttons skaliert.
 
+import { handDrawn, pillPath } from '../theme/look';
+
 const W = 197;
 const H = 46;
 /** Kleinste Breite (bei Höhe 46), bei der die Enden sich gerade berühren */
@@ -43,6 +45,7 @@ const r = (n: number) => Math.round(n * 100) / 100;
  * `inset` rückt die Form nach innen, damit eine Kontur der Breite 2 × inset ganz sichtbar bleibt.
  */
 export function handShapePath(width: number, height: number, inset = 0): string {
+  if (!handDrawn) return pillPath(width, height, inset);
   const h = Math.max(1, height - 2 * inset);
   const s = h / H;
   // Zu schmal: ganz einfach mitskalieren statt die Enden übereinanderzuschieben

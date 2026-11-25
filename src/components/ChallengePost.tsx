@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: color.overlay.heavy,
   },
-  waveText: { ...text.caption, color: color.accent.affection },
+  waveText: { ...text.caption, color: color.text.onPhotoAccent },
   closedTag: {},
   closedText: { ...text.caption, color: color.text.secondary },
   // Verwalten bleibt immer ganz sichtbar links, die Knöpfe stehen rechtsbündig (Daria, 2026-11-09)

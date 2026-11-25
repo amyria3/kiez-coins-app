@@ -7,6 +7,7 @@ import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { Image } from 'expo-image';
 
 import type { Challenge } from '../data/types';
+import { handDrawn } from '../theme/look';
 import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { useAccentColor, usePrivateSignal } from '../theme/signal';
 import { Notice } from './Content';
@@ -350,7 +351,9 @@ function PillSegments<K extends string>({ tabs, selectedKey, onChange, progress,
   // „Privat“ gewählt: Knopf gelb, in jedem Umschalter, auch beim Erstellen (Daria, 2026-11-12)
   // In „Me & Myself“ und beim Erstellen unter „Privat“ ist jeder gewählte Knopf gelb (Daria, 2026-11-12)
   const privateOn = (lead?.active ? !!lead.private : selectedKey === 'private') || (signal && accent);
-  const on = accent && !privateOn ? color.text.onAccent : color.bg.screen;
+  // Schrift auf Akzentflächen (Gelb, Lila, Gelbgrün) in `text.onAccent`, auf dem Knopf in Icon-Farbe im Ton des Grunds.
+  // Im Kiez-Look sind beide gleich, im ruhigen Look ist `onAccent` Tinte (2026-11-25).
+  const on = accent || privateOn ? color.text.onAccent : color.bg.screen;
   /**
    * Knopf im Ruhezustand: papierweiß in der Farbe der großen Icons nur im Umschalter des Feeds (Daria, 2026-11-12:
    * Puder biss sich mit dem Feed). Sonst (`accent`) in der Akzentfarbe des Bereichs: lila, gelb oder gelbgrün
@@ -588,7 +591,7 @@ function HandKnob({
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: left - m, top: BAR_PAD - m }}>
       <Svg width={width + 2 * m} height={height + 2 * m}>
-        <G transform={`translate(${m} ${m}) rotate(2 ${width / 2} ${height / 2})`}>
+        <G transform={`translate(${m} ${m}) rotate(${handDrawn ? 2 : 0} ${width / 2} ${height / 2})`}>
           <Path d={d} fill={shown} />
         </G>
       </Svg>

@@ -7,6 +7,7 @@ import { Text } from './T';
 
 import type { KaterAction, KaterSaying } from '../data/kater';
 import { t } from '../data/texts';
+import { handDrawn } from '../theme/look';
 import { color, motion, radius, space, text } from '../theme/tokens';
 
 // Ebenen aus Darias Figma-Kater, alle auf derselben Fläche 1300 × 1696 (Ausschnitt wie design/kater/KiezCoins Cat2.svg). Gebaut mit scripts/kater-ebenen.py (02.11.2026).
@@ -373,7 +374,7 @@ export function KaterBubble({ text, visible }: { text?: string; visible: Animate
         styles.bubble,
         {
           opacity: visible,
-          transform: [{ scale: visible.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }, { rotate: '-2deg' }],
+          transform: [{ scale: visible.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }, { rotate: handDrawn ? '-2deg' : '0deg' }],
         },
       ]}
       accessibilityLiveRegion="polite"

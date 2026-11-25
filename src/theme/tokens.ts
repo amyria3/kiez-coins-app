@@ -4,8 +4,10 @@
 
 import type { TextStyle } from 'react-native';
 
-/** Dunkel: für BlurView, Systemglas und Statusleiste. Den hellen Look „Fashionable“ gibt es seit 2026-11-13 nicht mehr. */
-export const scheme: 'dark' | 'light' = 'dark';
+import { isLight, isMono } from './look';
+
+/** Für BlurView, Systemglas und Statusleiste: dunkel im Kiez-Look, hell im Light-Modus (seit 2026-11-25) */
+export const scheme: 'dark' | 'light' = isLight ? 'light' : 'dark';
 
 // Primitives
 // Kiez-Look „Warm und tief“ (Daria, 2026-11-01): fast schwarzer Grund und Flächen mit warmem Unterton,
@@ -120,8 +122,8 @@ export function withAlpha(hex: string, a: number): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
 }
 
-// Theme (semantische Farben, nur diese in Komponenten verwenden)
-export const color = {
+// Farben des Kiez-Looks (semantische Rollen)
+const kiezColor = {
   bg: {
     screen: palette.black,
     surface: palette.graphite,
@@ -155,8 +157,10 @@ export const color = {
     onAccent: palette.black,
     /** Schrift auf Fotos, in beiden Looks hell. Im Kiez-Look helles Puder wie die Hauptschrift, kein Grau (Daria, 2026-11-11) */
     onPhoto: kiezPalette.white,
-    /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Fashionable Look Pink wie bisher */
+    /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Light-Modus Tannengrün */
     mention: palette.green,
+    /** Kleine Marke auf dunklem Glas über dem Foto (z. B. „Wave“), in beiden Looks Rosa */
+    onPhotoAccent: palette.pink,
   },
   /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
   icon: {
@@ -189,9 +193,18 @@ export const color = {
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
     signature: palette.purple,
+    /** Schriftzug im Logo: im Kiez-Look und Light-Modus wie in der Marke (undefined), in Mono Schwarz */
+    wordmark: undefined as string | undefined,
   },
   accent: {
     primary: palette.purple,
+    /**
+     * Rand und Schrift zweitrangiger Knöpfe: im Kiez-Look der Akzent (derselbe Wert wie `primary`, damit die Bereiche
+     * ihn umfärben), im Light-Modus Tinte, da helle Akzente auf Papier nicht lesbar sind.
+     */
+    outline: palette.purple,
+    /** Rand um den Primary-Button: im Kiez-Look keiner, im Light-Modus Tinte */
+    primaryLine: undefined as string | undefined,
     affection: palette.pink,
     /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
     private: swatch.senf,
@@ -354,6 +367,250 @@ export const color = {
   },
 } as const;
 
+/**
+ * Light-Modus (Daria, 2026-11-25: „das cleane Design, gleiche UI“, „wir nennen das einfach Light-Modus“). Gleicher Aufbau und dieselben
+ * Rollen wie im Kiez-Look, nur auf hellem Grund: warmes Papierweiß, Tinte als Schrift. Die bunten Akzente des
+ * Kiez-Looks bleiben (Daria, 2026-11-25: „Stick with bright accent colors, adjust subtle“), leicht angepasst an den
+ * hellen Grund. Sie stehen als Flächen mit Tinte darauf (mindestens 4,7 : 1). Schrift und Ränder auf dem Grund sind
+ * Tinte, da die hellen Akzente dort nicht lesbar wären. Die Leiste unten ist dunkel, darauf leuchten die Akzente wie
+ * im Kiez-Look. Hier stehen nur die Rollen, die sich gegenüber dem Kiez-Look ändern.
+ */
+const light = {
+  /** Grund: warmes Papierweiß */
+  paper: '#F6F4F0',
+  /** Flächen: Umschalter, Suchfeld, Hinweise */
+  surface: '#ECE9E3',
+  /** Karten, die sich vom Grund abheben (Schaufenster) */
+  card: '#FFFFFF',
+  /** Tinte: Hauptschrift, Ränder und Schrift auf den Akzentflächen, 14,4 : 1 auf Papier */
+  ink: '#24221F',
+  /** Nebenschrift: 5,6 : 1 auf Papier */
+  inkSoft: '#66615A',
+  /** Icons: eine Stufe weicher als die Tinte */
+  icon: '#3B3732',
+  /** Leiste unten: dunkle Tinte, darauf die Akzente */
+  bar: '#2E2B28',
+  /** Icons in der dunklen Leiste */
+  barIcon: '#EEE6D8',
+  /** Lila etwas tiefer als im Kiez-Look (#8F90FA): 3,1 : 1 auf Papier, Tinte darauf 4,7 : 1 */
+  lila: '#7F80F2',
+  /** Senf etwas kräftiger als #ECCF55, damit er auf Papier nicht verblasst */
+  senf: '#E8C640',
+  /** Grün etwas kräftiger als #7EE798 */
+  gruen: '#5FDB82',
+  /** Gelbgrün kräftiger als #F0FFA6, das auf Papier fast verschwindet */
+  gelbgruen: '#DDF26B',
+  /** Rosa etwas kräftiger als #FFB2E5 */
+  rosa: '#F79BD6',
+  /** Tannengrün: @-Namen als Schrift auf Papier, 5,8 : 1 */
+  tanne: '#2E6A49',
+  /** Fehler und Signal als Schrift: Rost, 5,1 : 1 auf Papier */
+  rost: '#B0461A',
+  /** Ausgeschaltete Schalter */
+  aus: '#D3CEC6',
+} as const;
+
+const lightOverrides = {
+  bg: {
+    screen: light.paper,
+    surface: light.surface,
+    glass: withAlpha(light.paper, 0.92),
+    sheet: withAlpha(light.paper, 0.7),
+    frost: withAlpha(light.paper, 0.78),
+    scrim: withAlpha(light.ink, 0.22),
+    menu: withAlpha(light.card, 0.9),
+  },
+  line: {
+    hairline: withAlpha(light.ink, 0.12),
+    raised: withAlpha(light.ink, 0.07),
+    confirmation: withAlpha(light.tanne, 0.25),
+  },
+  text: {
+    primary: light.ink,
+    secondary: light.inkSoft,
+    placeholder: withAlpha(light.inkSoft, 0.6),
+    onAccent: light.ink,
+    mention: light.tanne,
+    onPhotoAccent: light.rosa,
+  },
+  icon: { large: light.icon },
+  nav: {
+    bar: withAlpha(light.bar, 0.96),
+    icon: light.barIcon,
+    bubble: '#45413C',
+    calendar: light.senf,
+    feed: light.rosa,
+    chat: swatch.schnee,
+    menu: light.gruen,
+    create: light.lila,
+    onCreate: light.ink,
+  },
+  accent: {
+    primary: light.lila,
+    outline: light.ink,
+    primaryLine: light.ink,
+    affection: light.rosa,
+    private: light.senf,
+    turn: light.senf,
+    confirmation: light.gruen,
+    focus: light.lila,
+    functional: light.gruen,
+    showcase: light.gelbgruen,
+    signal: light.rost,
+    error: light.rost,
+  },
+  routine: {
+    day: withAlpha(light.ink, 0.06),
+    hatch: withAlpha(light.ink, 0.12),
+    pill: light.inkSoft,
+  },
+  system: { bg: light.gruen, text: light.ink, crab: light.tanne },
+  kater: { bubbleSolid: light.card, close: light.inkSoft },
+  heart: { fill: light.gruen, outline: light.ink },
+  financeDotInactive: light.aus,
+  showcaseCards: {
+    card: light.card,
+    event: light.gelbgruen,
+    secondaryOnDark: light.ink,
+    band: light.surface,
+    post: light.card,
+  },
+  textTone: {
+    showcase: { primary: light.ink, secondary: light.inkSoft },
+    me: { primary: light.ink, secondary: light.inkSoft },
+    functional: { primary: light.ink, secondary: light.inkSoft },
+  },
+  toggle: { off: light.aus, offFunctional: light.aus, offPrivate: light.aus, offShowcase: light.aus },
+};
+
+/**
+ * Mono (Daria, 2026-11-25: „noch cleaner, überwiegend schwarz-weiß mit dem anderen Set an Icons“): baut auf dem
+ * Light-Modus auf. Weißer Grund, Schwarz als einzige Bedienfarbe (Knöpfe, Fokus, Schalter, gewählte Reiter), Flächen
+ * in hellem Grau. Farbe tragen nur noch das Herz und Fehler. Die Icons sind Linien (Phosphor, `icons/lineSvgs.ts`).
+ */
+const mono = {
+  white: '#FFFFFF',
+  /** Flächen: Umschalter, Suchfeld, Karten */
+  surface: '#F2F2F2',
+  /** Zweite Grau-Stufe, z. B. feste Termine */
+  surface2: '#E4E4E4',
+  /** Schwarz: Schrift und alle Bedienelemente, 18,9 : 1 auf Weiß */
+  ink: '#111111',
+  /** Nebenschrift: 5,3 : 1 auf Weiß */
+  inkSoft: '#6B6B6B',
+  /** Herz: einziges Rot, 3,9 : 1 auf Weiß (Symbol, keine Schrift) */
+  herz: '#E5484D',
+  /** Fehler als Schrift: 4,9 : 1 auf Weiß */
+  fehler: '#C93A1E',
+  /** Ausgeschaltete Schalter */
+  aus: '#D4D4D4',
+} as const;
+
+const monoOverrides = {
+  bg: {
+    screen: mono.white,
+    surface: mono.surface,
+    glass: withAlpha(mono.white, 0.92),
+    sheet: withAlpha(mono.white, 0.7),
+    frost: withAlpha(mono.white, 0.8),
+    scrim: withAlpha(mono.ink, 0.2),
+    menu: withAlpha(mono.white, 0.94),
+  },
+  line: {
+    hairline: withAlpha(mono.ink, 0.1),
+    raised: withAlpha(mono.ink, 0.06),
+    confirmation: withAlpha(mono.ink, 0.15),
+  },
+  text: {
+    primary: mono.ink,
+    secondary: mono.inkSoft,
+    placeholder: withAlpha(mono.inkSoft, 0.6),
+    onAccent: mono.white,
+    mention: mono.ink,
+    onPhotoAccent: mono.white,
+  },
+  icon: { large: mono.ink, startGears: { 3: mono.ink, 4: mono.ink, 5: mono.ink } as Record<number, string> },
+  nav: {
+    bar: withAlpha(mono.white, 0.96),
+    icon: mono.ink,
+    bubble: mono.surface,
+    calendar: mono.ink,
+    feed: mono.ink,
+    chat: mono.ink,
+    menu: mono.ink,
+    create: mono.ink,
+    onCreate: mono.white,
+  },
+  brand: { signature: mono.ink, wordmark: mono.ink },
+  accent: {
+    primary: mono.ink,
+    outline: mono.ink,
+    primaryLine: undefined,
+    affection: mono.herz,
+    private: mono.ink,
+    turn: mono.ink,
+    confirmation: mono.ink,
+    focus: mono.ink,
+    functional: mono.ink,
+    showcase: mono.ink,
+    signal: mono.fehler,
+    error: mono.fehler,
+  },
+  routine: {
+    task: mono.surface2,
+    fixed: '#D9D9D9',
+    saved: mono.surface,
+    showcase: '#EBEBEB',
+    ink: mono.ink,
+    pill: mono.inkSoft,
+  },
+  system: { bg: mono.surface, text: mono.ink, crab: mono.ink },
+  kater: { bubbleSolid: mono.surface, close: mono.inkSoft },
+  heart: { fill: mono.herz, outline: mono.white },
+  financeDotInactive: mono.aus,
+  showcasePlaceholder: { cover: ['#EDEDED', '#F7F7F7', '#E2E2E2'] },
+  accountCards: {
+    activity: mono.surface,
+    posts: mono.surface,
+    friendship: [mono.surface, mono.surface],
+    showcase: mono.surface,
+    functional: [mono.surface, mono.surface, mono.surface],
+    cat: mono.ink,
+    catInk: mono.white,
+    catInkSoft: mono.aus,
+  },
+  showcaseCards: {
+    card: mono.surface,
+    event: mono.surface2,
+    secondaryOnDark: mono.ink,
+    highlight: mono.surface2,
+    underlineOnCard: withAlpha(mono.ink, 0.5),
+    band: mono.surface,
+    post: mono.white,
+  },
+  textTone: {
+    showcase: { primary: mono.ink, secondary: mono.inkSoft },
+    me: { primary: mono.ink, secondary: mono.inkSoft },
+    functional: { primary: mono.ink, secondary: mono.inkSoft },
+  },
+  toggle: { off: mono.aus, offFunctional: mono.aus, offPrivate: mono.aus, offShowcase: mono.aus },
+};
+
+/** Überschreibt Blätter eines verschachtelten Objekts, Arrays als Ganzes */
+function override<T>(base: T, patch: unknown): T {
+  if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return (patch ?? base) as T;
+  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  for (const [k, v] of Object.entries(patch as Record<string, unknown>)) out[k] = override(out[k], v);
+  return out as T;
+}
+
+// Theme (semantische Farben, nur diese in Komponenten verwenden)
+export const color: typeof kiezColor = isMono
+  ? override(override(kiezColor, lightOverrides), monoOverrides)
+  : isLight
+    ? override(kiezColor, lightOverrides)
+    : kiezColor;
+
 // Spacing
 export const space = {
   0: 0,
@@ -398,8 +655,10 @@ export const size = {
 export const stroke = {
   ultraThin: 0.5,
   thin: 1,
-  /** Rand um ein aktives Eingabefeld (Daria, 27.10.2026) */
-  focus: 2,
+  /** Rand um ein aktives Eingabefeld (Daria, 27.10.2026). Im Light-Modus deutlich dicker (Daria, 2026-11-25), da die hellen Akzente auf Papier schwächer wirken. */
+  focus: isLight ? 3 : 2,
+  /** Rand um den Primary-Button im Light-Modus (Daria, 2026-11-25: „Primary Button mit Stroke“) */
+  primary: 1.5,
   ring: 3,
 } as const;
 

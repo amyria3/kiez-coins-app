@@ -207,6 +207,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeText: { ...text.tag, color: color.bg.screen },
+  badgeText: { ...text.tag, color: color.text.onAccent },
   hint: { ...text.caption, color: color.text.secondary, textAlign: 'center' },
 });

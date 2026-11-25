@@ -7,6 +7,7 @@ import { localDate } from '../../data/reminders';
 import { useCalendarShown } from '../../data/routineView';
 import { type ShowcaseEvent } from '../../data/showcase';
 import { styles } from './styles';
+import { handDrawn } from '../../theme/look';
 
 /**
  * Routine im Kiez-Look (Daria, 2026-11-12), nach der Vorlage „ListEasy“: oben der Kalender, darunter drei Gruppen
@@ -107,6 +108,8 @@ export const PageLock = createContext<(on: boolean) => void>(() => {});
 /** Leichte, unregelmäßige Schräge je Karte (Daria, 2026-11-13); fest an der id, damit nichts springt */
 const TILTS = [-1.4, 0.9, -0.5, 1.6, -1.1, 0.4, 1.2, -0.8];
 export function tiltOf(key: string): number {
+  // Mono: Karten liegen gerade (Daria, 2026-11-25: „ohne handgezeichnete Elemente“)
+  if (!handDrawn) return 0;
   let h = 0;
   for (const c of key) h = (h * 31 + c.charCodeAt(0)) | 0;
   return TILTS[Math.abs(h) % TILTS.length];
