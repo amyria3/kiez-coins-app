@@ -77,6 +77,8 @@ ${fensterKopf}
   <span${ziel === 'erstellen' ? ' data-tap="erstellen"' : ''}>${esc(t('Termin erstellen', 'Create event'))}</span>
   <span${ziel === 'bearbeiten' ? ' data-tap="bearbeiten"' : ''}>${esc(t('Inhalte bearbeiten', 'Edit content'))}</span>
   <span${ziel === 'einstellungen' ? ' data-tap="einstellungen"' : ''}>${esc(t('Einstellungen', 'Settings'))}</span>
+  <span>${esc(t('Digitale Visitenkarte teilen', 'Share digital business card'))}</span>
+  <span>${esc(t('Druckbare Visitenkarte (PDF)', 'Printable business card (PDF)'))}</span>
 </div>`),
     },
   ];
@@ -152,7 +154,7 @@ ${terminKarte}`)),
         {
           hinweis: t('Trage Deine Adresse ein und tippe auf „Speichern“.', 'Enter your address and tap “Save”.'),
           ziel: 'speichern',
-          bild: screen(`${kopf(t('Schaufenster bearbeiten', 'Edit shop window'))}
+          bild: screen(`${kopf(t('Inhalte bearbeiten', 'Edit content'))}
 ${feld(t('Name', 'Name'), laden)}
 ${feld(t('Adresse', 'Address'), adresse, true)}
 ${feld(t('Öffnungszeiten', 'Opening hours'), t('Mo–Sa 8–18 Uhr', 'Mon–Sat 8 am–6 pm'))}
@@ -191,16 +193,17 @@ ${fakt(t('Adresse', 'Address'), `${esc(adresse)}<span class="b-reihe"><span clas
       kosten: t('Kostenlos', 'Free'),
       stand: 'app',
       schritte: [
+        ...zahnradMenue('einstellungen'),
         {
           hinweis: t(
-            'Öffne „Dein Schaufenster“. Im Abschnitt „Google“ tippe auf „Google-Unternehmensprofil anlegen“.',
-            'Open “Your shop window”. In the “Google” section, tap “Create Google Business Profile”.',
+            'Unter „Funktionen“ ist „Bei Google finden lassen“ schon an. Tippe darunter auf „Google-Unternehmensprofil anlegen“.',
+            'Under “Features”, “Be found on Google” is already on. Below it, tap “Create Google Business Profile”.',
           ),
           ziel: 'google',
           bild: screen(`${kopf(t('Schaufenster', 'Shop window'))}
-<h4>${esc(t('Deine Seite', 'Your page'))}</h4>
-${knopf(t('Schaufenster im Web', 'Shop window on the web'), '', 'zweit')}
-<h4>Google</h4>
+<h4>${esc(t('Funktionen', 'Features'))}</h4>
+<span class="b-schalter-zeile">${esc(t('Für alle sichtbar, auch im Web', 'Visible to everyone, also on the web'))}<i class="b-schalter an"></i></span>
+<span class="b-schalter-zeile">${esc(t('Bei Google finden lassen', 'Be found on Google'))}<i class="b-schalter an"></i></span>
 <div class="b-chat"><span class="b-frage">${esc(t('Wie finden mich Leute bei Google Maps?', 'How do people find me on Google Maps?'))}</span>
 <span class="b-antwort">${esc(t('Google liest Deine Seite im Web. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein.', 'Google reads your page on the web. For Google Maps you create a free business profile and enter the link to your page as the website.'))}</span></div>
 ${knopf(t('Google-Unternehmensprofil anlegen', 'Create Google Business Profile'), 'google', 'zweit')}`),

@@ -297,7 +297,6 @@
   "Wähle „Termin erstellen“.": "לבחור „ליצור פגישה“.",
   "Post erstellen": "יצירת פוסט",
   "Termin erstellen": "ליצור פגישה",
-  "Schaufenster bearbeiten": "עריכת חלון ראווה",
   "Trage Titel, Tag und Uhrzeit ein. Danach tippe auf „Termin erstellen“.": "להזין כותרת, יום ושעה. אחר כך להקיש על „ליצור פגישה“.",
   "Wann?": "מתי?",
   "Morgen": "מחר",
@@ -331,9 +330,6 @@
   "Google-Unternehmensprofil": "פרופיל עסק ב-Google",
   "Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Mit einem kostenlosen Unternehmensprofil erscheinst Du auch in Google Maps.": "Google קורא את הדף שלך ברשת: שם, כתובת, מפה, שעות פתיחה ואירועים. עם פרופיל עסק חינמי העסק מופיע גם ב-Google Maps.",
   "15 Minuten, dazu einige Tage Prüfung durch Google": "15 דקות, ועוד כמה ימים של בדיקה על ידי Google",
-  "Öffne „Dein Schaufenster“. Im Abschnitt „Google“ tippe auf „Google-Unternehmensprofil anlegen“.": "לפתוח את „חלון הראווה שלך“. בקטע „Google“ להקיש על „יצירת פרופיל עסק ב-Google“.",
-  "Deine Seite": "האתר שלך",
-  "Schaufenster im Web": "חלון הראווה ברשת",
   "Wie finden mich Leute bei Google Maps?": "איך אנשים ימצאו אותי ב-Google Maps?",
   "Google liest Deine Seite im Web. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein.": "Google קורא את הדף שלך ברשת. בשביל Google Maps יוצרים בחינם פרופיל עסק ומזינים שם את הקישור לדף שלך כאתר.",
   "Google-Unternehmensprofil anlegen": "יצירת פרופיל עסק ב-Google",
@@ -443,5 +439,9 @@
   "Buchungslink speichern": "שמירת קישור ההזמנה",
   "Schalte unter „Funktionen“ „Bezahlen“ ein.": "ב„תכונות“ להפעיל את „תשלום“.",
   "Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn mit Titel und Betrag ein und tippe auf „Zahlungslinks speichern“.": "ליצור קישור תשלום ב-Stripe,‏ SumUp או PayPal. להזין אותו עם כותרת וסכום ולהקיש על „שמירת קישורי התשלום“.",
-  "Zahlungslinks speichern": "שמירת קישורי התשלום"
+  "Zahlungslinks speichern": "שמירת קישורי התשלום",
+  "Unter „Funktionen“ ist „Bei Google finden lassen“ schon an. Tippe darunter auf „Google-Unternehmensprofil anlegen“.": "ב„תכונות“ האפשרות „להופיע בתוצאות החיפוש של גוגל“ כבר מופעלת. מתחתיה להקיש על „יצירת פרופיל עסק ב-Google“.",
+  "Bei Google finden lassen": "להופיע בתוצאות החיפוש של גוגל",
+  "Digitale Visitenkarte teilen": "שיתוף כרטיס ביקור דיגיטלי",
+  "Druckbare Visitenkarte (PDF)": "כרטיס ביקור להדפסה (PDF)"
 }

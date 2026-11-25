@@ -297,7 +297,6 @@
   "Wähle „Termin erstellen“.": "Обери «Створити зустріч».",
   "Post erstellen": "Створити допис",
   "Termin erstellen": "Створити зустріч",
-  "Schaufenster bearbeiten": "Редагувати вітрину",
   "Trage Titel, Tag und Uhrzeit ein. Danach tippe auf „Termin erstellen“.": "Введи назву, день і час. Потім торкнися «Створити зустріч».",
   "Wann?": "Коли?",
   "Morgen": "Завтра",
@@ -331,9 +330,6 @@
   "Google-Unternehmensprofil": "Профіль компанії в Google",
   "Google liest Deine Seite im Web: Name, Adresse, Karte, Öffnungszeiten und Termine. Mit einem kostenlosen Unternehmensprofil erscheinst Du auch in Google Maps.": "Google читає твою сторінку в інтернеті: назву, адресу, карту, години роботи й події. З безкоштовним профілем компанії ти з’являєшся і в Google Maps.",
   "15 Minuten, dazu einige Tage Prüfung durch Google": "15 хвилин, плюс кілька днів перевірки від Google",
-  "Öffne „Dein Schaufenster“. Im Abschnitt „Google“ tippe auf „Google-Unternehmensprofil anlegen“.": "Відкрий «Твоя вітрина». У розділі «Google» торкнися «Створити профіль компанії в Google».",
-  "Deine Seite": "Твій сайт",
-  "Schaufenster im Web": "Вітрина в інтернеті",
   "Wie finden mich Leute bei Google Maps?": "Як люди знайдуть мене на Google Maps?",
   "Google liest Deine Seite im Web. Für Google Maps legst Du kostenlos ein Unternehmensprofil an und trägst dort den Link zu Deiner Seite als Website ein.": "Google читає твою сторінку в інтернеті. Для Google Maps ти безкоштовно створюєш профіль компанії й вказуєш там посилання на свою сторінку як вебсайт.",
   "Google-Unternehmensprofil anlegen": "Створити профіль компанії в Google",
@@ -443,5 +439,9 @@
   "Buchungslink speichern": "Зберегти посилання для бронювання",
   "Schalte unter „Funktionen“ „Bezahlen“ ein.": "У розділі «Функції» увімкни «Оплата».",
   "Lege bei Stripe, SumUp oder PayPal einen Zahlungslink an. Trage ihn mit Titel und Betrag ein und tippe auf „Zahlungslinks speichern“.": "Створи платіжне посилання в Stripe, SumUp або PayPal. Додай його з назвою й сумою і торкнися «Зберегти платіжні посилання».",
-  "Zahlungslinks speichern": "Зберегти платіжні посилання"
+  "Zahlungslinks speichern": "Зберегти платіжні посилання",
+  "Unter „Funktionen“ ist „Bei Google finden lassen“ schon an. Tippe darunter auf „Google-Unternehmensprofil anlegen“.": "У розділі «Функції» перемикач «З’явитися у результатах пошуку Google» уже ввімкнено. Під ним торкнися «Створити профіль компанії в Google».",
+  "Bei Google finden lassen": "З’явитися у результатах пошуку Google",
+  "Digitale Visitenkarte teilen": "Поділитися цифровою візиткою",
+  "Druckbare Visitenkarte (PDF)": "Візитна картка для друку (PDF)"
 }
