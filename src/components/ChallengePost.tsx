@@ -381,7 +381,7 @@ function KiezPost({
                     { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
                   ]}
                 >
-                  <Text noTranslate style={[styles.tagOnPhotoText, { color: tagColorHere(PHOTO_TAG) }]} numberOfLines={1}>
+                  <Text noTranslate style={[styles.tagOnPhotoText, { color: color.text.onPhotoTag ?? tagColorHere(PHOTO_TAG) }]} numberOfLines={1}>
                     {PHOTO_TAG}
                   </Text>
                 </Animated.View>
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: color.overlay.heavy,
   },
-  waveText: { ...text.caption, color: color.accent.affection },
+  waveText: { ...text.caption, color: color.text.onPhotoAccent },
   closedTag: {},
   closedText: { ...text.caption, color: color.text.secondary },
   // Verwalten bleibt immer ganz sichtbar links, die Knöpfe stehen rechtsbündig (Daria, 2026-11-09)

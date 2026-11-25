@@ -4,8 +4,10 @@
 
 import type { TextStyle } from 'react-native';
 
-/** Dunkel: für BlurView, Systemglas und Statusleiste. Den hellen Look „Fashionable“ gibt es seit 2026-11-13 nicht mehr. */
-export const scheme: 'dark' | 'light' = 'dark';
+import { isCalm } from './look';
+
+/** Für BlurView, Systemglas und Statusleiste: dunkel im Kiez-Look, hell im ruhigen Look „Fashionable“ (seit 2026-11-25) */
+export const scheme: 'dark' | 'light' = isCalm ? 'light' : 'dark';
 
 // Primitives
 // Kiez-Look „Warm und tief“ (Daria, 2026-11-01): fast schwarzer Grund und Flächen mit warmem Unterton,
@@ -120,8 +122,8 @@ export function withAlpha(hex: string, a: number): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
 }
 
-// Theme (semantische Farben, nur diese in Komponenten verwenden)
-export const color = {
+// Farben des Kiez-Looks (semantische Rollen)
+const kiezColor = {
   bg: {
     screen: palette.black,
     surface: palette.graphite,
@@ -155,8 +157,12 @@ export const color = {
     onAccent: palette.black,
     /** Schrift auf Fotos, in beiden Looks hell. Im Kiez-Look helles Puder wie die Hauptschrift, kein Grau (Daria, 2026-11-11) */
     onPhoto: kiezPalette.white,
-    /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Fashionable Look Pink wie bisher */
+    /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im ruhigen Look Tannengrün */
     mention: palette.green,
+    /** Kleine Marke auf dunklem Glas über dem Foto (z. B. „Wave“): im Kiez-Look Rosa, im ruhigen Look hell wie die Schrift auf Fotos */
+    onPhotoAccent: palette.pink,
+    /** Marke #InDiesemMoment auf dem Foto: im Kiez-Look die Farbe der Marke (undefined), im ruhigen Look hell, da die gedeckten Töne auf Fotos untergehen */
+    onPhotoTag: undefined as string | undefined,
   },
   /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
   icon: {
@@ -189,6 +195,8 @@ export const color = {
   /** Signaturfarbe für Logo und Kater. Fashionable Look vorerst Schwarz: Das Violett #7B2FF7 hat Daria verworfen (23.10.2026), die neue Farbe steht noch aus. */
   brand: {
     signature: palette.purple,
+    /** Schriftzug im Logo: im Kiez-Look wie in der Marke (undefined), im ruhigen Look in Tinte */
+    wordmark: undefined as string | undefined,
   },
   accent: {
     primary: palette.purple,
@@ -353,6 +361,145 @@ export const color = {
     heavy: withAlpha(kiezPalette.black, 0.72),
   },
 } as const;
+
+/**
+ * Ruhiger Look „Fashionable“ (Daria, 2026-11-25: „das cleane Design, gleiche UI“). Gleicher Aufbau und dieselben
+ * Rollen wie im Kiez-Look, nur ein zurückhaltendes Farbkonzept: warmes Papierweiß als Grund, Tinte als Schrift und
+ * Hauptfarbe, die Bereiche (Me & Myself, Functional, Schaufenster) in gedeckten Tönen statt Leuchtfarben. Kein Lila
+ * („Lila wirkt ungemütlich“, 2026-10-26). Schrift auf den Akzentflächen ist weiß; alle Akzente erreichen mit weißer
+ * Schrift mindestens 4,5 : 1, Haupt- und Nebenschrift auf dem Grund mindestens 4,5 : 1.
+ * Hier stehen nur die Rollen, die sich gegenüber dem Kiez-Look ändern.
+ */
+const calm = {
+  /** Grund: warmes Papierweiß */
+  paper: '#F6F4F0',
+  /** Flächen: Umschalter, Suchfeld, Karten ohne Rand */
+  surface: '#ECE9E3',
+  /** Karten, die sich vom Grund abheben (Schaufenster, Konto) */
+  card: '#FFFFFF',
+  /** Tinte: Hauptschrift und Hauptfarbe, 14,4 : 1 auf Papier */
+  ink: '#24221F',
+  /** Nebenschrift: 5,6 : 1 auf Papier */
+  inkSoft: '#66615A',
+  /** Icons: eine Stufe weicher als die Tinte */
+  icon: '#3B3732',
+  /** Me & Myself: Ocker, 5,3 : 1 mit Weiß */
+  ocker: '#8A6618',
+  /** Functional und Bestätigung: Tannengrün, 6,4 : 1 mit Weiß */
+  tanne: '#2E6A49',
+  /** Schaufenster: Oliv, 6,6 : 1 mit Weiß */
+  oliv: '#55631A',
+  /** Herz und Feed: gedecktes Rot, 4,6 : 1 auf Papier */
+  herz: '#C2414F',
+  /** Fehler und Signal: Rost, 5,1 : 1 auf Papier */
+  rost: '#B0461A',
+  /** Ausgeschaltete Schalter */
+  aus: '#D3CEC6',
+} as const;
+
+const calmOverrides = {
+  bg: {
+    screen: calm.paper,
+    surface: calm.surface,
+    glass: withAlpha(calm.paper, 0.92),
+    sheet: withAlpha(calm.paper, 0.7),
+    frost: withAlpha(calm.paper, 0.78),
+    scrim: withAlpha(calm.ink, 0.22),
+    menu: withAlpha(calm.card, 0.9),
+  },
+  line: {
+    hairline: withAlpha(calm.ink, 0.12),
+    raised: withAlpha(calm.ink, 0.07),
+    confirmation: withAlpha(calm.tanne, 0.25),
+  },
+  text: {
+    primary: calm.ink,
+    secondary: calm.inkSoft,
+    placeholder: withAlpha(calm.inkSoft, 0.6),
+    onAccent: swatch.weiss,
+    mention: calm.tanne,
+    onPhotoAccent: kiezPalette.white,
+    onPhotoTag: kiezPalette.white,
+  },
+  icon: {
+    large: calm.icon,
+    startGears: { 3: calm.herz, 4: calm.ocker, 5: calm.tanne } as Record<number, string>,
+  },
+  nav: {
+    bar: withAlpha(calm.card, 0.94),
+    icon: calm.icon,
+    bubble: calm.surface,
+    calendar: calm.ocker,
+    feed: calm.herz,
+    chat: calm.ink,
+    menu: calm.tanne,
+    create: calm.ink,
+    onCreate: swatch.weiss,
+  },
+  brand: { signature: calm.ink, wordmark: calm.ink },
+  accent: {
+    primary: calm.ink,
+    affection: calm.herz,
+    private: calm.ocker,
+    turn: calm.ocker,
+    confirmation: calm.tanne,
+    focus: calm.ink,
+    functional: calm.tanne,
+    showcase: calm.oliv,
+    signal: calm.rost,
+    error: calm.rost,
+  },
+  routine: {
+    task: '#EFE2B4',
+    fixed: '#DFE5C6',
+    saved: '#EEE4D6',
+    showcase: '#E5ECC0',
+    day: withAlpha(calm.ink, 0.06),
+    hatch: withAlpha(calm.ink, 0.12),
+    pill: calm.inkSoft,
+  },
+  system: { bg: '#DCEADF', text: calm.ink, crab: calm.tanne },
+  kater: { bubbleSolid: calm.card, close: calm.inkSoft },
+  heart: { fill: calm.herz, outline: swatch.weiss },
+  financeDotInactive: calm.aus,
+  /** Leeres Schaufenster: sanfter Verlauf aus Sand, Salbei und Rosé statt Lila, Rosa und Orange */
+  showcasePlaceholder: { cover: ['#E4DDD0', '#DCE3CF', '#EBD9D3'] },
+  accountCards: {
+    activity: '#F1E5BF',
+    posts: '#F4DCE0',
+    friendship: ['#E2E1DC', '#EAE9E4'],
+    showcase: '#E8EDC9',
+    functional: ['#D6E8DB', '#E0EEE4', '#EAF3ED'],
+    cat: calm.card,
+    catInk: calm.ink,
+    catInkSoft: calm.inkSoft,
+  },
+  showcaseCards: {
+    card: calm.card,
+    event: '#E3EBB8',
+    secondaryOnDark: calm.oliv,
+    highlight: '#EAF0C4',
+    band: calm.surface,
+    post: calm.card,
+  },
+  textTone: {
+    showcase: { primary: calm.ink, secondary: calm.inkSoft },
+    me: { primary: calm.ink, secondary: calm.inkSoft },
+    functional: { primary: calm.ink, secondary: calm.inkSoft },
+  },
+  toggle: { off: calm.aus, offFunctional: calm.aus, offPrivate: calm.aus, offShowcase: calm.aus },
+};
+
+/** Überschreibt Blätter eines verschachtelten Objekts, Arrays als Ganzes */
+function override<T>(base: T, patch: unknown): T {
+  if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return (patch ?? base) as T;
+  const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  for (const [k, v] of Object.entries(patch as Record<string, unknown>)) out[k] = override(out[k], v);
+  return out as T;
+}
+
+// Theme (semantische Farben, nur diese in Komponenten verwenden)
+export const color: typeof kiezColor = isCalm ? override(kiezColor, calmOverrides) : kiezColor;
 
 // Spacing
 export const space = {
