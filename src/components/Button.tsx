@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View, type LayoutChangeEvent, type StyleProp, ty
 import Svg, { Path } from 'react-native-svg';
 import { Text } from './T';
 
-import { color, radius, space, text } from '../theme/tokens';
+import { color, radius, space, stroke, text } from '../theme/tokens';
 import { useTexts } from '../data/texts';
 import { Glass, glassControls } from './Glass';
 import { handShapePath } from './handShape';
@@ -124,7 +124,8 @@ export function Button({ label: original, onPress: press, onPressIn, variant = '
  * die übrigen als Kontur derselben Form. Ghost bleibt reiner Text.
  */
 const variants: Record<ButtonVariant, { fill?: string; line?: string; label: string; filled?: boolean }> = {
-  primary: { fill: color.accent.primary, label: color.text.onAccent, filled: true },
+  // Light-Modus: Fläche mit Rand in Tinte (`accent.primaryLine`, Daria, 2026-11-25); im Kiez-Look ohne Rand
+  primary: { fill: color.accent.primary, line: color.accent.primaryLine, label: color.text.onAccent, filled: true },
   // Secondary und Ghost in Lila (Daria, 2026-11-11)
   // Ruhiger Look (2026-11-25): Rand und Schrift in Tinte über `accent.outline`, im Kiez-Look derselbe Wert wie der Akzent
   secondary: { line: color.accent.outline, label: color.accent.outline },
@@ -148,10 +149,12 @@ const SHAPE_LINE = 1.5;
 
 /** Die Form liegt hinter der Beschriftung und füllt den Button ganz aus. */
 function HandShape({ w, h, fill, line }: { w: number; h: number; fill?: string; line?: string }) {
-  const d = handShapePath(w, h, fill ? 0 : SHAPE_LINE / 2);
+  // Fläche mit Rand (Primary im Light-Modus) rückt wie die Kontur um die halbe Linie ein
+  const width = fill && line ? stroke.primary : SHAPE_LINE;
+  const d = handShapePath(w, h, line ? width / 2 : 0);
   return (
     <Svg width={w} height={h} style={StyleSheet.absoluteFill} pointerEvents="none">
-      <Path d={d} fill={fill ?? 'none'} stroke={line} strokeWidth={line ? SHAPE_LINE : 0} />
+      <Path d={d} fill={fill ?? 'none'} stroke={line} strokeWidth={line ? width : 0} />
     </Svg>
   );
 }

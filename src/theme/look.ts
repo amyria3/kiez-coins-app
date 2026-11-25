@@ -1,14 +1,15 @@
-// Look der App. „Kiez“ ist das eigene Design: bunte Akzente auf dunklem Grund. „Fashionable“ ist seit 2026-11-25 die
-// ruhige, helle Alternative mit derselben Bedienung und demselben Aufbau, nur mit anderem Farbkonzept (Daria, 2026-11-25:
-// „das cleane Design, gleiche UI“). Entwurf: vorerst nur im Web über den Link `?look=fashionable` wählbar.
+// Look der App. „Kiez“ ist das eigene Design: bunte Akzente auf dunklem Grund. Der „Light-Modus“ (Daria, 2026-11-25:
+// „das cleane Design, gleiche UI“, Name „einfach Light-Modus“) hat dieselbe Bedienung und denselben Aufbau, nur hellen
+// Grund. Er löst den alten Look „Fashionable“ ab (Git-Tag `fashionable-archiv`). Entwurf: vorerst nur im Web über den
+// Link `?look=light` wählbar.
 // Die Tokens lesen den Look einmal beim Start, da StyleSheet.create die Farben beim Laden festschreibt.
 // Ein Wechsel lädt die App deshalb neu. Der Browser merkt sich die Wahl.
 import { Platform } from 'react-native';
 
-export type Look = 'kiez' | 'fashionable';
+export type Look = 'kiez' | 'light';
 
 const KEY = 'kiez-look';
-const isLook = (v: unknown): v is Look => v === 'kiez' || v === 'fashionable';
+const isLook = (v: unknown): v is Look => v === 'kiez' || v === 'light';
 
 function readLook(): Look {
   if (Platform.OS !== 'web' || typeof window === 'undefined') return 'kiez';
@@ -26,11 +27,11 @@ function readLook(): Look {
 
 export const look: Look = readLook();
 
-/** Ruhiger, heller Look „Fashionable“ */
-export const isCalm = look === 'fashionable';
+/** Light-Modus: heller Grund, sonst wie Kiez */
+export const isLight = look === 'light';
 
-// Seite hinter der App und Statusleiste der PWA im Papierweiß des ruhigen Looks (public/index.html setzt das Kiez-Grau)
-if (isCalm && typeof document !== 'undefined') {
+// Seite hinter der App und Statusleiste der PWA im Papierweiß des Light-Modus (public/index.html setzt das Kiez-Grau)
+if (isLight && typeof document !== 'undefined') {
   const paper = '#F6F4F0';
   const ink = '#24221F';
   document.documentElement.style.backgroundColor = paper;

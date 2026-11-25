@@ -4,10 +4,10 @@
 
 import type { TextStyle } from 'react-native';
 
-import { isCalm } from './look';
+import { isLight } from './look';
 
-/** Für BlurView, Systemglas und Statusleiste: dunkel im Kiez-Look, hell im ruhigen Look „Fashionable“ (seit 2026-11-25) */
-export const scheme: 'dark' | 'light' = isCalm ? 'light' : 'dark';
+/** Für BlurView, Systemglas und Statusleiste: dunkel im Kiez-Look, hell im Light-Modus (seit 2026-11-25) */
+export const scheme: 'dark' | 'light' = isLight ? 'light' : 'dark';
 
 // Primitives
 // Kiez-Look „Warm und tief“ (Daria, 2026-11-01): fast schwarzer Grund und Flächen mit warmem Unterton,
@@ -157,7 +157,7 @@ const kiezColor = {
     onAccent: palette.black,
     /** Schrift auf Fotos, in beiden Looks hell. Im Kiez-Look helles Puder wie die Hauptschrift, kein Grau (Daria, 2026-11-11) */
     onPhoto: kiezPalette.white,
-    /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im ruhigen Look Tannengrün */
+    /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Light-Modus Tannengrün */
     mention: palette.green,
     /** Kleine Marke auf dunklem Glas über dem Foto (z. B. „Wave“), in beiden Looks Rosa */
     onPhotoAccent: palette.pink,
@@ -198,9 +198,11 @@ const kiezColor = {
     primary: palette.purple,
     /**
      * Rand und Schrift zweitrangiger Knöpfe: im Kiez-Look der Akzent (derselbe Wert wie `primary`, damit die Bereiche
-     * ihn umfärben), im ruhigen Look Tinte, da helle Akzente auf Papier nicht lesbar sind.
+     * ihn umfärben), im Light-Modus Tinte, da helle Akzente auf Papier nicht lesbar sind.
      */
     outline: palette.purple,
+    /** Rand um den Primary-Button: im Kiez-Look keiner, im Light-Modus Tinte */
+    primaryLine: undefined as string | undefined,
     affection: palette.pink,
     /** „Privat“ gewählt, in jedem Umschalter: Senf wie der Kalender in der Leiste (Daria, 2026-11-12) */
     private: swatch.senf,
@@ -364,14 +366,14 @@ const kiezColor = {
 } as const;
 
 /**
- * Ruhiger Look „Fashionable“ (Daria, 2026-11-25: „das cleane Design, gleiche UI“). Gleicher Aufbau und dieselben
+ * Light-Modus (Daria, 2026-11-25: „das cleane Design, gleiche UI“, „wir nennen das einfach Light-Modus“). Gleicher Aufbau und dieselben
  * Rollen wie im Kiez-Look, nur auf hellem Grund: warmes Papierweiß, Tinte als Schrift. Die bunten Akzente des
  * Kiez-Looks bleiben (Daria, 2026-11-25: „Stick with bright accent colors, adjust subtle“), leicht angepasst an den
  * hellen Grund. Sie stehen als Flächen mit Tinte darauf (mindestens 4,7 : 1). Schrift und Ränder auf dem Grund sind
  * Tinte, da die hellen Akzente dort nicht lesbar wären. Die Leiste unten ist dunkel, darauf leuchten die Akzente wie
  * im Kiez-Look. Hier stehen nur die Rollen, die sich gegenüber dem Kiez-Look ändern.
  */
-const calm = {
+const light = {
   /** Grund: warmes Papierweiß */
   paper: '#F6F4F0',
   /** Flächen: Umschalter, Suchfeld, Hinweise */
@@ -406,76 +408,77 @@ const calm = {
   aus: '#D3CEC6',
 } as const;
 
-const calmOverrides = {
+const lightOverrides = {
   bg: {
-    screen: calm.paper,
-    surface: calm.surface,
-    glass: withAlpha(calm.paper, 0.92),
-    sheet: withAlpha(calm.paper, 0.7),
-    frost: withAlpha(calm.paper, 0.78),
-    scrim: withAlpha(calm.ink, 0.22),
-    menu: withAlpha(calm.card, 0.9),
+    screen: light.paper,
+    surface: light.surface,
+    glass: withAlpha(light.paper, 0.92),
+    sheet: withAlpha(light.paper, 0.7),
+    frost: withAlpha(light.paper, 0.78),
+    scrim: withAlpha(light.ink, 0.22),
+    menu: withAlpha(light.card, 0.9),
   },
   line: {
-    hairline: withAlpha(calm.ink, 0.12),
-    raised: withAlpha(calm.ink, 0.07),
-    confirmation: withAlpha(calm.tanne, 0.25),
+    hairline: withAlpha(light.ink, 0.12),
+    raised: withAlpha(light.ink, 0.07),
+    confirmation: withAlpha(light.tanne, 0.25),
   },
   text: {
-    primary: calm.ink,
-    secondary: calm.inkSoft,
-    placeholder: withAlpha(calm.inkSoft, 0.6),
-    onAccent: calm.ink,
-    mention: calm.tanne,
-    onPhotoAccent: calm.rosa,
+    primary: light.ink,
+    secondary: light.inkSoft,
+    placeholder: withAlpha(light.inkSoft, 0.6),
+    onAccent: light.ink,
+    mention: light.tanne,
+    onPhotoAccent: light.rosa,
   },
-  icon: { large: calm.icon },
+  icon: { large: light.icon },
   nav: {
-    bar: withAlpha(calm.bar, 0.96),
-    icon: calm.barIcon,
+    bar: withAlpha(light.bar, 0.96),
+    icon: light.barIcon,
     bubble: '#45413C',
-    calendar: calm.senf,
-    feed: calm.rosa,
+    calendar: light.senf,
+    feed: light.rosa,
     chat: swatch.schnee,
-    menu: calm.gruen,
-    create: calm.lila,
-    onCreate: calm.ink,
+    menu: light.gruen,
+    create: light.lila,
+    onCreate: light.ink,
   },
   accent: {
-    primary: calm.lila,
-    outline: calm.ink,
-    affection: calm.rosa,
-    private: calm.senf,
-    turn: calm.senf,
-    confirmation: calm.gruen,
-    focus: calm.lila,
-    functional: calm.gruen,
-    showcase: calm.gelbgruen,
-    signal: calm.rost,
-    error: calm.rost,
+    primary: light.lila,
+    outline: light.ink,
+    primaryLine: light.ink,
+    affection: light.rosa,
+    private: light.senf,
+    turn: light.senf,
+    confirmation: light.gruen,
+    focus: light.lila,
+    functional: light.gruen,
+    showcase: light.gelbgruen,
+    signal: light.rost,
+    error: light.rost,
   },
   routine: {
-    day: withAlpha(calm.ink, 0.06),
-    hatch: withAlpha(calm.ink, 0.12),
-    pill: calm.inkSoft,
+    day: withAlpha(light.ink, 0.06),
+    hatch: withAlpha(light.ink, 0.12),
+    pill: light.inkSoft,
   },
-  system: { bg: calm.gruen, text: calm.ink, crab: calm.tanne },
-  kater: { bubbleSolid: calm.card, close: calm.inkSoft },
-  heart: { fill: calm.gruen, outline: calm.ink },
-  financeDotInactive: calm.aus,
+  system: { bg: light.gruen, text: light.ink, crab: light.tanne },
+  kater: { bubbleSolid: light.card, close: light.inkSoft },
+  heart: { fill: light.gruen, outline: light.ink },
+  financeDotInactive: light.aus,
   showcaseCards: {
-    card: calm.card,
-    event: calm.gelbgruen,
-    secondaryOnDark: calm.ink,
-    band: calm.surface,
-    post: calm.card,
+    card: light.card,
+    event: light.gelbgruen,
+    secondaryOnDark: light.ink,
+    band: light.surface,
+    post: light.card,
   },
   textTone: {
-    showcase: { primary: calm.ink, secondary: calm.inkSoft },
-    me: { primary: calm.ink, secondary: calm.inkSoft },
-    functional: { primary: calm.ink, secondary: calm.inkSoft },
+    showcase: { primary: light.ink, secondary: light.inkSoft },
+    me: { primary: light.ink, secondary: light.inkSoft },
+    functional: { primary: light.ink, secondary: light.inkSoft },
   },
-  toggle: { off: calm.aus, offFunctional: calm.aus, offPrivate: calm.aus, offShowcase: calm.aus },
+  toggle: { off: light.aus, offFunctional: light.aus, offPrivate: light.aus, offShowcase: light.aus },
 };
 
 /** Überschreibt Blätter eines verschachtelten Objekts, Arrays als Ganzes */
@@ -487,7 +490,7 @@ function override<T>(base: T, patch: unknown): T {
 }
 
 // Theme (semantische Farben, nur diese in Komponenten verwenden)
-export const color: typeof kiezColor = isCalm ? override(kiezColor, calmOverrides) : kiezColor;
+export const color: typeof kiezColor = isLight ? override(kiezColor, lightOverrides) : kiezColor;
 
 // Spacing
 export const space = {
@@ -533,8 +536,10 @@ export const size = {
 export const stroke = {
   ultraThin: 0.5,
   thin: 1,
-  /** Rand um ein aktives Eingabefeld (Daria, 27.10.2026) */
-  focus: 2,
+  /** Rand um ein aktives Eingabefeld (Daria, 27.10.2026). Im Light-Modus deutlich dicker (Daria, 2026-11-25), da die hellen Akzente auf Papier schwächer wirken. */
+  focus: isLight ? 3 : 2,
+  /** Rand um den Primary-Button im Light-Modus (Daria, 2026-11-25: „Primary Button mit Stroke“) */
+  primary: 1.5,
   ring: 3,
 } as const;
 
