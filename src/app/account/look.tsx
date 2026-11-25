@@ -10,8 +10,8 @@ import { space } from '../../theme/tokens';
 import { useGoBack } from '../../lib/goBack';
 
 /**
- * Route `account/look` (Dein Konto › Look, Daria, 2026-11-25): Kiez, Light-Modus oder Mono. Ein Wechsel startet die
- * App neu, da die Farben beim Start feststehen. Im Web wählt der Link `?look=light` (oder `mono`, `kiez`) vor.
+ * Route `account/look` (Dein Konto › Look, Daria, 2026-11-25): Kiez oder Mono, Light-Modus vorerst ausgeblendet. Ein Wechsel startet die
+ * App neu, da die Farben beim Start feststehen. Im Web wählt der Link `?look=mono` (oder `kiez`) vor.
  */
 export default function LookScreen() {
   const goBack = useGoBack();

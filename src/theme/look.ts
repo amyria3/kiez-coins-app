@@ -5,6 +5,9 @@
 // `fashionable-archiv`).
 // „Mono“ (Daria, 2026-11-25: „noch cleaner, überwiegend schwarz-weiß mit dem anderen Set an Icons“, „ohne
 // handgezeichnete Elemente“): baut auf dem Light-Modus auf, Schwarz als einzige Bedienfarbe, Linien-Icons, glatte Formen.
+// Light-Modus vorerst ausgeblendet (Daria, 2026-11-25: „Light theme out for now, doesn't rly work, but don't delete
+// the Code“): nicht in der Auswahl, eine gespeicherte Wahl fällt auf Kiez zurück. Der Link `?look=light` zeigt ihn zum
+// Testen weiter, aber nur für diesen Aufruf. Wieder anbieten: `offered` in `looks` auf true setzen.
 // Die Tokens lesen den Look einmal beim Start, da StyleSheet.create die Farben beim Laden festschreibt. Ein Wechsel
 // startet die App deshalb neu. Gespeichert im Web in localStorage (Link `?look=light|mono|kiez` wählt vor), auf iOS
 // und Android in SecureStore, das sich beim Start synchron lesen lässt.
@@ -15,11 +18,15 @@ import * as Updates from 'expo-updates';
 export type Look = 'kiez' | 'light' | 'mono';
 
 /** Auswahl unter Dein Konto › Look */
-export const looks: { code: Look; name: string; description: string }[] = [
-  { code: 'kiez', name: 'Kiez', description: 'Bunt auf dunklem Grund' },
-  { code: 'light', name: 'Light-Modus', description: 'Hell, mit bunten Akzenten' },
-  { code: 'mono', name: 'Mono', description: 'Schwarz-weiß, schlichte Icons' },
+const allLooks: { code: Look; name: string; description: string; offered: boolean }[] = [
+  { code: 'kiez', name: 'Kiez', description: 'Bunt auf dunklem Grund', offered: true },
+  { code: 'light', name: 'Light-Modus', description: 'Hell, mit bunten Akzenten', offered: false },
+  { code: 'mono', name: 'Mono', description: 'Schwarz-weiß, schlichte Icons', offered: true },
 ];
+export const looks = allLooks.filter((l) => l.offered);
+/** Name des aktiven Looks, auch eines ausgeblendeten, der über den Link offen ist */
+export const lookName = (code: Look) => allLooks.find((l) => l.code === code)?.name;
+const isOffered = (v: unknown): v is Look => looks.some((l) => l.code === v);
 
 const KEY = 'kiez-look';
 const isLook = (v: unknown): v is Look => v === 'kiez' || v === 'light' || v === 'mono';
@@ -28,7 +35,7 @@ function readLook(): Look {
   if (Platform.OS !== 'web') {
     try {
       const saved = SecureStore.getItem(KEY);
-      if (isLook(saved)) return saved;
+      if (isOffered(saved)) return saved;
     } catch {}
     return 'kiez';
   }
@@ -36,11 +43,12 @@ function readLook(): Look {
   try {
     const fromLink = new URLSearchParams(window.location.search).get('look');
     if (isLook(fromLink)) {
-      window.localStorage.setItem(KEY, fromLink);
+      // Ausgeblendete Looks nur für diesen Aufruf, ohne sie zu speichern
+      if (isOffered(fromLink)) window.localStorage.setItem(KEY, fromLink);
       return fromLink;
     }
     const saved = window.localStorage.getItem(KEY);
-    if (isLook(saved)) return saved;
+    if (isOffered(saved)) return saved;
   } catch {}
   return 'kiez';
 }
