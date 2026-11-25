@@ -18,7 +18,7 @@ import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
 import { color, space } from '../../theme/tokens';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
-import { look, looks } from '../../theme/look';
+import { look, lookName } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
 import { useShowcaseEnabled } from '../../data/showcase';
@@ -164,7 +164,7 @@ export default function Account() {
           {/* Look wählen: Kiez, Light-Modus, Mono (Daria, 2026-11-25) */}
           <NavGroupRow
             title="Look"
-            description={looks.find((l) => l.code === look)?.name}
+            description={lookName(look)}
             leading={<Icon name="look" size={ROW_ICON} color={color.accountCards.ink} />}
             background={color.accountCards.functional[2]}
             onPress={() => router.push('/account/look')}
