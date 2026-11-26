@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { Children, Fragment, useRef, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
@@ -165,7 +165,20 @@ export function ProfileHeader({ user, name, details, onPress }: ProfileHeaderPro
  * bringt ihre eigene Farbstufe mit.
  */
 export function NavGroup({ children }: { children: ReactNode }) {
-  return <View style={styles.navGroup}>{children}</View>;
+  const divider = color.accountCards.divider;
+  if (!divider) return <View style={styles.navGroup}>{children}</View>;
+  // Mono: Linie nur zwischen den Zeilen, bündig mit dem Titel (Daria, 2026-11-25)
+  const rows = Children.toArray(children);
+  return (
+    <View style={styles.navGroup}>
+      {rows.map((row, i) => (
+        <Fragment key={i}>
+          {i > 0 ? <View style={[styles.groupDivider, { backgroundColor: divider }]} /> : null}
+          {row}
+        </Fragment>
+      ))}
+    </View>
+  );
 }
 
 /**
@@ -226,6 +239,8 @@ const styles = StyleSheet.create({
   navRow: { minHeight: 48 },
   navGroup: { borderRadius: radius.md, overflow: 'hidden' },
   groupRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[12], paddingVertical: space[12], minHeight: 60 },
+  // Beginnt unter dem Titel: Innenabstand 12, Icon-Feld 40, Abstand 12
+  groupDivider: { height: 1, marginLeft: space[12] + 40 + space[12] },
   groupLeading: { width: 40, height: 40, borderRadius: radius.full, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   navTitle: { ...text.listItemTitle },
   // 14 pt statt 12, einzeilig (Daria, 2026-11-17)

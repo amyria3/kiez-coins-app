@@ -22,6 +22,7 @@ import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { t } from '../data/texts';
 import { PhotoTextOverlay } from './PhotoText';
+import { PhotoFade } from './PhotoFade';
 import { SheetPager, isTextPost } from './TextSheets';
 
 const isWeb = Platform.OS === 'web';
@@ -273,9 +274,9 @@ function KiezPost({
                 onPress={open}
                 accessibilityRole="button"
                 accessibilityLabel={t('{title} öffnen', { title: challenge.title.trim() || t('Foto') })}
-                style={[styles.info, styles.infoOnPhoto]}
+                style={[styles.info, FADE ? styles.infoFaded : styles.infoOnPhoto]}
               >
-                <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+                {FADE ? null : <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />}
                 {infoBar}
               </Pressable>
             }
@@ -381,7 +382,7 @@ function KiezPost({
                     { opacity: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
                   ]}
                 >
-                  <Text noTranslate style={[styles.tagOnPhotoText, { color: tagColorHere(PHOTO_TAG) }]} numberOfLines={1}>
+                  <Text noTranslate style={[styles.tagOnPhotoText, { color: color.text.photoTag ?? tagColorHere(PHOTO_TAG) }]} numberOfLines={1}>
                     {PHOTO_TAG}
                   </Text>
                 </Animated.View>
@@ -421,15 +422,15 @@ function KiezPost({
                   pointerEvents="none"
                   style={[
                     styles.info,
-                    styles.infoOnPhoto,
+                    FADE ? styles.infoFadedSingle : styles.infoOnPhoto,
                     {
                       opacity: whoAnim,
                       transform: [{ translateY: whoAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
                     },
                   ]}
                 >
-                  <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
-                  <Text style={styles.titleOnPhoto} numberOfLines={2}>
+                  {FADE ? <PhotoFade style={styles.fadeSingle} /> : <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />}
+                  <Text style={[styles.titleOnPhoto, FADE ? styles.onFade : null]} numberOfLines={2}>
                     {challenge.title}
                   </Text>
                 </Animated.View>
@@ -509,6 +510,9 @@ function TextCard({
     </View>
   );
 }
+
+/** Mono: Verlauf statt Glasleiste über dem Foto (Daria, 2026-11-25) */
+const FADE = !!color.overlay.fade;
 
 const styles = StyleSheet.create({
   post: { paddingHorizontal: space[16] },
@@ -601,6 +605,12 @@ const styles = StyleSheet.create({
     borderWidth: stroke.ultraThin,
     borderColor: color.line.hairline,
   },
+  // Mono: keine Glasleiste, Text direkt auf dem Verlauf (PhotoFade)
+  infoFaded: { paddingHorizontal: space[4], paddingBottom: space[4], paddingTop: 0, borderRadius: 0, overflow: 'visible' },
+  // Einzelnes Foto: Leiste reicht bis an den Kartenrand, der Verlauf läuft weit nach oben aus
+  infoFadedSingle: { margin: -space[12], paddingTop: space[48], paddingBottom: space[16], borderRadius: 0 },
+  fadeSingle: { top: -space[48] },
+  onFade: { color: color.text.onPhoto, textShadowColor: 'rgba(0,0,0,0.35)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 6 },
   infoPlain: { paddingHorizontal: space[4] },
   // Ort ohne Glasleiste: liegt unten links, Schatten statt Fläche
   placeOnPhoto: { position: 'absolute', left: space[4], right: space[4], bottom: space[4], flexDirection: 'row', alignItems: 'center', gap: space[4] },

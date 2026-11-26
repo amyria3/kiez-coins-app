@@ -559,7 +559,7 @@ export function InfoRow({ icon, value, placeholder }: { icon: IconName; value: s
 }
 
 /** Lila hell in der Farbe des Katers, nicht grün wie die Systemblasen der Krabbe (Daria, 2026-11-11) */
-const KATER_BUBBLE = withAlpha(color.accent.primary, 0.22);
+const KATER_BUBBLE = color.kater.bubble ?? withAlpha(color.accent.primary, 0.22);
 /** Derselbe Ton deckend, für Blasen, die über anderem Inhalt schweben (lila hell auf dem Grund #232326) */
 const KATER_BUBBLE_SOLID = color.kater.bubbleSolid;
 const KATER_CLOSE = color.kater.close;
@@ -924,10 +924,11 @@ const styles = StyleSheet.create({
     borderRadius: CHAT_RADIUS,
     borderBottomLeftRadius: space[4],
     backgroundColor: KATER_BUBBLE,
+    ...(color.kater.bubbleLine ? { borderWidth: 1.5, borderColor: color.kater.bubbleLine } : null),
   },
   // Größer als der Fließtext, der Kater spricht laut (Daria, 2026-11-11)
   katerBubbleSolid: { backgroundColor: KATER_BUBBLE_SOLID },
-  katerText: { ...text.readingLarge, color: color.text.primary, flexShrink: 1 },
+  katerText: { ...text.readingLarge, color: color.kater.bubbleText ?? color.text.primary, flexShrink: 1 },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   katerClose: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
   speech: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
@@ -942,7 +943,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
     transform: [{ rotate: '45deg' }],
   },
-  speechTitle: { ...text.cardTitleCompact, color: color.text.primary },
+  speechTitle: { ...text.cardTitleCompact, color: color.kater.bubbleText ?? color.text.primary },
   speechText: { ...text.reading, color: color.text.primary },
   circle: { overflow: 'hidden' },
   circleBackdrop: { backgroundColor: KATER_AVATAR_YELLOW },
