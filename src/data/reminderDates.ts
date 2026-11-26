@@ -117,9 +117,14 @@ export function parseUntil(value: string, now = new Date()): { date?: string; ti
   return TIME.test(m[2]) ? { date, time: m[2] } : null;
 }
 
-/** „24.12“, „24.12.“, „24.12.26“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der nächste solche Tag ab heute */
+/**
+ * Datum, wie man es tippt: „2.12“, „2.12.“, „02.12.“, „24.12.26“ oder „24.12.2026“ → „2026-12-24“; ohne Jahr der
+ * nächste solche Tag ab heute. Komma oder Schrägstrich statt Punkt gehen auch (Daria, 2026-11-26: Zahlentastaturen
+ * bieten oft nur das Komma an).
+ */
+const DATE = /^(\d{1,2})[.,/](\d{1,2})(?:[.,/](\d{2}|\d{4})?)?$/;
 export function parseDate(value: string, now = new Date()): string | null {
-  const m = value.trim().match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{2}|\d{4})?)?$/);
+  const m = value.trim().match(DATE);
   if (!m) return null;
   const [d, mo] = [Number(m[1]), Number(m[2])];
   const today = localDate(now);
@@ -139,3 +144,22 @@ export function parseDate(value: string, now = new Date()): string | null {
   }
   return null;
 }
+
+/**
+ * Warum ein Datum nicht geht (Daria, 2026-11-26: ruhige Meldung statt stiller Übernahme): `past`, wenn der Tag mit
+ * Jahr schon vorbei ist, `format` bei allem anderen, `null`, wenn es passt oder das Feld leer ist.
+ */
+export function dateIssue(value: string, now = new Date()): 'past' | 'format' | null {
+  const v = value.trim();
+  if (!v || parseDate(v, now)) return null;
+  const m = v.match(DATE);
+  if (m?.[3]) {
+    const year = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+    const c = new Date(year, Number(m[2]) - 1, Number(m[1]));
+    if (c.getMonth() === Number(m[2]) - 1 && c.getDate() === Number(m[1])) return 'past';
+  }
+  return 'format';
+}
+
+/** Noch unfertig getippt („2“, „2.“, „2.1“, „2.12.20“): beim Tippen noch keine Fehlermeldung */
+export const datePartial = (value: string) => /^\d{1,2}(?:[.,/](?:\d{1,2}(?:[.,/]\d{0,4})?)?)?$/.test(value.trim());

@@ -9,7 +9,8 @@ import { ReminderExtrasFields, type Extras } from '../../components/ReminderExtr
 import { kindOfTimes, TimeChoice, timesOf, timesReady, type TimeKind } from '../../components/routine/TimeChoice';
 import { SubScreen } from '../../components/Screen';
 import { WEEKDAYS, weekdayShort } from '../../data/katerRoutine';
-import { addDays, createReminder, END_OF_DAY, loadReminders, localDate, parseDate, parseUntil, replaceReminder, TIME } from '../../data/reminders';
+import { addDays, createReminder, dateIssue, datePartial, END_OF_DAY, loadReminders, localDate, parseDate, parseUntil, replaceReminder, TIME } from '../../data/reminders';
+import { useDayAgendaText } from '../../components/routine/dayAgendaText';
 import { useGoBack } from '../../lib/goBack';
 
 /**
@@ -38,6 +39,7 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
   const [mode, setMode] = useState<'once' | 'week' | 'days'>('once');
   const [day, setDay] = useState<'today' | 'tomorrow' | 'other'>('today');
   const [date, setDate] = useState('');
+  const [dateFocused, setDateFocused] = useState(false);
   // Standard: ohne Uhrzeit (Daria, 2026-11-14). Gilt für einmalige und feste Tage (Daria, 2026-11-16).
   const [timeKind, setTimeKind] = useState<TimeKind>('none');
   const [from, setFrom] = useState('');
@@ -124,6 +126,16 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
   const untilParts = mode === 'once' && timeKind === 'until' ? parseUntil(until) : null;
   const onDate =
     untilParts?.date ?? (day === 'today' ? localDate() : day === 'tomorrow' ? localDate(addDays(1)) : parseDate(date));
+  // Was am gewählten Datum schon ansteht (Daria, 2026-11-26), nur beim Feld „Datum“
+  const dayText = useDayAgendaText(mode === 'once' && day === 'other' ? parseDate(date) : null, editId);
+  // Fehler im Datum erst, wenn die Eingabe fertig ist: beim Tippen von „2.“ noch keine Meldung (Daria, 2026-11-26)
+  const issue = dateIssue(date);
+  const dateError =
+    !issue || (dateFocused && datePartial(date))
+      ? undefined
+      : issue === 'past'
+        ? 'Dieser Tag ist schon vorbei.'
+        : 'Das Datum verstehe ich nicht. Bitte so: 2.12. oder 2.12.2026';
   const timeReady = timesReady(timeKind, from, until, mode === 'once');
   const ready =
     want.trim().length > 0 && (mode === 'once' ? !!onDate && timeReady : mode === 'week' || (days.length > 0 && timeReady));
@@ -213,13 +225,16 @@ export function NewReminder({ editId }: { editId?: string } = {}) {
           {day === 'other' ? (
             <TextField
               label="Datum"
-              placeholder="Datum im Format 01.01. oder 01.01.2001"
+              placeholder="z. B. 2.12. oder 2.12.2026"
               value={date}
               onChangeText={setDate}
+              onFocus={() => setDateFocused(true)}
+              onBlur={() => setDateFocused(false)}
               keyboardType="numbers-and-punctuation"
               maxLength={10}
               nudge={dateField}
-              error={!date.trim() || parseDate(date) ? undefined : 'Bitte so: 01.01. oder 01.01.2001'}
+              error={dateError}
+              helperText={dayText}
             />
           ) : null}
           <TimeChoice

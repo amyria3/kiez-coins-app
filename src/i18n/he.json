@@ -1439,5 +1439,7 @@
   "Wie bekomme ich einen Buchungslink?": "איך משיגים קישור להזמנת תור?",
   "Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch.": "עם חשבון חינמי ב-Cal.com אפשר לקבוע מתי אפשר לקבוע אצלך תורים. את הקישור לדף ההזמנות שלך מזינים כאן. בחלון הראווה יופיע אז „קביעת תור“. גם שירותי הזמנה אחרים מתאימים.",
   "Cal.com-Konto anlegen": "יצירת חשבון Cal.com",
-  "Freie Zeiten sehen und online buchen.": "לראות זמנים פנויים ולהזמין אונליין."
+  "Freie Zeiten sehen und online buchen.": "לראות זמנים פנויים ולהזמין אונליין.",
+  "{n} Termine: {list}": "{n} פגישות: {list}",
+  "{n} Aufgaben ohne Uhrzeit": "{n} משימות ללא שעה"
 }
