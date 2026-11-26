@@ -112,38 +112,74 @@ const { diamondSvgs } = await loadTs('src/components/icons/diamondSvgs.ts');
 const { brandArt } = await loadTs('src/components/icons/brandArt.ts');
 const art = (name) => ({ w: brandArt[name].width, h: brandArt[name].height, svg: brandArt[name].svg });
 const { kartenbilder, filterDefs } = await import('./site/kunst.mjs');
+// Farben der übrigen Startseite (Leute, Kater-Dialog, Unterseiten), unabhängig vom Prototyp
 const C = { text: '#F0F0F0', muted: '#A0A0A0', purple: '#7E94FF', pink: '#FFB2E5', green: '#93F4A7', dark: '#1F2123' };
 const icon = (name, c) => ({ w: iconSvgs[name].width, h: iconSvgs[name].height, svg: iconSvgs[name].svg(c) });
+// Der Prototyp zeigt den Look Mono, Richtung C „Zarte Tönung“ (Daria, 2026-11-26): weißer Grund, Schwarz als
+// Bedienfarbe, Linien-Icons aus Phosphor wie in der App (src/components/icons/lineSvgs.ts). Farbe trägt nur das Herz.
+// Werte wie `mono` in src/theme/tokens.ts.
+const M = { ink: '#111111', soft: '#6B6B6B', herz: '#E5484D', white: '#FFFFFF' };
+const { phosphorRegular, phosphorFill } = await loadTs('src/components/icons/phosphorSvgs.ts');
+const ph = (name, c, filled = false) => {
+  const d = (filled && phosphorFill[name]) || phosphorRegular[name];
+  return { w: 24, h: 24, svg: `<svg width="24" height="24" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" fill="${c}">${d.map((x) => `<path d="${x}"/>`).join('')}</svg>` };
+};
+// Doppelherz als Linie für den Feed, wie doubleHeartLine in lineSvgs.ts
+const doubleHeart = (c, id) => {
+  const [line] = phosphorRegular.heart;
+  const [fill] = phosphorFill.heart;
+  return {
+    w: 24,
+    h: 24,
+    svg:
+      `<svg width="24" height="24" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">` +
+      `<defs><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">` +
+      `<rect width="256" height="256" fill="white"/><rect x="112" width="144" height="256" fill="black"/>` +
+      `<path d="${fill}" transform="translate(31 16) scale(0.88)" fill="black" stroke="black" stroke-width="22" stroke-linejoin="round"/></mask></defs>` +
+      `<g mask="url(#${id})"><path d="${line}" transform="translate(0 16) scale(0.88)" fill="${c}"/></g>` +
+      `<path d="${line}" transform="translate(31 16) scale(0.88)" fill="${c}"/></svg>`,
+  };
+};
 const kcSvg = {
-  heart: icon('heart', C.muted),
-  heartOn: icon('heart', C.pink),
-  gear: icon('settings', C.muted),
-  clock: icon('clock-filled', C.text),
-  comment: icon('comment', C.muted),
-  send: icon('send', C.muted),
-  camera: icon('camera', C.text),
-  pin: icon('map-pin', C.text),
-  // Doppelherz = Feed (Daria, 26.10.2026), in Pink für die Herz-Animation nach dem Posten
-  feed: icon('feed', C.text),
-  feedOn: icon('feed', C.pink),
-  burger: icon('burger', C.muted),
-  close: icon('close', C.text),
-  check: icon('check', C.dark),
-  hands: icon('wir-schaffen-das', C.dark),
-  checkGreen: icon('check', C.green),
-  wordmark: { w: 132, h: 25, svg: brand.wordmarkSvg(C.purple) },
+  heart: ph('heart', M.ink),
+  heartOn: ph('heart', M.herz, true),
+  gear: ph('gear', M.ink),
+  // Uhr auf Fotos (Frist, Dauer): hell
+  clock: ph('clock', M.white),
+  comment: ph('chat-circle', M.ink),
+  send: ph('paper-plane-tilt', M.ink),
+  camera: ph('camera', M.soft),
+  pin: ph('map-pin', M.ink),
+  // Doppelherz = Feed (Daria, 26.10.2026), in Rot für die Herz-Animation nach dem Posten
+  feed: doubleHeart(M.ink, 'kc-feed'),
+  feedOn: doubleHeart(M.herz, 'kc-feed-on'),
+  burger: ph('list', M.ink),
+  close: ph('x', M.ink),
+  // Haken und Hände auf dem schwarzen Hauptknopf
+  check: ph('check', M.white),
+  hands: ph('hands-clapping', M.white),
+  checkGreen: ph('check', M.ink),
+  // Deine Challenges in der Leiste: Raster wie `ship` in lineSvgs.ts
+  challenges: ph('squares-four', M.ink),
+  wordmark: { w: 132, h: 25, svg: brand.wordmarkSvg(M.ink) },
   // Kater und Logo von Daria (assets/brand/, übernommen mit scripts/brand-import.mjs)
   cat: art('kater-normal'),
   catHigh: art('kater-high'),
   catMoney: art('kater-money'),
   logo: art('wortbildmarke'),
   coins: { w: 30, h: 35, svg: brand.coinsSvg },
-  crown: { w: crownSvg.width, h: crownSvg.height, svg: crownSvg.svg(C.text) },
-  diamond: { w: diamondSvgs[1].width, h: diamondSvgs[1].height, svg: diamondSvgs[1].svg(C.text) },
-  diamond2: { w: diamondSvgs[2].width, h: diamondSvgs[2].height, svg: diamondSvgs[2].svg(C.text) },
-  diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(C.text) },
-  cameraDark: icon('camera', C.dark),
+  crown: { w: crownSvg.width, h: crownSvg.height, svg: crownSvg.svg(M.ink) },
+  diamond: { w: diamondSvgs[1].width, h: diamondSvgs[1].height, svg: diamondSvgs[1].svg(M.ink) },
+  diamond2: { w: diamondSvgs[2].width, h: diamondSvgs[2].height, svg: diamondSvgs[2].svg(M.ink) },
+  diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(M.ink) },
+  cameraDark: ph('camera', M.white),
 };
+// Im Telefon steht der Schriftzug der Wortbildmarke in Schwarz wie in Mono (brand.wordmark), der Kater bleibt bunt
+const nurSchriftIn = (svg, farbe) => {
+  const i = svg.toUpperCase().lastIndexOf('#7E94FF');
+  return i < 0 ? svg : svg.slice(0, i) + farbe + svg.slice(i + 7);
+};
+kcSvg.logoMono = { ...kcSvg.logo, svg: nurSchriftIn(kcSvg.logo.svg, M.ink) };
 // Logo für den Seitenkopf: die Wortbildmarke wie in der App (assets/marke/wortbildmarke.svg, Daria 2026-11-15), 48 hoch.
 // Nur der Schriftzug kommt ins dunklere Lila der Website (--purple in seite.css), damit er auf Flieder lesbar ist.
 // Der Kater bleibt hell mit dunkler Brille im gelbgrünen Kreis (Daria, 2026-11-15: sonst zu wenig Kontrast).
