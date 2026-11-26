@@ -341,6 +341,10 @@ const kiezColor = {
      */
     secondaryOnDark: swatch.gelbgruen,
     secondaryOnCard: swatch.tinte,
+    /** Hauptaktion als gefüllte Pille (Folgen, Zur Gruppe); ohne Wert die Signalfarbe `event` */
+    action: undefined as string | undefined,
+    /** Schrift auf `action`; ohne Wert Tinte */
+    onAction: undefined as string | undefined,
     /**
      * Hervorgehobener Text auf den Karten (Datum): wie mit Textmarker, Signalfarbe abgeblasst, ohne Knopfform, Schrift
      * in Tinte (Daria, 2026-11-17). Leuchtgelb zu 60 % auf Papier; das helle Gelbgrün allein wäre auf Papier unsichtbar.
@@ -613,6 +617,9 @@ const monoOverrides = {
     card: mono.surface,
     event: mono.surface2,
     secondaryOnDark: mono.ink,
+    // Hauptaktion schwarz mit weißer Schrift, die zweite nur mit Rand, wie „Done“ und „Give up“ (Daria, 2026-11-26)
+    action: mono.ink,
+    onAction: mono.white,
     highlight: mono.surface2,
     underlineOnCard: withAlpha(mono.ink, 0.5),
     band: mono.surface,

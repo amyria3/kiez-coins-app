@@ -647,7 +647,7 @@ function Pill({
       onPress={onPress}
       style={({ pressed }) => [styles.pill, filled ? styles.pillFilled : styles.pillOutline, pressed && styles.pressed]}
     >
-      {check ? <Icon name="check" size={16} color={color.showcaseCards.ink} /> : null}
+      {check ? <Icon name="check" size={16} color={filled ? (color.showcaseCards.onAction ?? ink) : color.showcaseCards.ink} /> : null}
       {before ? <Text style={textStyle}>{before}</Text> : null}
       {name ? (
         <Text noTranslate numberOfLines={1} style={[textStyle, styles.pillName]}>
@@ -757,12 +757,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: space[16],
     borderRadius: radius.full,
   },
-  pillFilled: { backgroundColor: color.showcaseCards.event, maxWidth: '100%' },
+  pillFilled: { backgroundColor: color.showcaseCards.action ?? color.showcaseCards.event, maxWidth: '100%' },
   pillName: { flexShrink: 1 },
   // Zweitrangig: Rand und Schrift in der Signalfarbe (Daria, 2026-11-17)
   pillOutline: { borderWidth: 1.5, borderColor: color.showcaseCards.secondaryOnDark },
   pillText: { ...text.label, color: color.showcaseCards.secondaryOnDark },
-  pillTextFilled: { color: ink },
+  pillTextFilled: { color: color.showcaseCards.onAction ?? ink },
   buttons: { gap: space[8] },
   // Kartenreihen wie im Kalender: über die Seitenränder hinaus wischbar
   rowScroll: { marginHorizontal: -space[16] },
