@@ -200,6 +200,8 @@ button { font: inherit; color: inherit; }
 .p-meta { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10.5px; white-space: nowrap; overflow: hidden; }
 .p-avatar { flex: none; display: inline-grid; place-items: center; width: var(--s); height: var(--s); border-radius: 50%; background: var(--c);
   color: #111111; font: 600 calc(var(--s) * .5)/1 var(--display); }
+/* Buchstabe mittig, auch wo eine Zeile ihre Spans zu flex macht (.p-task > div span) */
+.p-screen .p-avatar { display: inline-flex; align-items: center; justify-content: center; color: #111111; }
 .p-chip { position: absolute; z-index: 2; top: 9px; inset-inline-start: 9px; padding: 4px 10px; border-radius: 999px; font-size: 10px; background: var(--glass); border: .5px solid; }
 .p-chip-accepted { color: var(--purple); }
 .p-chip-requested { color: var(--muted); }
