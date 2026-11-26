@@ -698,7 +698,8 @@
     nudge.style.top = Math.max(40, Math.min(root.offsetHeight - 40, y)) + 'px';
   }
   function say(text, mood) {
-    $('.p-nudge-cat', nudge).innerHTML = svg(mood === 'high' ? 'catHigh' : 'cat', 28);
+    // Aktueller Kater wie in der App (Bildmarke), mit Ring für den hellen Grund der Blase
+    $('.p-nudge-cat', nudge).innerHTML = svg('katerRing', 34);
     $('.p-nudge-text', nudge).textContent = text;
     nudge.classList.remove('is-on');
     clearTimeout(nudgeTimer);
