@@ -110,6 +110,7 @@ const brand = await loadTs('src/components/icons/brandSvgs.ts');
 const { crownSvg } = await loadTs('src/components/icons/crownSvg.ts');
 const { diamondSvgs } = await loadTs('src/components/icons/diamondSvgs.ts');
 const { brandArt } = await loadTs('src/components/icons/brandArt.ts');
+const { katerRingSvg } = await loadTs('src/components/icons/katerAvatarSvg.ts');
 const art = (name) => ({ w: brandArt[name].width, h: brandArt[name].height, svg: brandArt[name].svg });
 const { kartenbilder, filterDefs } = await import('./site/kunst.mjs');
 // Farben der übrigen Startseite (Leute, Kater-Dialog, Unterseiten), unabhängig vom Prototyp
@@ -173,6 +174,9 @@ const kcSvg = {
   diamond2: { w: diamondSvgs[2].width, h: diamondSvgs[2].height, svg: diamondSvgs[2].svg(M.ink) },
   diamond3: { w: diamondSvgs[3].width, h: diamondSvgs[3].height, svg: diamondSvgs[3].svg(M.ink) },
   cameraDark: ph('camera', M.white),
+  // Kater in der Blase: die aktuelle Bildmarke mit dunklem Ring (katerRingSvg), gebaut für hellen Grund. Der gelbgrüne
+  // Kreis der Bildmarke verschwände auf dem Gelb der Blase, der Ring hebt sich deutlich ab (Daria, 2026-11-26).
+  katerRing: { w: 2204, h: 2204, svg: katerRingSvg().replace('<svg ', '<svg width="2204" height="2204" ') },
 };
 // Im Telefon steht der Schriftzug der Wortbildmarke in Schwarz wie in Mono (brand.wordmark), der Kater bleibt bunt
 const nurSchriftIn = (svg, farbe) => {
