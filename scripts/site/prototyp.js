@@ -403,9 +403,9 @@
   screen.innerHTML =
     '<div class="p-status" aria-hidden="true"><span>' + clock + '</span><span class="p-island"></span><span class="p-battery"></span></div>' +
     '<div class="p-scroll">' +
-    '  <div class="p-head"><span class="p-wordmark">' + svg('logo', 22) + '</span></div>' +
+    '  <div class="p-head"><span class="p-wordmark">' + svg('logoMono', 22) + '</span></div>' +
     '  <div class="p-greet"><h3>' + greeting + ', Mira</h3><p><span class="p-place"></span> · <span class="p-count"></span></p></div>' +
-    '  <div class="p-compose-head"><button type="button" class="p-x" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 12) + '</button><strong class="p-compose-line"></strong></div>' +
+    '  <div class="p-compose-head"><button type="button" class="p-x" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 16) + '</button><strong class="p-compose-line"></strong></div>' +
     '  <div class="p-seg" role="tablist" aria-label="Feed">' +
     '    <span class="p-seg-pill" aria-hidden="true"></span>' +
     '    <button role="tab" data-tab="ich"></button>' +
@@ -415,11 +415,11 @@
     '  </div>' +
     '  <div class="p-content"></div>' +
     '</div>' +
-    '<button class="p-camera" type="button" aria-label="' + T('Neu stellen', 'New post') + '">' + svg('cameraDark', 15) + '</button>' +
+    '<button class="p-camera" type="button" aria-label="' + T('Neu stellen', 'New post') + '">' + svg('cameraDark', 19) + '</button>' +
     '<nav class="p-tabbar" aria-label="' + T('App-Leiste', 'App bar') + '">' +
-    '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('feed', 18) + '</button>' +
-    '  <button type="button" data-bar="pleasure" aria-label="' + T('Was Du so machst', 'What you’re up to') + '">' + svg('crown', 22) + '</button>' +
-    '  <button type="button" data-bar="menu" aria-label="' + T('Menü', 'Menu') + '">' + svg('burger', 16) + '</button>' +
+    '  <button type="button" data-bar="feed" aria-label="Feed">' + svg('feed', 22) + '</button>' +
+    '  <button type="button" data-bar="pleasure" aria-label="' + T('Was Du so machst', 'What you’re up to') + '">' + svg('challenges', 22) + '</button>' +
+    '  <button type="button" data-bar="menu" aria-label="' + T('Menü', 'Menu') + '">' + svg('burger', 22) + '</button>' +
     '</nav>' +
     '<div class="p-scrim" hidden></div>' +
     '<section class="p-sheet" role="dialog" aria-modal="true" aria-label="Details" aria-hidden="true" tabindex="-1"></section>' +
@@ -473,9 +473,9 @@
     return (
       '<div class="p-actions">' +
       '<button type="button" class="p-like' + (liked ? ' is-on' : '') + '" data-like="' + c.id + '" aria-pressed="' + liked + '" aria-label="' + T('Gefällt mir', 'Like') + '">' +
-      '<span class="p-heart">' + svg(liked ? 'heartOn' : 'heart', 17) + '</span><span>' + (c.likes + (liked ? 1 : 0)) + '</span></button>' +
-      '<button type="button" ' + (c.kind !== 'we' ? 'data-soon="' + T('Kommentare', 'Comments') + '"' : 'data-open="' + c.id + '"') + ' aria-label="' + T('Kommentare', 'Comments') + '">' + svg('comment', 17) + '<span>' + c.comments + '</span></button>' +
-      '<button type="button" data-soon="' + T('Teilen', 'Sharing') + '" aria-label="' + T('Teilen', 'Share') + '">' + svg('send', 17) + '</button>' +
+      '<span class="p-heart">' + svg(liked ? 'heartOn' : 'heart', 21) + '</span><span>' + (c.likes + (liked ? 1 : 0)) + '</span></button>' +
+      '<button type="button" ' + (c.kind !== 'we' ? 'data-soon="' + T('Kommentare', 'Comments') + '"' : 'data-open="' + c.id + '"') + ' aria-label="' + T('Kommentare', 'Comments') + '">' + svg('comment', 21) + '<span>' + c.comments + '</span></button>' +
+      '<button type="button" data-soon="' + T('Teilen', 'Sharing') + '" aria-label="' + T('Teilen', 'Share') + '">' + svg('send', 21) + '</button>' +
       (c.author === 'du' ? '<button type="button" class="p-manage" data-soon="' + T('Verwalten', 'Managing posts') + '" aria-label="' + T('Verwalten', 'Manage') + '">' + svg('gear', 20) + '</button>' : '') +
       '</div>'
     );
@@ -490,7 +490,7 @@
       '<div class="p-pair" data-focus="none">' +
       '<button type="button" class="p-half p-before" data-pair="before" aria-label="' + T('Vorher-Foto vergrößern', 'Enlarge before photo') + '">' + image(c.before) + '<span class="p-tag">' + T('Vorher', 'Before') + '</span></button>' +
       '<button type="button" class="p-half p-after" data-pair="after" aria-label="' + T('Nachher-Foto vergrößern', 'Enlarge after photo') + '">' + image(c.after) + '<span class="p-tag">' + T('Nachher', 'After') + '</span></button>' +
-      '<span class="p-took">' + svg('clock', 10) + esc(c.took) + '</span>' +
+      '<span class="p-took">' + svg('clock', 12) + esc(c.took) + '</span>' +
       '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' +
       esc(people[c.author].name) + ' · Me-Challenge · ' + ago(c) + '</span></span>' +
       '</div>' +
@@ -542,7 +542,7 @@
       '<span class="p-bounty' + (M.unit === 'euro' ? '' : ' p-bounty-eden') + '">' + bountyOf(c) + '</span>' +
       '<span class="p-who">' + avatar(c.author, 28) + '<span><b>' + esc(people[c.author].name) + '</b><i>' + ago(c) + '</i></span></span>' +
       // Ohne Foto wie in der App: keine Frist-Pill, die Frist steht in der Meta-Zeile, der Text unter den Aktionen (Daria, 28.10.2026)
-      (c.img ? statusChip(c.id) || '<span class="p-chip p-chip-deadline">' + svg('clock', 10) + esc(cap(c.left)) + '</span>' : statusChip(c.id) || '') +
+      (c.img ? statusChip(c.id) || '<span class="p-chip p-chip-deadline">' + svg('clock', 12) + esc(cap(c.left)) + '</span>' : statusChip(c.id) || '') +
       '<span class="p-info"><strong>' + esc(c.title) + '</strong><span class="p-meta">' +
       esc(people[c.author].name) + ' · ' + esc(c.dist) + (c.img ? '' : ' · ' + esc(c.left)) + '</span></span>' +
       '</button>' +
@@ -765,10 +765,10 @@
     else if (!s) action = '<button type="button" class="p-btn" data-step="accept">' + svg('hands', 20) + T('We-Challenge annehmen', 'Accept We-Challenge') + '</button>';
     else if (s === 'accepted') action = '<button type="button" class="p-btn" data-step="report">' + T('Erledigt melden', 'Report done') + '</button>';
     else if (s === 'reported') action = '<button type="button" class="p-btn p-btn-wait" disabled>' + T('{who} prüft …', '{who} is checking …', { who: who }) + '</button>';
-    else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 12) + ' ' + T('{reward} von {who}', '{reward} from {who}', { reward: rewardText(c.reward), who: who }) + '</button>';
+    else action = '<button type="button" class="p-btn p-btn-ok" disabled>' + svg('check', 14) + ' ' + T('{reward} von {who}', '{reward} from {who}', { reward: rewardText(c.reward), who: who }) + '</button>';
     sheet.innerHTML =
       '<div class="p-grab" aria-hidden="true"></div>' +
-      '<button type="button" class="p-close" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 12) + '</button>' +
+      '<button type="button" class="p-close" data-close aria-label="' + T('Schließen', 'Close') + '">' + svg('close', 16) + '</button>' +
       (c.img ? '<div class="p-hero">' + image(c.img) + '</div>' : '') +
       '<div class="p-sheet-body">' +
       statusChip(c.id) +
