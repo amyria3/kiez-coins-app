@@ -8,7 +8,7 @@ import { t } from '../data/texts';
 import type { ImageSource } from '../data/types';
 import { useCanShare, useShareChallenge } from '../data/shareChallenge';
 
-import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
+import { color, font, motion, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
 import { hiddenText, useHideName } from './AuthorRow';
 import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
@@ -17,6 +17,7 @@ import { Text } from './T';
 import { useAccentColor } from '../theme/signal';
 import { LikeCount } from './LikeCount';
 import { BeforeAfterText } from './WithMentions';
+import { PhotoFade } from './PhotoFade';
 
 /** Anteil des Vorher-Fotos an der Höhe: im Ruhezustand 1/3, vergrößert 5/6 (Daria, 23.10.2026) */
 const SPLIT = { none: 1 / 3, before: 5 / 6, after: 1 / 6 } as const;
@@ -115,7 +116,8 @@ export function BeforeAfterPair({ before, after, beforeText, afterText, height, 
         </Animated.View>
       ) : null}
       {overlay ? (
-        <View pointerEvents={focus === 'before' ? 'none' : 'box-none'} style={[styles.overlay, focus === 'before' && styles.hidden]}>
+        <View pointerEvents={focus === 'before' ? 'none' : 'box-none'} style={[styles.overlay, FADE && styles.overlayFaded, focus === 'before' && styles.hidden]}>
+          {FADE ? <PhotoFade style={styles.fadeUp} /> : null}
           {overlay}
         </View>
       ) : null}
@@ -226,13 +228,13 @@ function KiezBeforeAfter(props: ChallengePostProps) {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={t('{title} öffnen', { title: challenge.title })}
-      style={styles.info}
+      style={[styles.info, FADE && styles.infoFaded]}
     >
-      <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+      {FADE ? null : <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />}
       <Text style={styles.title} numberOfLines={2}>
         {challenge.title}
       </Text>
-      <Text style={styles.meta} numberOfLines={1}>
+      <Text style={[styles.meta, FADE && styles.metaFaded]} numberOfLines={1}>
         <Text noTranslate style={hideName ? hiddenText : undefined}>
           {author.name}
         </Text>
@@ -267,6 +269,9 @@ function KiezBeforeAfter(props: ChallengePostProps) {
 
 /** Höhe der Karte im Look „Kiez“, wie die anderen Beiträge */
 const KIEZ_HEIGHT = 360;
+
+/** Mono: Verlauf statt Glasleiste (Daria, 2026-11-25) */
+const FADE = !!color.overlay.fade;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
@@ -314,6 +319,11 @@ const styles = StyleSheet.create({
   durationBottom: { top: space[12], marginTop: 0 },
   durationText: { ...text.captionStrong, color: color.text.primary, fontVariant: ['tabular-nums'] },
   overlay: { position: 'absolute', left: space[12], right: space[12], bottom: space[12], zIndex: 3 },
+  // Mono: bis an den Rand, der Verlauf läuft über der Leiste weich nach oben aus (Daria, 2026-11-25)
+  overlayFaded: { left: 0, right: 0, bottom: 0, paddingHorizontal: space[12], paddingTop: space[48], paddingBottom: space[12] },
+  fadeUp: { top: 0 },
+  infoFaded: { backgroundColor: 'transparent', borderWidth: 0, borderRadius: 0, paddingHorizontal: space[4], paddingVertical: space[4] },
+  metaFaded: { color: withAlpha(color.text.onPhoto, 0.85) },
   info: {
     gap: space[6],
     paddingVertical: space[12],

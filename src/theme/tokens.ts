@@ -160,6 +160,8 @@ const kiezColor = {
     /** @-Namen in Beiträgen und Kommentaren: im Kiez-Look Grün (Daria, 2026-11-09), im Light-Modus Tannengrün */
     mention: palette.green,
     /** Kleine Marke auf dunklem Glas über dem Foto (z. B. „Wave“), in beiden Looks Rosa */
+    /** #InDiesemMoment auf dem Foto; ohne Wert die Farbe der Marke */
+    photoTag: undefined as string | undefined,
     onPhotoAccent: palette.pink,
   },
   /** Große Icons (Daria, 2026-11-05): etwas gedämpfter als die Schrift, damit Symbole nicht heller als Text wirken */
@@ -252,6 +254,10 @@ const kiezColor = {
     hatch: withAlpha(kiezPalette.white, 0.16),
     /** Uhr und Text der Routine-Pille */
     pill: swatch.flieder,
+    /** Rand der Karten in Routine; ohne Wert kein Rand */
+    cardLine: undefined as string | undefined,
+    /** Karten in Routine mit leichtem Schatten, z. B. weiße Karte auf getöntem Grund */
+    cardRaised: false,
   },
   /** Systemmeldungen und Antworten (Frage und Krabbe): grüne Fläche mit dunkler Schrift, Grün des Systems (Daria, 2026-11-17) */
   system: {
@@ -263,6 +269,12 @@ const kiezColor = {
   kater: {
     bubbleSolid: swatch.lilaNacht,
     close: swatch.flieder,
+    /** Fläche der Blase; ohne Wert die Akzentfarbe zu 22 % */
+    bubble: undefined as string | undefined,
+    /** Rand der Blase; ohne Wert kein Rand */
+    bubbleLine: undefined as string | undefined,
+    /** Schrift in der Blase; ohne Wert die Textfarbe */
+    bubbleText: undefined as string | undefined,
   },
   /** Herzen (Likes, Herzen in der Brille): Grün mit weißem Rand */
   heart: {
@@ -315,6 +327,8 @@ const kiezColor = {
     cat: swatch.lilaNacht,
     catInk: palette.white,
     catInkSoft: swatch.flieder,
+    /** Feine Linie zwischen den Zeilen einer Gruppe; ohne Wert keine Linie (Gruppen stehen dann auf Farbflächen) */
+    divider: undefined as string | undefined,
   },
   showcaseCards: {
     /** Infokarten, Services und Termine: eine Kartenfarbe (Daria, 2026-11-17) */
@@ -364,6 +378,8 @@ const kiezColor = {
     medium: withAlpha(kiezPalette.black, 0.35),
     strong: withAlpha(kiezPalette.black, 0.6),
     heavy: withAlpha(kiezPalette.black, 0.72),
+    /** Verlauf am unteren Fotorand statt Glasleiste (`PhotoFade`); ohne Wert bleibt die Glasleiste */
+    fade: undefined as string | undefined,
   },
 } as const;
 
@@ -502,6 +518,13 @@ const mono = {
   herz: '#E5484D',
   /** Fehler als Schrift: 4,9 : 1 auf Weiß */
   fehler: '#C93A1E',
+  /** Zarte Tönungen der Karten in Routine: Aufgaben, Termine, Gemerkte, aus dem Schaufenster */
+  lila: '#EFEFFD',
+  sand: '#FAF1E4',
+  mint: '#E9F5EE',
+  limette: '#F3F7DF',
+  /** Sprechblase des Katers, Gelb aus seinem Kreis */
+  katerGelb: '#FFF4C2',
   /** Ausgeschaltete Schalter */
   aus: '#D4D4D4',
 } as const;
@@ -528,7 +551,10 @@ const monoOverrides = {
     onAccent: mono.white,
     mention: mono.ink,
     onPhotoAccent: mono.white,
+    // #InDiesemMoment auf dem Foto weiß mit weichem Schatten (Daria, 2026-11-25: „change to white“)
+    photoTag: mono.white,
   },
+  overlay: { fade: '#000000' },
   icon: { large: mono.ink, startGears: { 3: mono.ink, 4: mono.ink, 5: mono.ink } as Record<number, string> },
   nav: {
     bar: withAlpha(mono.white, 0.96),
@@ -556,25 +582,29 @@ const monoOverrides = {
     signal: mono.fehler,
     error: mono.fehler,
   },
+  // Zarte Tönung je Kartenart statt Grau (Daria, 2026-11-26: Entwurf „C, Zarte Tönung“). Schwarz darauf über 15 : 1.
   routine: {
-    task: mono.surface2,
-    fixed: '#D9D9D9',
-    saved: mono.surface,
-    showcase: '#EBEBEB',
+    task: mono.lila,
+    fixed: mono.sand,
+    saved: mono.mint,
+    showcase: mono.limette,
     ink: mono.ink,
     pill: mono.inkSoft,
   },
   system: { bg: mono.surface, text: mono.ink, crab: mono.ink },
-  kater: { bubbleSolid: mono.surface, close: mono.inkSoft },
+  // Der Kater spricht im Gelb seines Kreises, so hebt sich die Blase von den Karten ab (Daria, 2026-11-26)
+  kater: { bubble: mono.katerGelb, bubbleSolid: mono.katerGelb, close: mono.inkSoft },
   heart: { fill: mono.herz, outline: mono.white },
   financeDotInactive: mono.aus,
   showcasePlaceholder: { cover: ['#EDEDED', '#F7F7F7', '#E2E2E2'] },
   accountCards: {
     activity: mono.surface,
     posts: mono.surface,
-    friendship: [mono.surface, mono.surface],
-    showcase: mono.surface,
-    functional: [mono.surface, mono.surface, mono.surface],
+    // Gemeinsam und App ohne graue Fläche, Zeilen durch feine Linien getrennt (Daria, 2026-11-25: „maybe thin Trennlinien?“)
+    friendship: ['transparent', 'transparent'],
+    showcase: 'transparent',
+    functional: ['transparent', 'transparent', 'transparent'],
+    divider: withAlpha(mono.ink, 0.12),
     cat: mono.ink,
     catInk: mono.white,
     catInkSoft: mono.aus,

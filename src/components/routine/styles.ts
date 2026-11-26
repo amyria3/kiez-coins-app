@@ -34,6 +34,10 @@ export const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: 14,
     gap: space[6],
+    ...(color.routine.cardLine ? { borderWidth: 1, borderColor: color.routine.cardLine } : null),
+    ...(color.routine.cardRaised
+      ? { shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 1 }
+      : null),
   },
   cardBody: { gap: space[6] },
   cardRest: { gap: space[6] },
