@@ -745,6 +745,8 @@ export const text = {
   bodyStrong: { fontFamily: font.semiBold, fontSize: 15, lineHeight: 19 },
   /** Größerer Fließtext, z. B. Menüeinträge, Zähler unter Posts */
   bodyLarge: { fontFamily: font.regular, fontSize: 16, lineHeight: 20 },
+  /** Zahlen neben den größeren Linien-Icons in Mono (Likes, Kommentare), Daria, 2026-11-26 */
+  countLarge: { fontFamily: font.regular, fontSize: 20, lineHeight: 24 },
   /** Hinweise und Fehlermeldungen unter Formularfeldern, in beiden Looks Light (Daria, 2026-11-09) */
   hint: { fontFamily: font.light, fontSize: 15, lineHeight: 19 },
   /** Name im Chat und kleine Titel in Sprechblasen */

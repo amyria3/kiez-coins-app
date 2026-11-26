@@ -378,6 +378,8 @@ type InfoCardData = {
   title: string;
   body?: string;
   icon: 'map-pin' | 'clock-filled' | 'link' | 'calendar' | 'message' | 'friends';
+  /** Kein Icon im Kopf, dafür das Icon in jeder Linkzeile statt des Pfeils (Webseiten, Daria, 2026-11-26) */
+  iconInRows?: boolean;
   address?: string;
   /** Buchungslink, öffnet „Termin buchen“ (Cal.com o. ä., Daria, 2026-11-18) */
   booking?: string;
@@ -421,7 +423,7 @@ function infoCards(s: Showcase): InfoCardData[] {
   // Dieselben drei Gruppen wie die Digitale Visitenkarte und die Seite im Web (data/digitalCard.mjs)
   const { email, phone, websites: sites, social } = contactGroups(s);
   if (email || phone) cards.push({ id: 'kontakt', kicker: 'Kontakt', title: '', icon: 'message', email: email || undefined, phone: phone || undefined });
-  if (sites.length) cards.push({ id: 'webseiten', kicker: sites.length === 1 ? 'Webseite' : 'Webseiten', title: '', icon: 'link', links: sites });
+  if (sites.length) cards.push({ id: 'webseiten', kicker: sites.length === 1 ? 'Webseite' : 'Webseiten', title: '', icon: 'link', iconInRows: true, links: sites });
   if (social.length) cards.push({ id: 'netzwerke', kicker: 'Soziale Netzwerke', title: '', icon: 'friends', links: social });
   return cards;
 }
@@ -532,7 +534,7 @@ function CardGrid({ title, count, wide, children }: { title: string; count: numb
   );
 }
 
-function InfoCard({ kicker, title, body, icon, address, links, email, phone, booking, payment, name }: InfoCardData & { name: string }) {
+function InfoCard({ kicker, title, body, icon, iconInRows, address, links, email, phone, booking, payment, name }: InfoCardData & { name: string }) {
   return (
     <View style={[styles.card, styles.fill]}>
       <View style={styles.cardHead}>
@@ -544,9 +546,11 @@ function InfoCard({ kicker, title, body, icon, address, links, email, phone, boo
             </Text>
           ) : null}
         </View>
-        <View style={styles.cardIcon}>
-          <Icon name={icon} size={20} color={ink} />
-        </View>
+        {iconInRows ? null : (
+          <View style={styles.cardIcon}>
+            <Icon name={icon} size={20} color={ink} />
+          </View>
+        )}
       </View>
       {body ? (
         <Text noTranslate selectable style={styles.cardInk}>
@@ -580,7 +584,8 @@ function InfoCard({ kicker, title, body, icon, address, links, email, phone, boo
                 </View>
                 {/* Pfeil schräg nach oben: Der Link verlässt die App. Ein Pfeil nach rechts sähe aus, als öffne er ein
                     Fenster in der App (Daria, 2026-11-17) */}
-                <Icon name="external" size={14} color={ink} />
+                {/* Webseiten: die Kette statt des Pfeils, das Icon im Kopf fällt dafür weg (Daria, 2026-11-26) */}
+                {iconInRows ? <Icon name={icon} size={20} color={ink} /> : <Icon name="external" size={14} color={ink} />}
               </Pressable>
             );
           })}
