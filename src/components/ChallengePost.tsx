@@ -3,6 +3,7 @@ import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useCanShare, useShareChallenge } from '../data/shareChallenge';
 import { Text } from './T';
+import { isMono } from '../theme/look';
 import { LikeCount } from './LikeCount';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -217,7 +218,7 @@ function KiezPost({
             <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
           </Pressable>
         )}
-        <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={styles.count} />
+        <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={[styles.count, styles.likeCount]} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
@@ -696,7 +697,10 @@ const styles = StyleSheet.create({
   textPostMeta: { ...text.meta, color: color.text.secondary, flex: 1 },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: space[4] },
   actionsButtons: { flexDirection: 'row', alignItems: 'center', flexShrink: 1 },
-  count: { ...text.bodyLarge, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  // In Mono so groß, dass die Zahl neben den größeren Linien-Icons optisch gleich groß wirkt (Daria, 2026-11-26)
+  count: { ...(isMono ? text.countLarge : text.bodyLarge), color: color.text.primary, fontVariant: ['tabular-nums'] },
+  // Zahl der Likes dicht am Herz wie die Zahl am Kommentar; die Tippfläche des Herzens bleibt 44 breit (Daria, 2026-11-26)
+  likeCount: { marginLeft: -space[8] },
   countAction: {
     flexDirection: 'row',
     alignItems: 'center',

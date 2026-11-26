@@ -14,6 +14,7 @@ import type { ChallengePostProps } from './ChallengePost';
 import { Icon } from './icons/Icon';
 import { IconButton } from './IconButton';
 import { Text } from './T';
+import { isMono } from '../theme/look';
 import { useAccentColor } from '../theme/signal';
 import { LikeCount } from './LikeCount';
 import { BeforeAfterText } from './WithMentions';
@@ -194,7 +195,7 @@ function Actions({ challenge, onPress, onCommentPress, onLike, onManage, end }: 
       >
         <Icon name="heart" size={size.icon} color={challenge.likedByMe ? color.accent.affection : color.text.primary} />
       </Pressable>
-      <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={countStyle} />
+      <LikeCount challengeId={challenge.id} count={challenge.likeCount} style={[countStyle, styles.likeCount]} />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={commentCount ? t('Kommentieren, {commentCount} Kommentare', { commentCount }) : t('Kommentieren')}
@@ -339,7 +340,10 @@ const styles = StyleSheet.create({
   // Look „Kiez“
   post: { paddingHorizontal: space[16] },
   actions: { flexDirection: 'row', alignItems: 'center', paddingTop: space[4] },
-  count: { ...text.bodyLarge, color: color.text.primary, fontVariant: ['tabular-nums'] },
+  // In Mono so groß, dass die Zahl neben den größeren Linien-Icons optisch gleich groß wirkt (Daria, 2026-11-26)
+  count: { ...(isMono ? text.countLarge : text.bodyLarge), color: color.text.primary, fontVariant: ['tabular-nums'] },
+  // Zahl der Likes dicht am Herz wie die Zahl am Kommentar; die Tippfläche des Herzens bleibt 44 breit (Daria, 2026-11-26)
+  likeCount: { marginLeft: -space[8] },
   countAction: {
     flexDirection: 'row',
     alignItems: 'center',
