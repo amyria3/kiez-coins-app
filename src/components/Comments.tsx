@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BlurView } from 'expo-blur';
-import { Alert, Keyboard, Modal, Platform, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { Alert, Keyboard, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { holdInView, scrollIntoView } from './Nudge';
 import { Text } from './T';
@@ -8,8 +7,9 @@ import { Text } from './T';
 import { formatRelative } from '../data/format';
 import type { Comment as CommentData, ImageSource, User } from '../data/types';
 import { useAccentColor, useFocusColor } from '../theme/signal';
-import { color, radius, scheme, size, space, stroke, text } from '../theme/tokens';
+import { color, radius, size, space, stroke, text } from '../theme/tokens';
 import { Avatar, hiddenText, useHideName } from './AuthorRow';
+import { FloatingMenu, type Rect } from './FloatingMenu';
 import { IconButton } from './IconButton';
 import { Icon } from './icons/Icon';
 import { t } from '../data/texts';
@@ -161,8 +161,7 @@ function CommentImage({ image, authorName }: { image: ImageSource; authorName: s
 /** Drei senkrechte Punkte mit Menü darunter, wie „Weitere Aktionen“ an der Challenge */
 function CommentMenu({ authorName, onReport, onDelete }: { authorName: string; onReport?: () => void; onDelete?: () => void }) {
   const button = useRef<View>(null);
-  const [anchor, setAnchor] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
-  const { width } = useWindowDimensions();
+  const [anchor, setAnchor] = useState<Rect | null>(null);
   const close = () => setAnchor(null);
   return (
     <>
@@ -178,9 +177,7 @@ function CommentMenu({ authorName, onReport, onDelete }: { authorName: string; o
       <Modal visible={!!anchor} transparent animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={close}>
         <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel={t('Menü schließen')} />
         {anchor ? (
-          <View style={[styles.menu, { top: anchor.y + anchor.h, right: Math.max(space[8], width - anchor.x - anchor.w) }]} accessibilityRole="menu">
-            <BlurView intensity={40} tint={scheme} style={StyleSheet.absoluteFill} pointerEvents="none" />
-            <View style={[StyleSheet.absoluteFill, styles.menuTint]} pointerEvents="none" />
+          <FloatingMenu anchor={anchor} minWidth={160}>
             {onDelete ? (
               <Pressable
                 accessibilityRole="menuitem"
@@ -208,7 +205,7 @@ function CommentMenu({ authorName, onReport, onDelete }: { authorName: string; o
                 <Text style={[styles.menuText, styles.error]}>Melden</Text>
               </Pressable>
             ) : null}
-          </View>
+          </FloatingMenu>
         ) : null}
       </Modal>
     </>
@@ -528,20 +525,6 @@ const styles = StyleSheet.create({
   like: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   pressed: { opacity: 0.6 },
   replyText: { ...text.captionStrong, color: color.text.secondary },
-  menu: {
-    position: 'absolute',
-    minWidth: 200,
-    borderRadius: radius.lg,
-    borderWidth: stroke.ultraThin,
-    borderColor: color.line.hairline,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  menuTint: { backgroundColor: color.bg.menu },
   menuItem: { position: 'relative', minHeight: size.touchTarget, justifyContent: 'center', paddingHorizontal: space[16] },
   menuText: { ...text.bodyLarge, color: color.text.primary },
   error: { color: color.accent.error },
