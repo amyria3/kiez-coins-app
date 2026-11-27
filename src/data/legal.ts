@@ -166,7 +166,7 @@ export const legalDocs: Record<LegalDocId, LegalDoc> = {
       {
         heading: 'Diese Dienste verarbeiten Daten in unserem Auftrag',
         paragraphs: [
-          'Supabase Inc. hostet Datenbank, Anmeldung und Fotos. Die Server stehen in der EU (Paris, Frankreich). Für mögliche Zugriffe aus den USA gelten EU-Standardvertragsklauseln.',
+          'Supabase Pte. Ltd. hostet Datenbank, Anmeldung und Fotos. Die Server stehen in der EU (Paris, Frankreich). Für mögliche Zugriffe aus den USA gelten EU-Standardvertragsklauseln.',
           'Brevo (Sendinblue SAS, Paris, Frankreich) versendet die E-Mails mit Anmeldecodes. Brevo erhält dafür Deine E-Mail-Adresse und den Code.',
           'Vercel Inc. (USA) liefert die Download-Seite und die Web-App aus und verarbeitet dafür Deine IP-Adresse. Grundlage sind das EU-US Data Privacy Framework und EU-Standardvertragsklauseln.',
           'Mit diesen Diensten besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.',
