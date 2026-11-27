@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { addDays, canSkip, capitalize, dueAt, dueToday, goalOf, plannedGoalOf, isoWeekday, kindOf, localDate, parseDate, parseUntil, routineLabel, weekStart } from '../src/data/reminderDates';
+import { addDays, canSkip, outOfReachOf, capitalize, dueAt, dueToday, goalOf, plannedGoalOf, isoWeekday, kindOf, localDate, parseDate, parseUntil, routineLabel, weekStart } from '../src/data/reminderDates';
 import type { Reminder } from '../src/data/reminders';
 
 // Mittwoch, 2026-11-18, 10:00 Ortszeit
@@ -127,4 +127,18 @@ describe('Einmal aussetzen', () => {
     assert.equal(dueToday(reminder({ perWeek: 3, skippedToday: true, skippedThisWeek: 1 }), NOW), false);
     assert.equal(dueAt(reminder({ weekdays: [3], atTime: '18:00', skippedToday: true }), NOW)?.getTime(), new Date(2026, 10, 25, 18, 0).getTime());
   });
+});
+
+describe('Nicht mehr zu schaffen', () => {
+  // NOW ist Mittwoch: Mi bis So sind 5 Tage
+  it('x-mal pro Woche: mehr offen als Tage übrig', () => {
+    assert.equal(outOfReachOf(reminder({ perWeek: 7, doneThisWeek: 0 }), NOW), 2);
+    assert.equal(outOfReachOf(reminder({ perWeek: 5, doneThisWeek: 1 }), NOW), 0);
+    assert.equal(outOfReachOf(reminder({ perWeek: 7, doneThisWeek: 1, doneToday: true }), NOW), 2);
+  });
+  it('feste Tage: vergangene Tage ohne Haken sind weg', () => {
+    assert.equal(outOfReachOf(reminder({ weekdays: [1, 3, 5] }), NOW), 1);
+    assert.equal(outOfReachOf(reminder({ weekdays: [1, 3, 5], skippedToday: true, skippedThisWeek: 1 }), NOW), 1);
+  });
+  it('einmalige nie', () => assert.equal(outOfReachOf(reminder({ onDate: '2026-11-18' }), NOW), 0));
 });

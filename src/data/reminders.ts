@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { normalizeLink } from '../lib/places';
 import { supabase } from '../lib/supabase';
 import { weekStart, dayStart, isoWeekday, kindOf, localDate, addDays, routineLabel } from './reminderDates';
-export { weekStart, isoWeekday, kindOf, goalOf, plannedGoalOf, canSkip, localDate, addDays, dueToday, dueAt, routineLabel, capitalize, TIME, parseDate, parseUntil, dateIssue, datePartial, END_OF_DAY, isRelaxed, slackOf } from './reminderDates';
+export { weekStart, isoWeekday, kindOf, goalOf, plannedGoalOf, canSkip, outOfReachOf, localDate, addDays, dueToday, dueAt, routineLabel, capitalize, TIME, parseDate, parseUntil, dateIssue, datePartial, END_OF_DAY, isRelaxed, slackOf } from './reminderDates';
 export type { ReminderKind } from './reminderDates';
 
 /**

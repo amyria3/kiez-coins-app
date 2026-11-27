@@ -83,11 +83,11 @@ export const styles = StyleSheet.create({
     color: INK_SOFT,
     paddingVertical: 11,
   },
-  bar: { flexDirection: 'row', gap: space[4], marginVertical: space[2] },
-  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: INK_TRACK },
-  segmentDone: { backgroundColor: INK },
-  // Ausgesetzt (Daria, 2026-11-27): gestrichelter Umriss statt Fläche
-  segmentSkipped: { backgroundColor: 'transparent', borderWidth: 1, borderStyle: 'dashed', borderColor: INK_SOFT },
+  bar: { flexDirection: 'row', gap: space[4], marginTop: space[4] },
+  // Offen als Umriss, erledigt gefüllt, ausgesetzt oder nicht mehr zu schaffen grau (Daria, 2026-11-27)
+  segment: { flex: 1, flexBasis: 0, height: 4, borderRadius: 2, borderWidth: 1, borderColor: INK, overflow: 'hidden' },
+  segmentFill: { height: '100%', backgroundColor: INK },
+  segmentGreyed: { borderWidth: 0, backgroundColor: INK_TRACK },
   // Buttons mit festem Abstand beieinander; nur „•••“ rückt nach rechts (Daria, 2026-11-13)
   actions: {
     flexDirection: 'row',
