@@ -16,10 +16,11 @@ export const HATCH = color.routine.hatch;
 export const CARD_MIN = 260;
 /**
  * Breiteste Karte in einer Reihe mit mehreren Karten (Daria, 2026-11-27: „Bei dieser Breite des Bildschirms müssen
- * die Karten nicht so krass breit sein“). Bis 416 pt Bildschirmbreite gilt weiter Spalte minus 36; breitere Spalten
- * zeigen mehr von der nächsten Karte, auf dem Tablet stehen mehrere Karten nebeneinander.
+ * die Karten nicht so krass breit sein“, danach „Karte muss weniger breit sein“): 300 ist knapp mehr, als Knöpfe,
+ * „•••“ und Kater brauchen. Bis 376 pt Bildschirmbreite gilt weiter Spalte minus 36; breitere Spalten zeigen mehr von
+ * der nächsten Karte, auf dem Tablet stehen mehrere Karten nebeneinander.
  */
-export const CARD_MAX = 340;
+export const CARD_MAX = 300;
 export const GUTTER = space[20];
 /**
  * Karten anheben und ziehen (Daria, 2026-11-13): Kurz halten hebt die Karte an wie einen Zettel. Dann nach rechts

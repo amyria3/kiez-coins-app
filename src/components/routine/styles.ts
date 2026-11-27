@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
   katerRing: {
     borderRadius: 23,
     borderWidth: 3,
-    borderColor: color.bg.screen,
+    borderColor: color.routine.katerRing ?? color.bg.screen,
     overflow: 'hidden',
   },
   meta: {
