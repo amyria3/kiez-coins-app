@@ -175,13 +175,15 @@ const kiezColor = {
   },
   /**
    * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige. Jede Seite hat ihre Farbe:
-   * Kalender Senf, Feed Rosa, Nachrichten Schneeweiß, Menü Gelbgrün. Der ausgewählte Tab zeigt seinen Namen auf einer
-   * zarten Tönung seiner Farbe (Daria, 2026-11-27: die graue Blase sah gar nicht ausgewählt aus).
+   * Kalender Senf, Feed Rosa, Nachrichten Schneeweiß, Menü Gelbgrün. Die aktive Seite sitzt auf einer grauen Blase.
+   * In Mono zeigt der ausgewählte Tab seinen Namen auf zart lila Pille (Daria, 2026-11-27), vorerst nur dort.
    */
   nav: {
     bar: 'rgba(59, 47, 60, 0.94)',
     icon: swatch.beige,
-    /** Fläche des ausgewählten Tabs. Ohne Wert: seine Farbe mit 16 % Deckkraft (TabBar) */
+    /** Aktive Seite im Kiez-Look: graue Blase */
+    bubble: palette.graphite,
+    /** Fläche des ausgewählten Tabs in Mono. Ohne Wert: seine Farbe mit 16 % Deckkraft (TabBar) */
     selectedFill: undefined as string | undefined,
     /** Rand des ausgewählten Tabs, nur in Mono */
     selectedLine: undefined as string | undefined,
@@ -462,6 +464,7 @@ const lightOverrides = {
   nav: {
     bar: withAlpha(light.bar, 0.96),
     icon: light.barIcon,
+    bubble: '#45413C',
     calendar: light.senf,
     feed: light.rosa,
     chat: swatch.schnee,

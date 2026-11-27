@@ -47,10 +47,14 @@ type TabBarProps = {
  * sie als volle Pille auf der Feed-Pille, wie das Plus auf der Kalender-Pille (Daria, 2026-11-27). Beide Knöpfe zählen mit (`button_presses`), damit sich zeigt, welcher häufiger genutzt wird.
  */
 export function TabBar(props: TabBarProps) {
-  return <KiezTabBar {...props} />;
+  return isMono ? <MonoTabBar {...props} /> : <KiezTabBar {...props} />;
 }
 
-function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress, hidePlus = false }: TabBarProps) {
+/**
+ * Look Mono (Daria, 2026-11-27): Der ausgewählte Tab zeigt Icon und Namen auf zart lila Pille mit Rand, die
+ * Hauptaktion (Kamera im Feed, Plus in der Routine) liegt als volle Pille obenauf. Erst einmal nur in Mono.
+ */
+function MonoTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress, hidePlus = false }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { mode, currentUserId } = useStore();
@@ -240,6 +244,157 @@ function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
   );
 }
 
+function KiezTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineActive = false, onRoutinePress, hidePlus = false }: TabBarProps) {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { mode, currentUserId } = useStore();
+  const routineOn = useRoutineEnabled();
+  const feedOn = active === 'feed' && !routineActive;
+  // Wechsel wie zwischen den Reitern im Feed: Seite gleitet hinaus, die neue kommt von ihrer Seite der Leiste (lib/pageSlide)
+  const leave = usePageLeave();
+  const awayFromFeed = active === 'chat' || active === 'menu';
+  // Lila Pille im Feed wie üblich; in der Routine klein und ohne Fläche (Daria, 2026-11-12)
+  const cameraPill = feedOn;
+  // In „Me & Myself“ erstellt die Kamera einen privaten Post: Pille gelb statt lila (Daria, 2026-11-15)
+  const cameraFill = useFrontSpace() === 'me' ? color.accent.private : color.nav.create;
+  const unread = useUnreadMessages();
+  const requests = useFriendRequests();
+  useEffect(() => {
+    if (currentUserId) refreshUnread(currentUserId, mode === 'live').catch(() => {});
+  }, [currentUserId, mode]);
+  // Bei offener Tastatur weg (Daria, 2026-11-17: Suche im Feed, die Leiste schwebte mitten im Bild)
+  // Quick Button (Daria, 2026-11-23): In der Routine kommt ein Plus neben den Kalender ins selbe Oval. Die anderen
+  // Knöpfe werden etwas kleiner und rutschen dabei zur Seite, das Plus ist das hervorgehobene Element.
+  const plusOn = routineOn && routineActive && !hidePlus;
+  const open = useRef(new Animated.Value(plusOn ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.spring(open, { toValue: plusOn ? 1 : 0, ...NAV_SWAP_SPRING, useNativeDriver: false }).start();
+  }, [plusOn, open]);
+  const itemW = open.interpolate({ inputRange: [0, 1], outputRange: [ITEM_W, ITEM_W_SMALL] });
+  const itemH = open.interpolate({ inputRange: [0, 1], outputRange: [ITEM_H, ITEM_H_SMALL] });
+  const iconScale = open.interpolate({ inputRange: [0, 1], outputRange: [1, ICON_SMALL] });
+  const plusW = open.interpolate({ inputRange: [0, 1], outputRange: [0, PLUS_W] });
+  // Ohne Plus fällt auch sein Abstand weg, sonst springt die Leiste beim Auftauchen um diesen Abstand
+  const plusGap = open.interpolate({ inputRange: [0, 1], outputRange: [-space[6], 0] });
+  const plusScale = open.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] });
+  const slot = (child: ReactNode, width: Animated.AnimatedInterpolation<number> | number = itemW) => (
+    <Animated.View style={{ width, height: itemH }}>
+      <Animated.View style={[styles.fill, { transform: [{ scale: iconScale }] }]}>{child}</Animated.View>
+    </Animated.View>
+  );
+  const keyboard = useKeyboardHeight();
+  if (keyboard > 0) return null;
+  return (
+    <View
+      style={[styles.wrap, { bottom: tabBarBottom(insets.bottom) }]}
+      pointerEvents="box-none"
+    >
+      <View style={styles.bar} accessibilityRole="tablist">
+        {/* Kalender ganz links öffnet die Routine (Daria, 2026-11-12). Nur, wenn die Routine eingeschaltet ist. */}
+        {routineOn ? slot(
+          <Pressable
+            accessibilityRole="tab"
+            accessibilityLabel={t('Routine')}
+            accessibilityState={{ selected: routineActive }}
+            onPress={() => {
+              if (routineActive) return;
+              if (onRoutinePress) onRoutinePress();
+              else leave(-1, () => router.dismissTo({ pathname: '/feed', params: { reiter: 'routine' } }));
+            }}
+            style={({ pressed }) => [styles.item, routineActive && styles.itemActive, pressed && styles.pressed]}
+          >
+            <Icon name="calendar" size={navSize(size.icon, routineActive)} color={routineActive ? color.nav.calendar : color.nav.icon} />
+          </Pressable>,
+        ) : null}
+        {/* Quick Button: neue Erinnerung für heute (Daria, 2026-11-23). Senf wie der Kalender, als volle Pille. */}
+        {routineOn ? (
+          <Animated.View
+            style={{ width: plusW, height: ITEM_H, marginLeft: plusGap, opacity: open, transform: [{ scale: plusScale }] }}
+            pointerEvents={plusOn ? 'auto' : 'none'}
+          >
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('Neue Erinnerung')}
+              accessibilityElementsHidden={!plusOn}
+              importantForAccessibility={plusOn ? 'auto' : 'no-hide-descendants'}
+              onPress={() => {
+                countButton('plus-leiste', look);
+                router.push('/routine/new');
+              }}
+              style={({ pressed }) => [styles.item, styles.plus, pressed && styles.pressed]}
+            >
+              <Icon name="plus" size={PLUS_ICON} color={color.nav.onCreate} />
+            </Pressable>
+          </Animated.View>
+        ) : null}
+        {/* Kamera auch in der Leiste (Daria, 30.10.2026). Im Feed als lila Pille, dort etwas größer; in der Routine klein und schlicht (Daria, 2026-11-12). In Nachrichten und „Was Du so machst“ schlicht wie Feed und Menü daneben:
+            ohne Fläche, gleich breit, gedämpfte Farbe (Daria, 10.11.2026).
+            Sitzt rechts neben dem Kalender, das Herz (Feed) kommt danach (Daria, 2026-11-12) */}
+        {slot(
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('Challenge erstellen')}
+          onPress={() => {
+            countButton('kamera-leiste', look);
+            (onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
+          }}
+          style={({ pressed }) => [styles.item, cameraPill && { backgroundColor: cameraFill }, pressed && styles.pressed]}
+        >
+          <Icon
+            name="camera"
+            size={cameraPill ? CAMERA_ICON_FEED : navSize(CAMERA_ICON_PLAIN, false)}
+            color={cameraPill ? color.nav.onCreate : color.nav.icon}
+          />
+        </Pressable>,
+          cameraPill ? CAMERA_PILL_W : itemW,
+        )}
+        {slot(
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={t('Feed')}
+          accessibilityState={{ selected: feedOn }}
+          onPress={() => (awayFromFeed ? leave(-1, onFeedPress) : onFeedPress())}
+          style={({ pressed }) => [styles.item, feedOn && styles.itemActive, pressed && styles.pressed]}
+        >
+          <Icon name="feed" size={navSize(size.icon, feedOn)} color={feedOn ? color.nav.feed : color.nav.icon} />
+        </Pressable>,
+        )}
+        {/* Chat und Freund:innen (Daria, 22.10.2026) */}
+        {slot(
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={unread ? t('Chats, {n} ungelesen', { n: unread }) : requests ? t('Chats, neue Freundschaftsanfrage') : t('Chats')}
+          accessibilityState={{ selected: active === 'chat' }}
+          // Vom Konto aus liegt der Chat links, sonst rechts (Daria, 2026-11-17)
+          onPress={() => {
+            if (active === 'chat') return;
+            if (active === 'menu') leave(-1, () => router.dismissTo('/chat'));
+            else leave(1, () => router.push('/chat'));
+          }}
+          style={({ pressed }) => [styles.item, active === 'chat' && styles.itemActive, pressed && styles.pressed]}
+        >
+          <View>
+            <Icon name="message" size={navSize(NAV_ICON.message, active === 'chat')} color={active === 'chat' ? color.nav.chat : color.nav.icon} />
+            {unread || requests ? <View style={styles.dot} /> : null}
+          </View>
+        </Pressable>,
+        )}
+        {slot(
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityLabel={t('Menü')}
+          accessibilityState={{ selected: active === 'menu' }}
+          onPress={() => active !== 'menu' && leave(1, onMenuPress)}
+          style={({ pressed }) => [styles.item, active === 'menu' && styles.itemActive, pressed && styles.pressed]}
+        >
+          <Icon name="burger" size={navSize(NAV_ICON.burger, active === 'menu')} color={active === 'menu' ? color.nav.menu : color.nav.icon} />
+        </Pressable>,
+        )}
+      </View>
+    </View>
+  );
+}
+
 /** Kamera oben rechts: bleibt beim Scrollen stehen und erstellt eine Challenge. */
 /** `inline`: im Fluss statt oben rechts angeheftet, z. B. in der Vorschau der Tour */
 export function CameraButton({ onPress, inline = false }: { onPress: () => void; inline?: boolean }) {
@@ -287,6 +442,9 @@ const ICON_SMALL = 0.88;
 export const NAV_SWAP_SPRING = { friction: 7, tension: 70 };
 /** Hauptaktion (Kamera im Feed, Plus in der Routine): breiter als die Nachbarn und volle Höhe */
 const PRIMARY_W = 64;
+/** Kiez: Plus so breit wie die Hauptaktion in Mono, Kamera im Feed als breitere lila Pille */
+const PLUS_W = PRIMARY_W;
+const CAMERA_PILL_W = 72;
 const PLUS_ICON = 26;
 /**
  * Nicht gewählte Icons kleiner, das gewählte behält die volle Höhe (Daria, 2026-11-13). In Mono wirken die Linien
@@ -329,7 +487,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   fill: { flex: 1 },
-  // Ausgewählter Tab mit Namen: so breit wie Icon und Name (Daria, 2026-11-27)
+  // Kiez: Quick Button in der Routine Senf wie Kalender und Me & Myself (Daria, 2026-11-23)
+  plus: { backgroundColor: color.nav.calendar },
+  // Kiez: aktive Seite auf grauer Blase #303034 (Daria, 2026-11-12)
+  itemActive: { backgroundColor: color.nav.bubble },
+  // Mono: ausgewählter Tab mit Namen: so breit wie Icon und Name (Daria, 2026-11-27)
   itemLabeled: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto', flexDirection: 'row', height: ITEM_H, paddingStart: space[8], paddingEnd: space[12], gap: space[6] },
   // Kalender in der Routine: Platz für das Icon, rechts davon liegt das Plus auf derselben Pille
   itemUnderPlus: { flexGrow: 0, flexShrink: 0, flexBasis: 'auto', width: ITEM_W_SMALL, height: ITEM_H_SMALL },
