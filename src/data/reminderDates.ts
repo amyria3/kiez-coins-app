@@ -32,6 +32,21 @@ export const plannedGoalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate
 export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate' | 'skippedThisWeek'>) =>
   r.onDate ? 1 : Math.max(0, plannedGoalOf(r) - (r.skippedThisWeek ?? 0));
 
+/**
+ * Wie oft eine Aufgabe diese Woche nicht mehr zu schaffen ist, weil zu wenige Tage übrig sind (Daria, 2026-11-27).
+ * Ein Tag zählt höchstens einmal; heute nur, solange sie heute weder erledigt noch ausgesetzt ist.
+ */
+export function outOfReachOf(r: Reminder, now = new Date()): number {
+  if (r.onDate) return 0;
+  const left = Math.max(0, goalOf(r) - r.doneThisWeek);
+  const today = isoWeekday(now);
+  const todayOpen = !r.doneToday && !r.skippedToday;
+  const open = r.weekdays?.length
+    ? r.weekdays.filter((d) => d > today || (d === today && todayOpen)).length
+    : 7 - today + (todayOpen ? 1 : 0);
+  return Math.max(0, left - open);
+}
+
 /** So oft pro Woche lässt sich eine Aufgabe aussetzen (Daria, 2026-11-27) */
 export const SKIPS_PER_WEEK = 1;
 

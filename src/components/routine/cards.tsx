@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Alert, Animated, Linking, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { Alert, Animated, Easing, Linking, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { markCardSwipe } from '../../lib/cardSwipe';
 
@@ -7,7 +7,7 @@ import { calCancelUrl, canCancel, minutesUntil, shortNoticeKind } from '../../da
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { hideEvent } from '../../data/hiddenEvents';
 import { dayName, goalText, katerMood, whenText, type KaterMood } from '../../data/katerRoutine';
-import { canSkip, capitalize, goalOf, plannedGoalOf, type Reminder } from '../../data/reminders';
+import { canSkip, capitalize, goalOf, outOfReachOf, plannedGoalOf, type Reminder } from '../../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent } from '../../data/showcase';
 import { t, useTexts } from '../../data/texts';
 import { color, space } from '../../theme/tokens';
@@ -430,10 +430,24 @@ export function TaskCard({
   const goal = goalOf(r);
   const planned = plannedGoalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
-  const skipped = planned - goal;
+  // Ausgegraut am Ende: ausgesetzt oder diese Woche nicht mehr zu schaffen (Daria, 2026-11-27)
+  const greyed = Math.min(planned - done, planned - goal + outOfReachOf(r));
   const resting = r.doneToday || !!r.skippedToday || r.doneThisWeek >= goal;
   // „Aussetzen“ steht als Knopf statt „Aufgeben“ (Daria, 2026-11-27); Aufgeben wandert dann ins Menü
   const skip = onSkip && canSkip(r) ? onSkip : undefined;
+  // Fortschritt neben dem Kater statt darunter: Die Karte wird kompakter, wo der Platz reicht (Daria, 2026-11-27)
+  const label = t('{done} von {goal} diese Woche', { done, goal });
+  const progress =
+    planned > 1 ? (
+      <>
+        <Text style={styles.sub}>{label}</Text>
+        <View style={styles.bar} accessible accessibilityLabel={label}>
+          {Array.from({ length: planned }, (_, i) => (
+            <Segment key={i} state={i < done ? 'done' : i >= planned - greyed ? 'greyed' : 'open'} />
+          ))}
+        </View>
+      </>
+    ) : null;
   // Einmalig und erledigt: kommt nicht wieder, also löschen statt abbrechen oder aufgeben (Daria, 2026-11-13)
   const finished = resting && !!r.onDate;
   const menu = useRef<(() => void) | null>(null);
@@ -459,25 +473,14 @@ export function TaskCard({
       leftLabel={finished ? 'Löschen' : 'Abbrechen'}
       leftTone={finished ? 'delete' : 'end'}
       onDragUp={resting ? undefined : onLater}
-      head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} />}
+      head={
+        <>
+          <CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} />
+          {progress}
+        </>
+      }
     >
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
-      {planned > 1 ? <Text style={styles.sub}>{t('{done} von {goal} diese Woche', { done, goal })}</Text> : null}
-      {planned > 1 ? (
-        <View
-          style={styles.bar}
-          accessible
-          accessibilityLabel={t('{done} von {goal} diese Woche', {
-            done,
-            goal,
-          })}
-        >
-          {/* Ausgesetzte Striche bleiben am Ende stehen, nur als Umriss (Daria, 2026-11-27) */}
-          {Array.from({ length: planned }, (_, i) => (
-            <View key={i} style={[styles.segment, i < done && styles.segmentDone, i >= planned - skipped && styles.segmentSkipped]} />
-          ))}
-        </View>
-      ) : null}
       {/* Erledigt, Aussetzen bzw. Aufgeben und im Menü „Das hier abbrechen“ (Daria, 2026-11-13, Aussetzen 2026-11-27).
           Buttons mit festem Abstand beieinander, nur „•••“ rechts (Daria, 2026-11-13) */}
       {resting ? (
@@ -571,6 +574,40 @@ export function EventCard({
         </View>
       )}
     </Card>
+  );
+}
+
+/**
+ * Ein Strich im Wochenbalken (Daria, 2026-11-27): offen als Umriss, erledigt gefüllt (füllt sich beim Erledigen von
+ * links), ausgegraut, wenn ausgesetzt oder diese Woche nicht mehr zu schaffen.
+ */
+function Segment({ state }: { state: 'open' | 'done' | 'greyed' }) {
+  const reduce = useReduceMotion();
+  const fill = useRef(new Animated.Value(state === 'done' ? 1 : 0)).current;
+  const grow = useRef(new Animated.Value(1)).current;
+  const was = useRef(state);
+  useEffect(() => {
+    const before = was.current;
+    was.current = state;
+    if (state !== 'done' || before === 'done' || reduce) {
+      fill.setValue(state === 'done' ? 1 : 0);
+      return;
+    }
+    // Gerade erledigt: Der Strich wächst und füllt sich, die anderen rücken zur Seite; danach gleichen sie sich wieder an
+    // (Daria, 2026-11-27)
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(grow, { toValue: 2.2, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        Animated.timing(fill, { toValue: 1, duration: 520, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      ]),
+      Animated.timing(grow, { toValue: 1, duration: 420, delay: 120, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+    ]).start();
+  }, [state, reduce, fill, grow]);
+  if (state === 'greyed') return <View style={[styles.segment, styles.segmentGreyed]} />;
+  return (
+    <Animated.View style={[styles.segment, { flexGrow: grow }]}>
+      <Animated.View style={[styles.segmentFill, { width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]} />
+    </Animated.View>
   );
 }
 
