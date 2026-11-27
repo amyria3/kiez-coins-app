@@ -256,6 +256,8 @@ const kiezColor = {
     pill: swatch.flieder,
     /** Rand der Karten in Routine; ohne Wert kein Rand */
     cardLine: undefined as string | undefined,
+    /** Ring um den Kater auf den Karten; ohne Wert in der Farbe des Grunds */
+    katerRing: undefined as string | undefined,
     /** Karten in Routine mit leichtem Schatten, z. B. weiße Karte auf getöntem Grund */
     cardRaised: false,
   },
@@ -523,10 +525,11 @@ const mono = {
   /** Fehler als Schrift: 4,9 : 1 auf Weiß */
   fehler: '#C93A1E',
   /** Zarte Tönungen der Karten in Routine: Aufgaben, Termine, Gemerkte, aus dem Schaufenster */
-  lila: '#EFEFFD',
-  sand: '#FAF1E4',
-  mint: '#E9F5EE',
-  limette: '#F3F7DF',
+  // Frischer (Daria, 2026-11-27: „Farben wieder etwas fresher, vor allem gelb“): mehr Sättigung, Sand wird klares Hellgelb
+  lila: '#E1E2FE',
+  sand: '#FEF5C8',
+  mint: '#D6F5E4',
+  limette: '#F2FAC6',
   /** Sprechblase des Katers, Gelb aus seinem Kreis */
   katerGelb: '#FFF4C2',
   /** Ausgeschaltete Schalter */
@@ -594,6 +597,8 @@ const monoOverrides = {
     showcase: mono.limette,
     ink: mono.ink,
     pill: mono.inkSoft,
+    // Schwarzer Ring um den Kater (Daria, 2026-11-27: „Katzenrand schwarz“)
+    katerRing: mono.ink,
   },
   system: { bg: mono.surface, text: mono.ink, crab: mono.ink },
   // Der Kater spricht im Gelb seines Kreises, so hebt sich die Blase von den Karten ab (Daria, 2026-11-26)
