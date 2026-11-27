@@ -593,14 +593,12 @@ function Segment({ state }: { state: 'open' | 'done' | 'greyed' }) {
       fill.setValue(state === 'done' ? 1 : 0);
       return;
     }
-    // Gerade erledigt: Der Strich wächst und füllt sich, die anderen rücken zur Seite; danach gleichen sie sich wieder an
-    // (Daria, 2026-11-27)
+    // Gerade erledigt (Daria, 2026-11-27): Die leere Pille wächst, die anderen rücken zur Seite. Dann läuft sie allmählich
+    // von links voll („das allmähliche ANLAUFEN“), danach gleichen sich alle wieder an.
     Animated.sequence([
-      Animated.parallel([
-        Animated.timing(grow, { toValue: 2.2, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-        Animated.timing(fill, { toValue: 1, duration: 520, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-      ]),
-      Animated.timing(grow, { toValue: 1, duration: 420, delay: 120, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+      Animated.timing(grow, { toValue: 2.2, duration: 300, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+      Animated.timing(fill, { toValue: 1, duration: 1100, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+      Animated.timing(grow, { toValue: 1, duration: 450, delay: 150, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
     ]).start();
   }, [state, reduce, fill, grow]);
   if (state === 'greyed') return <View style={[styles.segment, styles.segmentGreyed]} />;
