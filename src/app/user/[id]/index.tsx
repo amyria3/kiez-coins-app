@@ -235,6 +235,8 @@ export default function UserProfile() {
           </View>
           <View style={styles.list}>
             <NavRow label="Community-Regeln" onPress={() => router.push('/legal/regeln')} />
+            {/* Leiser zweiter Weg neben dem Knopf „Befreundet“, bei den übrigen Aktionen (Daria, 2026-11-27) */}
+            {friend === 'friends' ? <NavRow label="Freundschaft beenden" onPress={confirmEnd} /> : null}
             <NavRow
               label={plural ? 'Gruppe melden' : 'Person melden'}
               onPress={() =>
