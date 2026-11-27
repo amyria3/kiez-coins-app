@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import { eventDate, type CalendarEvent } from '../../data/calendar';
 import { useCardMotion } from '../../data/features';
@@ -70,7 +70,11 @@ export const RoutineList = memo(function RoutineList({
   const lastCardDay = localDate(addDays(6, now));
   const calendar = events.filter((e) => eventDate(e) <= lastCardDay).slice(0, 20);
   // Erinnerungen und Kalendertermine in einer Reihe nach Beginn, Erledigte und Vergangene hinten (Daria, 2026-11-27)
-  const agenda = sortAgenda(fixed, calendar, now, later);
+  // Vergangene Kalendertermine gleiten beim Einblenden nach links hinaus (Daria, 2026-11-27)
+  const [gone, setGone] = useState<string[]>([]);
+  const agenda = sortAgenda(fixed, calendar, now, later).filter((i) => i.kind !== 'event' || !gone.includes(`e:${i.event.id}`));
+  const leaving = agenda.flatMap((i) => (i.kind === 'event' && i.over ? [`e:${i.event.id}`] : []));
+  const shownCount = agenda.length - leaving.length;
 
   return (
     <Motion.Provider value={motion}>
@@ -89,13 +93,13 @@ export const RoutineList = memo(function RoutineList({
           ))}
         </Group>
       ) : null}
-      {fixed.length || calendar.length ? (
-        <Group title="Feste Termine" count={agenda.length}>
+      {agenda.length ? (
+        <Group title="Feste Termine" count={shownCount} leaving={leaving} onGone={(key) => setGone((g) => [...g, key])}>
           {agenda.map((item) =>
             item.kind === 'event' ? (
-              <CalendarCard key={item.event.id} event={item.event} />
+              <CalendarCard key={`e:${item.event.id}`} event={item.event} />
             ) : (
-              <EventCard key={item.reminder.id} reminder={item.reminder} bg={OLIVE} onDone={() => onDone(item.reminder)} onEnd={() => onEnd(item.reminder, 'cancelled')} onEdit={() => onEdit(item.reminder)} onCopy={() => onCopy(item.reminder)} onDelete={() => onEnd(item.reminder, 'deleted')} onLater={() => snooze(item.reminder.id)} urgent={urgentOf(item.reminder)} onDragCancel={() => onEnd(item.reminder, 'cancelled', false)} onDragDelete={() => onEnd(item.reminder, 'deleted', false)} onUndo={() => onUndo(item.reminder)} />
+              <EventCard key={`r:${item.reminder.id}`} reminder={item.reminder} bg={OLIVE} onDone={() => onDone(item.reminder)} onEnd={() => onEnd(item.reminder, 'cancelled')} onEdit={() => onEdit(item.reminder)} onCopy={() => onCopy(item.reminder)} onDelete={() => onEnd(item.reminder, 'deleted')} onLater={() => snooze(item.reminder.id)} urgent={urgentOf(item.reminder)} onDragCancel={() => onEnd(item.reminder, 'cancelled', false)} onDragDelete={() => onEnd(item.reminder, 'deleted', false)} onUndo={() => onUndo(item.reminder)} />
             ),
           )}
         </Group>

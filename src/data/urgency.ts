@@ -49,28 +49,58 @@ export function sortByUrgency(list: Reminder[], now: Date, later: Record<string,
   return [...list].sort((a, b) => rank(a) - rank(b) || time(a) - time(b) || slack(a) - slack(b));
 }
 
-type EventLike = { start: string; end?: string; allDay: boolean };
-export type AgendaItem<E> = { kind: 'reminder'; reminder: Reminder } | { kind: 'event'; event: E };
+type EventLike = { start: string; end?: string; allDay: boolean; title?: string };
+
+/**
+ * Uhrzeit im Titel eines ganztägigen Termins (Daria, 2026-11-27: „Josef bei Polina um 16.00“): „um 16.00“, „ab 9:30“,
+ * „16:00“, „16.00 Uhr“ oder „16 Uhr“ → Minuten ab Mitternacht. Ein Datum wie „02.12.“ zählt nicht.
+ */
+export function titleTime(title: string): number | null {
+  const m =
+    title.match(/\b(?:um|ab|at|from)\s+([01]?\d|2[0-3])[.:]([0-5]\d)(?![.\d])/i) ??
+    title.match(/(?<![\d.])([01]?\d|2[0-3]):([0-5]\d)(?![.\d])/) ??
+    title.match(/(?<![\d.])([01]?\d|2[0-3])(?:[.:]([0-5]\d))?\s*Uhr\b/i);
+  return m ? Number(m[1]) * 60 + Number(m[2] ?? 0) : null;
+}
+
+/** Ohne Ende gilt ein Termin eine Stunde lang */
+const DEFAULT_LENGTH = 60 * 60 * 1000;
+
+/**
+ * Kalendertermin vorbei (Daria, 2026-11-27): mit Uhrzeit am Ende, ohne Ende eine Stunde nach Beginn. Ganztägige
+ * gelten bis Mitternacht; nennt der Titel eine Uhrzeit, eine Stunde nach dieser Uhrzeit. Mehrtägige, die vor heute
+ * beginnen, zeigt die Liste nicht.
+ */
+export function eventOver(e: EventLike, now: Date): boolean {
+  if (!e.allDay) {
+    const end = e.end ? new Date(e.end).getTime() : new Date(e.start).getTime() + DEFAULT_LENGTH;
+    return end <= now.getTime();
+  }
+  const day = new Date(`${e.start.slice(0, 10)}T00:00:00`);
+  const minutes = e.title ? titleTime(e.title) : null;
+  const end = minutes != null ? day.getTime() + minutes * 60_000 + DEFAULT_LENGTH : addDays(1, day).getTime();
+  return end <= now.getTime();
+}
+
+export type AgendaItem<E> = { kind: 'reminder'; reminder: Reminder } | { kind: 'event'; event: E; over: boolean };
 
 /**
  * Reihe „Feste Termine“ (Daria, 2026-11-27): Termine aus Erinnerungen und aus verbundenen Kalendern in einer Reihe,
- * nach Beginn. Vorn stehen offene, dann „später“, hinten erledigte Termine und Kalendertermine, die schon vorbei sind.
+ * nach Beginn. Vorn stehen offene, dann „später“, hinten erledigte Termine. Vergangene Kalendertermine stehen ganz
+ * vorn: Die Liste zieht sie beim Einblenden nach links heraus (`over`).
  */
 export function sortAgenda<E extends EventLike>(reminders: Reminder[], events: E[], now: Date, later: Record<string, number>): AgendaItem<E>[] {
   const eventStart = (e: E) => (e.allDay ? new Date(`${e.start.slice(0, 10)}T00:00:00`) : new Date(e.start)).getTime();
-  // Ganztägige sind mit dem Tag vorbei; mehrtägige, die vor heute beginnen, zeigt die Liste nicht
-  const eventEnd = (e: E) => (e.allDay ? addDays(1, new Date(eventStart(e))).getTime() : new Date(e.end ?? e.start).getTime());
   const keyed = [
     ...reminders.map((r) => ({
       item: { kind: 'reminder', reminder: r } as AgendaItem<E>,
-      group: restingOf(r) ? 2 : isLater(r, now, later) ? 1 : 0,
+      group: restingOf(r) ? 3 : isLater(r, now, later) ? 2 : 1,
       time: dueAt(r, now)?.getTime() ?? 0,
     })),
-    ...events.map((e) => ({
-      item: { kind: 'event', event: e } as AgendaItem<E>,
-      group: eventEnd(e) <= now.getTime() ? 2 : 0,
-      time: eventStart(e),
-    })),
+    ...events.map((e) => {
+      const over = eventOver(e, now);
+      return { item: { kind: 'event', event: e, over } as AgendaItem<E>, group: over ? 0 : 1, time: eventStart(e) };
+    }),
   ];
   return keyed.sort((a, b) => a.group - b.group || a.time - b.time).map((k) => k.item);
 }
