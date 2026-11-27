@@ -14,7 +14,12 @@ export const INK_TRACK = color.routine.inkTrack;
 export const DAY = color.routine.day;
 export const HATCH = color.routine.hatch;
 export const CARD_MIN = 260;
-export const CARD_MAX = 480;
+/**
+ * Breiteste Karte in einer Reihe mit mehreren Karten (Daria, 2026-11-27: „Bei dieser Breite des Bildschirms müssen
+ * die Karten nicht so krass breit sein“). Bis 416 pt Bildschirmbreite gilt weiter Spalte minus 36; breitere Spalten
+ * zeigen mehr von der nächsten Karte, auf dem Tablet stehen mehrere Karten nebeneinander.
+ */
+export const CARD_MAX = 340;
 export const GUTTER = space[20];
 /**
  * Karten anheben und ziehen (Daria, 2026-11-13): Kurz halten hebt die Karte an wie einen Zettel. Dann nach rechts
