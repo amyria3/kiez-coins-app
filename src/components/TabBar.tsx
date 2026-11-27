@@ -13,7 +13,7 @@ import { refreshUnread, useFriendRequests, useUnreadMessages } from '../data/cha
 import { useStore } from '../data/store';
 
 import { countButton } from '../data/remote';
-import { look } from '../theme/look';
+import { isMono, look } from '../theme/look';
 import { useRoutineEnabled } from '../data/routine';
 import { usePageLeave } from '../lib/pageSlide';
 
@@ -225,10 +225,14 @@ export function CameraButton({ onPress, inline = false }: { onPress: () => void;
  * ihre Fläche ganz aus und sind der Maßstab (size.icon). Die Sprechblase füllt 30,3 von 35, die drei Striche 21,5
  * von 35; sie bekommen so viel mehr Größe, dass ihre Form genauso hoch ist.
  */
-const NAV_ICON = {
-  message: Math.round(((size.icon * 35) / 30.3) * 10) / 10,
-  burger: Math.round(((size.icon * 35) / 21.5) * 10) / 10,
-};
+const NAV_ICON = isMono
+  ? // Look Mono: Phosphor-Linien haben überall dieselbe Strichstärke. Der Ausgleich oben machte die drei Striche 1,6-mal
+    // so dick wie die Nachbarn (Daria, 2026-11-27), daher hier ohne Ausgleich.
+    { message: size.icon, burger: size.icon }
+  : {
+      message: Math.round(((size.icon * 35) / 30.3) * 10) / 10,
+      burger: Math.round(((size.icon * 35) / 21.5) * 10) / 10,
+    };
 /** Kamera mit eigenem Maßstab (Icon.tsx, CAMERA_SCALE 1,2 statt 1,5): ohne Pille so hoch wie die anderen Icons */
 const CAMERA_ICON_PLAIN = 25;
 /** Nur im Feed größer, in der lila Pille (Daria, 2026-11-13) */

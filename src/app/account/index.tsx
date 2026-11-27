@@ -64,6 +64,38 @@ export default function Account() {
     router.replace('/onboarding/welcome');
   };
 
+  // Kiez: eigene Karten für Aktivität, Posts und Schaufenster. Mono: jeder Bereich eine Gruppe, Zeilen durch
+  // Trennlinien getrennt, ohne graue Fläche (Daria, 2026-11-27: „Manchmal mit, manchmal ohne Trennlinie“)
+  const oneGroup = !!color.accountCards.divider;
+  const activityRow = (
+    <NavGroupRow
+      title="Meine Aktivität"
+      description="Geschafft, Ziele und Gruppen"
+      leading={<CrownIcon height={24} fill={color.accountCards.ink} />}
+      background={color.accountCards.activity}
+      onPress={() => router.push('/me')}
+    />
+  );
+  const postsRow = (
+    <NavGroupRow
+      title="Meine Posts"
+      description="Entwürfe, offen, geschlossen"
+      leading={<Icon name="ship" size={ROW_ICON} color={color.accountCards.ink} />}
+      background={color.accountCards.posts}
+      onPress={() => router.push('/manage')}
+    />
+  );
+
+  const showcaseRow = (
+    <NavGroupRow
+      title="Schaufenster"
+      description="Für Laden, Verein oder Club"
+      leading={<Icon name="village" size={ROW_ICON} color={color.accountCards.ink} />}
+      background={color.accountCards.showcase}
+      onPress={() => router.push('/schaufenster')}
+    />
+  );
+
   return (
     <SubScreen
       title="Dein Konto"
@@ -86,24 +118,17 @@ export default function Account() {
       />
       {/* Gruppen nach dem Farbcode der App (Daria, 2026-11-17). Zeilen einer Gruppe in Stufen heller. */}
       <FieldGroup heading label="Du on KiezCoins">
-        <NavGroup>
-          <NavGroupRow
-            title="Meine Aktivität"
-            description="Geschafft, Ziele und Gruppen"
-            leading={<CrownIcon height={24} fill={color.accountCards.ink} />}
-            background={color.accountCards.activity}
-            onPress={() => router.push('/me')}
-          />
-        </NavGroup>
-        <NavGroup>
-          <NavGroupRow
-            title="Meine Posts"
-            description="Entwürfe, offen, geschlossen"
-            leading={<Icon name="ship" size={ROW_ICON} color={color.accountCards.ink} />}
-            background={color.accountCards.posts}
-            onPress={() => router.push('/manage')}
-          />
-        </NavGroup>
+        {oneGroup ? (
+          <NavGroup>
+            {activityRow}
+            {postsRow}
+          </NavGroup>
+        ) : (
+          <>
+            <NavGroup>{activityRow}</NavGroup>
+            <NavGroup>{postsRow}</NavGroup>
+          </>
+        )}
       </FieldGroup>
       <FieldGroup heading label="Gemeinsam">
         <NavGroup>
@@ -130,19 +155,10 @@ export default function Account() {
               onPress={() => router.push('/groups')}
             />
           ) : null}
+          {showcase && oneGroup ? showcaseRow : null}
         </NavGroup>
         {/* „Schaufenster“, wenn Schaufenster für die Person freigeschaltet ist (Daria, 2026-11-10) */}
-        {showcase ? (
-          <NavGroup>
-            <NavGroupRow
-              title="Schaufenster"
-              description="Für Laden, Verein oder Club"
-              leading={<Icon name="village" size={ROW_ICON} color={color.accountCards.ink} />}
-              background={color.accountCards.showcase}
-              onPress={() => router.push('/schaufenster')}
-            />
-          </NavGroup>
-        ) : null}
+        {showcase && !oneGroup ? <NavGroup>{showcaseRow}</NavGroup> : null}
       </FieldGroup>
       <FieldGroup heading label="App">
         <NavGroup>
