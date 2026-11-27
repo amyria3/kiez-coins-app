@@ -3,14 +3,14 @@
  * Abzeichen nach einer Regel bauen (Daria, 2026-11-27). Regel: Documentation, kiez-coins/design/Icons_zeichnen.md, „Abzeichen-Raster“.
  *
  * Liest Darias Figma-Exporte aus design/abzeichen/icons/original/<abzeichen>-default.svg und -small.svg,
- * skaliert und verschiebt den Gegenstand nach dem Raster und schreibt
+ * übernimmt Default unverändert, passt Small ins Raster ein und schreibt
  *   design/abzeichen/icons/<abzeichen>-default.svg, design/abzeichen/icons/<abzeichen>-small.svg
  *   src/components/icons/badgeSvgs.ts
  * Die Formen selbst bleiben unverändert, nur Größe und Lage ändern sich.
  *
  * Aufruf (Playwright ist in Cloud-Sitzungen vorinstalliert, svgpath nur für den Lauf):
  *   npm i --no-save svgpath && node scripts/abzeichen/normalisieren.cjs
- * Neues Abzeichen: Exporte nach original/ legen, unten in ABZEICHEN eintragen (Farbe, Teilpfade der Bewegungsstriche).
+ * Neues Abzeichen: Exporte nach original/ legen, unten in ABZEICHEN eintragen.
  */
 const fs = require('fs');
 const path = require('path');
@@ -20,28 +20,23 @@ const { chromium } = require('playwright');
 const REPO = path.join(__dirname, '..', '..');
 const ICONS = path.join(REPO, 'design/abzeichen/icons');
 
-/** Das Raster in Einheiten der Zeichenfläche 120 × 120, Kreis r 60 in der Mitte */
+/** Das Raster in Einheiten der Zeichenfläche 120 × 120. Default bleibt Darias Export (Daria, 2026-11-27). */
 const RASTER = {
-  // Default: Gegenstand höchstens 26 % der Kreisfläche, höchstens r 50 von der Mitte, Bewegungsstriche höchstens r 56
-  default: { flaeche: 0.26, radius: 50, striche: 56 },
   // Small: Farbkreis r 46 oben links, Gegenstand ragt unten rechts hinaus (Daria, 2026-11-27).
   // Gegenstand 45 % der Kreisfläche, davon 25 % außerhalb des Kreises, Verschiebung auf der Diagonale nach unten rechts
   small: { kreis: 46, flaeche: 0.45, aussen: 0.25 },
 };
 
-/** Farbe und Teilpfade der Bewegungsstriche im Default-Pfad (Teilpfad 0 ist der Kreis) */
+/** Farbe je Abzeichen */
 const ABZEICHEN = {
-  pionier: { color: '#FFCC00', striche: [1, 2, 3, 4, 5, 11, 12, 13, 14, 15] },
-  lotse: { color: '#34C759', striche: [3, 4, 6, 7, 8, 11, 12, 13, 14, 15] },
+  pionier: { color: '#FFCC00' },
+  lotse: { color: '#34C759' },
   // Steuerrad und Anker: Small bleibt Darias Export, Gegenstand im Kreis (Daria, 2026-11-27)
-  anfuehrer: { color: '#6155F5', striche: [2, 3, 4, 5, 6, 8, 10, 11, 13, 14, 19, 20, 21, 22, 23], smallWieExport: true },
-  seebaer: { color: '#CB30E0', striche: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11], smallWieExport: true },
-  macher: { color: '#FF8D28', striche: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+  anfuehrer: { color: '#6155F5', smallWieExport: true },
+  seebaer: { color: '#CB30E0', smallWieExport: true },
+  macher: { color: '#FF8D28' },
 };
 
-const KREIS = Math.PI * 60 * 60;
-const KREIS_PFAD = 'M60 0C93.14 0 120 26.86 120 60C120 93.14 93.14 120 60 120C26.86 120 0 93.14 0 60C0 26.86 26.86 0 60 0Z';
-const teilpfade = (d) => SP(d).abs().toString().split(/(?=M)/).map((x) => x.trim()).filter(Boolean);
 const verschiebe = (d, t) => SP(d).abs().scale(t.s).translate(t.x, t.y).round(2).toString();
 
 let page;
@@ -69,16 +64,6 @@ async function messe(flaechen, cx, cy, kreis) {
     },
     [flaechen, cx ?? null, cy ?? null, kreis ?? null],
   );
-}
-
-/** Mitte der Begrenzung auf die Kreismitte, Größe nach Fläche, gedeckelt durch den Radius */
-async function einpassen(flaechen, regel) {
-  const m = await messe(flaechen);
-  const cx = (m.box[0] + m.box[2]) / 2;
-  const cy = (m.box[1] + m.box[3]) / 2;
-  const { radius } = await messe(flaechen, cx, cy);
-  const s = Math.min(Math.sqrt((regel.flaeche * KREIS) / m.flaeche), regel.radius / radius);
-  return { s, x: 60 - cx * s, y: 60 - cy * s };
 }
 
 /** Small: Größe nach Fläche, dann auf der Diagonale verschieben, bis der Anteil außerhalb stimmt; ragt er aus 120 × 120, kleiner */
@@ -112,21 +97,8 @@ async function hinausragen(flaechen, regel) {
   const ts = {};
   const bericht = [];
   for (const [kind, a] of Object.entries(ABZEICHEN)) {
-    // Default: ein heller Pfad, Kreis mit ausgespartem Gegenstand und Bewegungsstrichen
-    const roh = fs.readFileSync(path.join(ICONS, 'original', `${kind}-default.svg`), 'utf8');
-    const teile = teilpfade(roh.match(/ d="([^"]+)"/)[1]);
-    const gegenstand = teile.filter((_, i) => i > 0 && !a.striche.includes(i)).join(' ');
-    const striche = teile.filter((_, i) => a.striche.includes(i)).join(' ');
-    const t = await einpassen([[gegenstand, 'nonzero']], RASTER.default);
-    let r = (await messe([[verschiebe(striche, t), 'nonzero']], 60, 60)).radius;
-    if (r > RASTER.default.striche) {
-      const k = RASTER.default.striche / r;
-      t.s *= k; t.x = 60 - (60 - t.x) * k; t.y = 60 - (60 - t.y) * k;
-      r = (await messe([[verschiebe(striche, t), 'nonzero']], 60, 60)).radius;
-    }
-    const tinte = verschiebe(teile.slice(1).join(' '), t);
-    const def = `<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">\n<path d="${KREIS_PFAD} ${tinte}" fill="#F0F0F0"/>\n</svg>\n`;
-    const g = await messe([[verschiebe(gegenstand, t), 'nonzero']], 60, 60);
+    // Default: Darias Export unverändert
+    const def = fs.readFileSync(path.join(ICONS, 'original', `${kind}-default.svg`), 'utf8').replace(/\s+/g, ' ').trim() + '\n';
 
     // Small: Farbkreis, darüber die Flächen des Gegenstands
     const rohS = fs.readFileSync(path.join(ICONS, 'original', `${kind}-small.svg`), 'utf8');
@@ -152,7 +124,7 @@ async function hinausragen(flaechen, regel) {
     fs.writeFileSync(path.join(ICONS, `${kind}-small.svg`), small);
     ts[kind] = { color: a.color, small: small.trim().replace(/\n/g, ' '), default: def.trim().replace(/\n/g, ' '), kreis };
     bericht.push(
-      `${kind}: Default ${(g.flaeche / KREIS * 100).toFixed(1)} % Fläche, r ${g.radius.toFixed(1)}, Striche r ${r.toFixed(1)} · ${info}`,
+      `${kind}: ${info}`,
     );
   }
   await browser.close();
@@ -166,8 +138,7 @@ async function hinausragen(flaechen, regel) {
   const out = `/**
  * Darias Abzeichen-Icons im Kiez-Look: Small für Avatar und Listen, Default ab 80 pt.
  * Erzeugt mit scripts/abzeichen/normalisieren.cjs aus design/abzeichen/icons/original (Stand 2026-11-27).
- * Alle Abzeichen folgen einem Raster: Default mit Kreis r 60 und Gegenstand mittig im Kreis,
- * Small mit Kreis r 46 oben links und Gegenstand, der gleich weit unten rechts hinausragt;
+ * Default ist Darias Export. Small folgt einem Raster: Kreis r 46 oben links, Gegenstand ragt gleich weit unten rechts hinaus;
  * Steuerrad und Anker behalten in Small Darias Export mit dem Gegenstand im Kreis.
  * Nicht von Hand ändern, sondern das Skript neu laufen lassen.
  */
