@@ -2,8 +2,8 @@
 import type { Reminder } from './reminders';
 import { dueAt, goalOf, isRelaxed, slackOf } from './reminderDates';
 
-/** Ruht: heute erledigt oder das Wochenziel erreicht */
-export const restingOf = (r: Reminder) => r.doneToday || (!r.onDate && r.doneThisWeek >= goalOf(r));
+/** Ruht: heute erledigt, heute ausgesetzt oder das Wochenziel erreicht */
+export const restingOf = (r: Reminder) => r.doneToday || !!r.skippedToday || (!r.onDate && r.doneThisWeek >= goalOf(r));
 export const isLater = (r: Reminder, now: Date, later: Record<string, number>) => (later[r.id] ?? 0) > now.getTime();
 
 /** Dringend (Daria, 2026-11-13): offen, nicht „später“ und in höchstens einer Stunde fällig oder schon vorbei */

@@ -25,13 +25,31 @@ export type ReminderKind = 'termin' | 'aufgabe';
 export const kindOf = (r: Pick<Reminder, 'onDate' | 'atTime' | 'untilTime'>): ReminderKind | undefined =>
   !r.onDate ? undefined : r.atTime && !r.untilTime ? 'termin' : 'aufgabe';
 
-export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate'>) => (r.onDate ? 1 : r.perWeek ?? r.weekdays?.length ?? 1);
+/** Vorgenommen pro Woche, ohne Aussetzer: so viele Striche hat der Balken */
+export const plannedGoalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate'>) => (r.onDate ? 1 : r.perWeek ?? r.weekdays?.length ?? 1);
+
+/** Wochenziel; jeder ausgesetzte Tag senkt es um eins (Daria, 2026-11-27, „Skip one“) */
+export const goalOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate' | 'skippedThisWeek'>) =>
+  r.onDate ? 1 : Math.max(0, plannedGoalOf(r) - (r.skippedThisWeek ?? 0));
+
+/** So oft pro Woche lässt sich eine Aufgabe aussetzen (Daria, 2026-11-27) */
+export const SKIPS_PER_WEEK = 1;
+
+/**
+ * Einmal aussetzen geht bei wiederkehrenden Aufgaben, die heute noch offen sind: feste Tage nur an einem ihrer Tage,
+ * höchstens `SKIPS_PER_WEEK` Mal pro Woche.
+ */
+export function canSkip(r: Reminder, now = new Date()): boolean {
+  if (r.onDate || r.doneToday || r.skippedToday) return false;
+  if ((r.skippedThisWeek ?? 0) >= SKIPS_PER_WEEK || r.doneThisWeek >= goalOf(r)) return false;
+  return !r.weekdays?.length || r.weekdays.includes(isoWeekday(now));
+}
 
 /** Ab so vielen Tagen Puffer bleibt eine Aufgabe „x-mal pro Woche“ hinten und der Kater locker (Daria, 2026-11-16) */
 export const RELAXED_SLACK = 2;
 
 /** x-mal pro Woche: Tage, die in dieser Woche übrig bleiben (heute mitgezählt), minus wie oft sie noch dran ist */
-export const slackOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate' | 'doneThisWeek'>, now = new Date()) =>
+export const slackOf = (r: Pick<Reminder, 'perWeek' | 'weekdays' | 'onDate' | 'doneThisWeek' | 'skippedThisWeek'>, now = new Date()) =>
   8 - isoWeekday(now) - (goalOf(r) - r.doneThisWeek);
 
 /**
@@ -55,7 +73,7 @@ export const addDays = (n: number, from = new Date()) => {
 
 /** Fällig heute: feste Tage, wenn heute einer ist; x-mal pro Woche, solange das Ziel nicht erreicht ist */
 export function dueToday(r: Reminder, now = new Date()): boolean {
-  if (r.doneToday) return false;
+  if (r.doneToday || r.skippedToday) return false;
   if (r.onDate) return r.onDate === localDate(now) && r.doneThisWeek === 0;
   if (r.weekdays) return r.weekdays.includes(isoWeekday(now));
   return r.doneThisWeek < goalOf(r);
@@ -81,7 +99,7 @@ export function dueAt(r: Reminder, now = new Date()): Date | null {
   const dayTime = r.untilTime ?? r.atTime;
   if (r.weekdays?.length && dayTime) {
     for (let i = 0; i < 8; i++) {
-      if (i === 0 && r.doneToday) continue;
+      if (i === 0 && (r.doneToday || r.skippedToday)) continue;
       const day = addDays(i, now);
       if (r.weekdays.includes(isoWeekday(day))) return at(day, dayTime);
     }

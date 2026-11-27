@@ -13,7 +13,7 @@ import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { RoutineList } from './RoutineList';
 import { publishRoutineData } from '../data/routineView';
-import { archiveReminder, capitalize, kindOf, loadReminders, undoReminderDone, type Reminder, type ReminderEnd } from '../data/reminders';
+import { archiveReminder, capitalize, kindOf, loadReminders, skipReminderToday, undoReminderDone, undoReminderSkip, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
 import { color, space } from '../theme/tokens';
 
@@ -122,6 +122,19 @@ export function RoutineContent({
     setList((l) => l?.map((x) => (x.id === r.id ? { ...x, doneToday: false, doneThisWeek: Math.max(0, x.doneThisWeek - 1) } : x)));
     undoReminderDone(r.id).then(reload, reload);
   }, [reload]);
+  // Einmal aussetzen (Daria, 2026-11-27, „Skip one“): ohne Rückfrage, ein Tippen auf „Heute ausgesetzt“ nimmt es zurück.
+  // Die Karte ruht sofort; klappt das Speichern nicht, springt sie zurück und sagt es.
+  const onSkip = useCallback((r: Reminder) => {
+    setList((l) => l?.map((x) => (x.id === r.id ? { ...x, skippedToday: true, skippedThisWeek: (x.skippedThisWeek ?? 0) + 1 } : x)));
+    skipReminderToday(r.id).then((ok) => {
+      if (!ok) Alert.alert(t('Hat nicht geklappt'), t('Aussetzen ließ sich gerade nicht speichern.'));
+      reload();
+    }, reload);
+  }, [reload]);
+  const onUndoSkip = useCallback((r: Reminder) => {
+    setList((l) => l?.map((x) => (x.id === r.id ? { ...x, skippedToday: false, skippedThisWeek: Math.max(0, (x.skippedThisWeek ?? 0) - 1) } : x)));
+    undoReminderSkip(r.id).then(reload, reload);
+  }, [reload]);
 
   // „Neue Erinnerung“ (Daria, 2026-11-23): Passt alles auf den Bildschirm, steht der Knopf fest über der Leiste. Sonst
   // steht er nur am Ende der Liste, nie halb hinter der Leiste (das Hervorfahren beim Scrollen wirkte unruhig). Ist er
@@ -210,6 +223,8 @@ export function RoutineContent({
             onEdit={onEdit}
             onCopy={onCopy}
             onUndo={onUndo}
+            onSkip={onSkip}
+            onUndoSkip={onUndoSkip}
             onChanged={reload}
             onDragLock={lockPage}
             showCalendar={calendarInList}

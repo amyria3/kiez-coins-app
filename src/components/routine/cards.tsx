@@ -7,7 +7,7 @@ import { calCancelUrl, canCancel, minutesUntil, shortNoticeKind } from '../../da
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { hideEvent } from '../../data/hiddenEvents';
 import { dayName, goalText, katerMood, whenText, type KaterMood } from '../../data/katerRoutine';
-import { capitalize, goalOf, type Reminder } from '../../data/reminders';
+import { canSkip, capitalize, goalOf, plannedGoalOf, type Reminder } from '../../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent } from '../../data/showcase';
 import { t, useTexts } from '../../data/texts';
 import { color, space } from '../../theme/tokens';
@@ -406,6 +406,8 @@ export function TaskCard({
   onDragCancel,
   onDragDelete,
   onUndo,
+  onSkip,
+  onUndoSkip,
 }: {
   reminder: Reminder;
   onDone: () => void;
@@ -421,10 +423,17 @@ export function TaskCard({
   onDragDelete?: () => void;
   /** Haken von heute zurücknehmen (Daria, 2026-11-18) */
   onUndo?: () => void;
+  /** Einmal aussetzen und zurücknehmen (Daria, 2026-11-27, „Skip one“) */
+  onSkip?: () => void;
+  onUndoSkip?: () => void;
 }) {
   const goal = goalOf(r);
+  const planned = plannedGoalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
-  const resting = r.doneToday || r.doneThisWeek >= goal;
+  const skipped = planned - goal;
+  const resting = r.doneToday || !!r.skippedToday || r.doneThisWeek >= goal;
+  // „Aussetzen“ steht als Knopf statt „Aufgeben“ (Daria, 2026-11-27); Aufgeben wandert dann ins Menü
+  const skip = onSkip && canSkip(r) ? onSkip : undefined;
   // Einmalig und erledigt: kommt nicht wieder, also löschen statt abbrechen oder aufgeben (Daria, 2026-11-13)
   const finished = resting && !!r.onDate;
   const menu = useRef<(() => void) | null>(null);
@@ -432,8 +441,9 @@ export function TaskCard({
     edit: onEdit,
     copy: onCopy,
     undo: r.doneToday ? onUndo : undefined,
+    undoSkip: r.skippedToday ? onUndoSkip : undefined,
     later: resting ? undefined : onLater,
-    giveUp: resting && !finished ? onGiveUp : undefined,
+    giveUp: (resting || skip) && !finished ? onGiveUp : undefined,
     end: finished ? undefined : { label: 'Das hier abbrechen', run: onCancel },
     remove: resting ? onDelete : undefined,
   });
@@ -452,8 +462,8 @@ export function TaskCard({
       head={<CardHead meta={r.onDate ? whenText(r) : goalText(r)} title={capitalize(r.want)} />}
     >
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
-      {goal > 1 ? <Text style={styles.sub}>{t('{done} von {goal} diese Woche', { done, goal })}</Text> : null}
-      {goal > 1 ? (
+      {planned > 1 ? <Text style={styles.sub}>{t('{done} von {goal} diese Woche', { done, goal })}</Text> : null}
+      {planned > 1 ? (
         <View
           style={styles.bar}
           accessible
@@ -462,21 +472,28 @@ export function TaskCard({
             goal,
           })}
         >
-          {Array.from({ length: goal }, (_, i) => (
-            <View key={i} style={[styles.segment, i < done && styles.segmentDone]} />
+          {/* Ausgesetzte Striche bleiben am Ende stehen, nur als Umriss (Daria, 2026-11-27) */}
+          {Array.from({ length: planned }, (_, i) => (
+            <View key={i} style={[styles.segment, i < done && styles.segmentDone, i >= planned - skipped && styles.segmentSkipped]} />
           ))}
         </View>
       ) : null}
-      {/* Erledigt, Aufgeben und im Menü „Das hier abbrechen“ (Daria, 2026-11-13); alle drei zählen im Kalender.
+      {/* Erledigt, Aussetzen bzw. Aufgeben und im Menü „Das hier abbrechen“ (Daria, 2026-11-13, Aussetzen 2026-11-27).
           Buttons mit festem Abstand beieinander, nur „•••“ rechts (Daria, 2026-11-13) */}
       {resting ? (
         <View style={styles.actions}>
-          {r.doneToday ? <DoneState label="Heute erledigt" onUndo={onUndo} /> : <Text style={styles.state}>Ziel erreicht</Text>}
+          {r.doneToday ? (
+            <DoneState label="Heute erledigt" onUndo={onUndo} />
+          ) : r.skippedToday ? (
+            <DoneState label="Heute ausgesetzt" onUndo={onUndoSkip} />
+          ) : (
+            <Text style={styles.state}>{goal === 0 ? 'Diese Woche ausgesetzt' : 'Ziel erreicht'}</Text>
+          )}
           <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" openRef={menu} items={items} />
         </View>
       ) : (
         <View style={styles.actions}>
-          <HandButton label="Aufgeben" onPress={onGiveUp} />
+          {skip ? <HandButton label="Aussetzen" onPress={skip} /> : <HandButton label="Aufgeben" onPress={onGiveUp} />}
           <HandButton label="Erledigt" onPress={onDone} filled bg={MUSTARD} />
           <ManageButton dots={INK} style={styles.more} label="Mehr zu dieser Aufgabe" openRef={menu} items={items} />
         </View>
@@ -559,13 +576,15 @@ export function EventCard({
 
 /**
  * Menü jeder eigenen Karte in fester Reihenfolge (Daria, 2026-11-13, „Check consistency“): Bearbeiten, Kopie
- * erstellen, Haken zurücknehmen bzw. Später, Aufgeben, Abbrechen bzw. Absagen, Löschen. Es steht nur, was zum Zustand
- * passt: Später nur offen, Haken zurücknehmen und Löschen nur erledigt (seit 2026-11-18), Aufgeben nur bei wiederkehrenden.
+ * erstellen, Haken bzw. Aussetzen zurücknehmen oder Später, Aufgeben, Abbrechen bzw. Absagen, Löschen. Es steht nur, was
+ * zum Zustand passt: Später nur offen, Haken zurücknehmen und Löschen nur erledigt (seit 2026-11-18), Aufgeben im Menü,
+ * sobald der Knopf „Aussetzen“ heißt oder die Karte ruht (seit 2026-11-27).
  */
 function menuItems(a: {
   edit?: () => void;
   copy?: () => void;
   undo?: () => void;
+  undoSkip?: () => void;
   later?: () => void;
   giveUp?: () => void;
   end?: { label: string; run: () => void };
@@ -575,6 +594,7 @@ function menuItems(a: {
     a.edit && { label: 'Bearbeiten', onPress: a.edit },
     a.copy && { label: 'Kopie erstellen', onPress: a.copy },
     a.undo && { label: 'Haken zurücknehmen', onPress: a.undo },
+    a.undoSkip && { label: 'Aussetzen zurücknehmen', onPress: a.undoSkip },
     a.later && { label: 'Später', onPress: a.later },
     a.giveUp && { label: 'Aufgeben', onPress: a.giveUp },
     a.end && { label: a.end.label, onPress: a.end.run },

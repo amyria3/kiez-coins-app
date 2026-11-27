@@ -86,6 +86,8 @@ export const styles = StyleSheet.create({
   bar: { flexDirection: 'row', gap: space[4], marginVertical: space[2] },
   segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: INK_TRACK },
   segmentDone: { backgroundColor: INK },
+  // Ausgesetzt (Daria, 2026-11-27): gestrichelter Umriss statt Fläche
+  segmentSkipped: { backgroundColor: 'transparent', borderWidth: 1, borderStyle: 'dashed', borderColor: INK_SOFT },
   // Buttons mit festem Abstand beieinander; nur „•••“ rückt nach rechts (Daria, 2026-11-13)
   actions: {
     flexDirection: 'row',

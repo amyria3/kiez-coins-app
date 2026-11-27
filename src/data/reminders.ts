@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { normalizeLink } from '../lib/places';
 import { supabase } from '../lib/supabase';
 import { weekStart, dayStart, isoWeekday, kindOf, localDate, addDays, routineLabel } from './reminderDates';
-export { weekStart, isoWeekday, kindOf, goalOf, localDate, addDays, dueToday, dueAt, routineLabel, capitalize, TIME, parseDate, parseUntil, dateIssue, datePartial, END_OF_DAY, isRelaxed, slackOf } from './reminderDates';
+export { weekStart, isoWeekday, kindOf, goalOf, plannedGoalOf, canSkip, localDate, addDays, dueToday, dueAt, routineLabel, capitalize, TIME, parseDate, parseUntil, dateIssue, datePartial, END_OF_DAY, isRelaxed, slackOf } from './reminderDates';
 export type { ReminderKind } from './reminderDates';
 
 /**
@@ -42,6 +42,9 @@ export type Reminder = {
   /** Erledigt in dieser Woche (ab Montag) */
   doneThisWeek: number;
   doneToday: boolean;
+  /** Einmal aussetzen (Daria, 2026-11-27, „Skip one“): ausgesetzte Tage dieser Woche, höchstens einer */
+  skippedThisWeek?: number;
+  skippedToday?: boolean;
 };
 
 export type ReminderInput = {
@@ -104,8 +107,14 @@ export async function loadReminders(): Promise<Reminder[] | null> {
     ? await supabase.from('challenges').select('id').in('id', startedIds).eq('type', 'before_after').in('status', ['draft', 'open']).is('finished_at', null)
     : { data: [] as { id: string }[] };
   const openStarted = new Set(((started ?? []) as { id: string }[]).map((c) => c.id));
+  // Ausgesetzte Tage dieser Woche (Migration 20261127000100). Fehlt die Tabelle, bleibt die Liste leer.
+  const { data: skipped } = rows.length
+    ? await supabase.from('reminder_skipped').select('reminder_id, day').in('reminder_id', rows.map((r) => r.id)).gte('day', localDate(since))
+    : { data: [] as { reminder_id: string; day: string }[] };
+  const skippedRows = (skipped ?? []) as { reminder_id: string; day: string }[];
   return rows.map((r) => {
     const mine = doneRows.filter((d) => d.reminder_id === r.id);
+    const mySkips = r.on_date ? [] : skippedRows.filter((d) => d.reminder_id === r.id);
     return {
       id: r.id,
       want: r.want,
@@ -124,6 +133,8 @@ export async function loadReminders(): Promise<Reminder[] | null> {
       startedChallengeId: r.started_challenge_id && openStarted.has(r.started_challenge_id) ? r.started_challenge_id : undefined,
       doneThisWeek: mine.length,
       doneToday: mine.some((d) => new Date(d.done_at) >= today),
+      skippedThisWeek: mySkips.length,
+      skippedToday: mySkips.some((d) => d.day === today0),
     };
   });
 }
@@ -144,9 +155,11 @@ export type RoutineDays = {
   cancelledBy: Map<string, string[]>;
   /** Abgesagte Termine (Daria, 2026-11-13): wie abgebrochen, nur mit eigenem Wort */
   calledOffBy: Map<string, string[]>;
+  /** Je Tag die Namen der ausgesetzten Erinnerungen (Daria, 2026-11-27); sie zählen nicht als verpasst */
+  skippedBy: Map<string, string[]>;
 };
 export async function loadRoutineDays(from: Date, to: Date, now = new Date()): Promise<RoutineDays> {
-  const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map(), givenUpBy: new Map(), cancelledBy: new Map(), calledOffBy: new Map() };
+  const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map(), givenUpBy: new Map(), cancelledBy: new Map(), calledOffBy: new Map(), skippedBy: new Map() };
   const { data, error } = await supabase
     .from('reminders')
     .select('id, want, weekdays, created_at, archived_at, on_date, at_time, until_time, ended_as');
@@ -185,6 +198,18 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
     doneBy.add(`${d.reminder_id} ${day}`);
     byDay(doneNames, day, wantOf.get(d.reminder_id));
   }
+  const { data: skipRows } = await supabase
+    .from('reminder_skipped')
+    .select('reminder_id, day')
+    .in('reminder_id', rows.map((r) => r.id))
+    .gte('day', localDate(dayStart(from)))
+    .lt('day', localDate(end));
+  const skippedBy = new Map<string, string[]>();
+  const skippedOn = new Set<string>();
+  for (const d of (skipRows ?? []) as { reminder_id: string; day: string }[]) {
+    skippedOn.add(`${d.reminder_id} ${d.day}`);
+    byDay(skippedBy, d.day, wantOf.get(d.reminder_id));
+  }
   const missed = new Set<string>();
   const today = localDate(now);
   for (const r of rows) {
@@ -194,7 +219,7 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
     for (let d = dayStart(from); d < end; d = addDays(1, d)) {
       const day = localDate(d);
       if (day < first || day >= last || day >= today) continue;
-      if (r.weekdays.includes(isoWeekday(d)) && !doneBy.has(`${r.id} ${day}`)) {
+      if (r.weekdays.includes(isoWeekday(d)) && !doneBy.has(`${r.id} ${day}`) && !skippedOn.has(`${r.id} ${day}`)) {
         missed.add(day);
         byDay(missedNames, day, r.want);
       }
@@ -213,7 +238,7 @@ export async function loadRoutineDays(from: Date, to: Date, now = new Date()): P
     const event = kindOf({ onDate: r.on_date ?? undefined, atTime: r.at_time ?? undefined, untilTime: r.until_time ?? undefined }) === 'termin';
     byDay(r.ended_as === 'given_up' ? givenUpBy : event ? calledOffBy : cancelledBy, day, r.want);
   }
-  return { done, missed, doneBy: doneNames, missedBy: missedNames, givenUpBy, cancelledBy, calledOffBy };
+  return { done, missed, doneBy: doneNames, missedBy: missedNames, givenUpBy, cancelledBy, calledOffBy, skippedBy };
 }
 
 /** Ort, Telefon und Link als Spalten; leer bleibt leer */
@@ -272,6 +297,21 @@ export type ReminderEnd = 'given_up' | 'cancelled' | 'deleted';
 /** Erinnerung beenden: Sie verschwindet aus der Liste, Erledigungen bleiben erhalten. `how` steht in `ended_as`. */
 export async function archiveReminder(id: string, how: ReminderEnd = 'cancelled'): Promise<boolean> {
   const { error } = await supabase.from('reminders').update({ archived_at: new Date().toISOString(), ended_as: how }).eq('id', id);
+  return !error;
+}
+
+/**
+ * Einmal aussetzen (Daria, 2026-11-27, „Skip one“): heute zählt weder als erledigt noch als verpasst. Bei „x-mal pro
+ * Woche“ sinkt das Wochenziel dieser Woche um eins. Die Karte bietet es nur an, wenn `canSkip` stimmt.
+ */
+export async function skipReminderToday(id: string): Promise<boolean> {
+  const { error } = await supabase.from('reminder_skipped').insert({ reminder_id: id, day: localDate() });
+  return !error;
+}
+
+/** Aussetzen von heute zurücknehmen; ohne Rückfrage, wie der Haken */
+export async function undoReminderSkip(id: string): Promise<boolean> {
+  const { error } = await supabase.from('reminder_skipped').delete().eq('reminder_id', id).eq('day', localDate());
   return !error;
 }
 

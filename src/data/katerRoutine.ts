@@ -27,6 +27,9 @@ export function katerLine(r: Reminder, now = new Date()): string {
       ? t('Miau! {when} wolltest Du {want}. Das ist Pflicht, ich sitze hier und schaue auf die Uhr.', { when, want })
       : t('{when} willst Du {want}. Pflichttermin, ich stell schon mal den Wecker.', { when, want });
   }
+  // Ausgesetzt (Daria, 2026-11-27): kein Vorwurf, der Kater nimmt es locker
+  if (r.skippedToday) return t('Heute ausgesetzt: {want}. Ich halte Dir den Platz warm.', { want });
+  if (goal === 0) return t('Diese Woche ausgesetzt: {want}. Nächste Woche bin ich wieder dabei.', { want });
   if (r.weekdays) {
     if (r.doneToday) return t('Heute schon erledigt: {want}. Leg die Pfoten hoch.', { want });
     if (!r.weekdays.includes(isoWeekday(now))) return allDoneLine();
@@ -54,7 +57,7 @@ export function katerFocus(list: Reminder[], now = new Date()): Reminder | undef
   // Pflichttermine vor optionalen
   const must = due.filter((r) => r.onDate && r.required !== false);
   // Ohne Fälliges: lieber eine Routine mit Rückstand als eine, die heute frei hat
-  const rest = list.filter((r) => !r.weekdays || r.doneToday || r.weekdays.includes(isoWeekday(now)));
+  const rest = list.filter((r) => !r.weekdays || r.doneToday || r.skippedToday || r.weekdays.includes(isoWeekday(now)));
   const pool = must.length ? must : due.length ? due : rest;
   // Aufgaben mit viel Puffer zuletzt (Daria, 2026-11-16), sonst die mit dem meisten Rückstand
   const relaxed = (r: Reminder) => (isRelaxed(r, now) ? 1 : 0);
@@ -155,6 +158,8 @@ const minutesOf = (hhmm: string) => {
 export function katerMood(r: Reminder, now = new Date()): KaterMood {
   const goal = goalOf(r);
   if (r.doneToday) return 'freut sich';
+  // Ausgesetzt: Der Kater ist nicht enttäuscht (Daria, 2026-11-27)
+  if (r.skippedToday || goal === 0) return 'chillig';
   if (r.doneThisWeek >= goal) return 'zufrieden';
   const nowMin = now.getHours() * 60 + now.getMinutes();
   const today = localDate(now);
@@ -182,7 +187,8 @@ export function katerMood(r: Reminder, now = new Date()): KaterMood {
 
   if (r.weekdays?.length) {
     const passed = r.weekdays.filter((d) => d >= fromDay && d < todayDay).length;
-    const missed = Math.max(0, passed - doneBefore);
+    // Ausgesetzte Tage zählen nicht als verpasst; heute ausgesetzt ist oben abgefangen
+    const missed = Math.max(0, passed - doneBefore - (r.skippedThisWeek ?? 0));
     const dueToday = r.weekdays.includes(todayDay);
     if (missed >= 4) return 'verzweifelt';
     if (missed === 3) return 'enttäuscht';
