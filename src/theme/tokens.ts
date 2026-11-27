@@ -174,14 +174,19 @@ const kiezColor = {
     startGears: { 3: palette.pink, 4: swatch.senf, 5: palette.green } as Record<number, string>,
   },
   /**
-   * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige statt Puder. Die aktive Seite
-   * sitzt auf einer grauen Blase, ihr Icon hat je Seite eine eigene Farbe: Kalender Senf, Feed Rosa, Nachrichten
-   * Schneeweiß, Menü Gelbgrün. Die Kamera bleibt die lila Pille, außer in der Routine (dort klein und schlicht).
+   * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige. Jede Seite hat ihre Farbe:
+   * Kalender Senf, Feed Rosa, Nachrichten Schneeweiß, Menü Gelbgrün. Die aktive Seite sitzt auf einer grauen Blase.
+   * In Mono zeigt der ausgewählte Tab seinen Namen auf zart lila Pille (Daria, 2026-11-27), vorerst nur dort.
    */
   nav: {
     bar: 'rgba(59, 47, 60, 0.94)',
     icon: swatch.beige,
+    /** Aktive Seite im Kiez-Look: graue Blase */
     bubble: palette.graphite,
+    /** Fläche des ausgewählten Tabs in Mono. Ohne Wert: seine Farbe mit 16 % Deckkraft (TabBar) */
+    selectedFill: undefined as string | undefined,
+    /** Rand des ausgewählten Tabs, nur in Mono */
+    selectedLine: undefined as string | undefined,
     /** Kalender = Me & Myself, dieselbe Grundfarbe wie accent.private */
     calendar: swatch.senf,
     /** Feed = Herz, dieselbe Grundfarbe wie accent.affection (Daria, 2026-11-13: zwei Rollen, ein Ziel) */
@@ -565,8 +570,11 @@ const monoOverrides = {
   icon: { large: mono.ink, startGears: { 3: mono.ink, 4: mono.ink, 5: mono.ink } as Record<number, string> },
   nav: {
     bar: withAlpha(mono.white, 0.96),
-    icon: mono.ink,
-    bubble: mono.surface,
+    /** Nicht ausgewählte Tabs grau, damit sich der ausgewählte abhebt (Daria, 2026-11-27) */
+    icon: mono.inkSoft,
+    /** Ausgewählter Tab: zart lila wie die Aufgaben, schwarz umrandet (Daria, 2026-11-27) */
+    selectedFill: mono.lila,
+    selectedLine: mono.ink,
     calendar: mono.ink,
     feed: mono.ink,
     chat: mono.ink,
