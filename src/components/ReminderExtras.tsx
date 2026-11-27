@@ -2,8 +2,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { TextField } from './Form';
 import { Icon } from './icons/Icon';
+import { ClampText } from './ClampText';
 import { PlaceField } from './PlaceField';
-import { Text } from './T';
 import { t } from '../data/texts';
 import { callPhone, openInMaps, openLink, shortLinkText } from '../lib/places';
 import { space, text } from '../theme/tokens';
@@ -59,9 +59,9 @@ export function ReminderExtrasRow({ place, phone, link, ink }: { place?: string;
           style={({ pressed }) => [styles.item, pressed && styles.pressed]}
         >
           <Icon name="map-pin" size={14} color={ink} />
-          <Text noTranslate style={[styles.text, { color: ink }]} numberOfLines={1}>
+          <ClampText noTranslate style={[styles.text, { color: ink }]} lines={1}>
             {place}
-          </Text>
+          </ClampText>
         </Pressable>
       ) : null}
       {phone ? (
@@ -72,17 +72,17 @@ export function ReminderExtrasRow({ place, phone, link, ink }: { place?: string;
           hitSlop={6}
           style={({ pressed }) => [styles.item, pressed && styles.pressed]}
         >
-          <Text noTranslate style={[styles.text, styles.underline, { color: ink }]} numberOfLines={1}>
+          <ClampText noTranslate style={[styles.text, styles.underline, { color: ink }]} lines={1}>
             {phone}
-          </Text>
+          </ClampText>
         </Pressable>
       ) : null}
       {link ? (
         <Pressable onPress={() => openLink(link)} accessibilityRole="link" hitSlop={6} style={({ pressed }) => [styles.item, pressed && styles.pressed]}>
           <Icon name="link" size={14} color={ink} />
-          <Text noTranslate style={[styles.text, { color: ink }]} numberOfLines={1}>
+          <ClampText noTranslate style={[styles.text, { color: ink }]} lines={1}>
             {shortLinkText(link)}
-          </Text>
+          </ClampText>
         </Pressable>
       ) : null}
     </View>
