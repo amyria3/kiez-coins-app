@@ -48,21 +48,6 @@ function grey(hex: string) {
   return `#${v}${v}${v}`;
 }
 
-/** Fassung Default mit den Linien, der helle Kreis in der Farbe des Abzeichens (Daria, 2026-11-02) */
-const colored = new Map<string, string>();
-function withColor(kind: BadgeKind, xml: string, fill: string, shine?: string) {
-  let out = colored.get(kind);
-  if (!out) {
-    out = xml.replaceAll('#F0F0F0', fill);
-    if (shine) out = out.replace('</svg>', `<path d="${shine}" fill="#F0F0F0"/></svg>`);
-    colored.set(kind, out);
-  }
-  return out;
-}
-
-/** Durchmesser des Farbkreises in Small, Anteil an der Kantenlänge (92 von 120) */
-const SMALL_CIRCLE = 92 / 120;
-
 /** Breite des Rings am Avatar */
 const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
 
@@ -85,7 +70,7 @@ export function BadgeIcon({
   muted?: boolean;
   /** Schmaler Ring in der Farbe des Grunds um die Farbfläche, z. B. am Avatar (Daria, 2026-11-02) */
   ring?: boolean;
-  /** Erhalten, in Listen: Fassung Default mit den Linien auf der Farbe des Abzeichens */
+  /** Erhalten, in Listen: Fassung Small in jeder Größe (Daria, 2026-11-27) */
   lines?: boolean;
   /** Farbe des Rings, wenn der Avatar nicht auf dem Grund liegt, z. B. auf einer Karte */
   ringColor?: string;
@@ -112,14 +97,14 @@ export function BadgeIcon({
         style={{ width: size, height: size }}
       >
         {ring && size < 80 ? (
-          // Farbkreis in Small: bei allen Abzeichen r 46 oben links auf 120 × 120 (Raster, Daria 2026-11-27)
+          // Farbkreis in Small je Abzeichen aus badgeSvgs (Raster, Daria 2026-11-27)
           <View
             style={{
               position: 'absolute',
-              left: -RING(size),
-              top: -RING(size),
-              width: size * SMALL_CIRCLE + RING(size) * 2,
-              height: size * SMALL_CIRCLE + RING(size) * 2,
+              left: ((own.circle[0] - own.circle[2]) * size) / 120 - RING(size),
+              top: ((own.circle[1] - own.circle[2]) * size) / 120 - RING(size),
+              width: (own.circle[2] * 2 * size) / 120 + RING(size) * 2,
+              height: (own.circle[2] * 2 * size) / 120 + RING(size) * 2,
               borderRadius: size,
               backgroundColor: ringColor ?? color.bg.screen,
             }}
@@ -127,8 +112,8 @@ export function BadgeIcon({
         ) : null}
         {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
         <View style={{ position: 'absolute', left: 0, top: 0 }}>
-          {/* Offen oder ausgeblendet: Default mit Linien, hell. Erhalten in Listen: Default auf der Farbe des Abzeichens (Daria, 2026-11-02) */}
-          <SvgXml xml={muted ? own.default : lines ? withColor(kind, own.default, own.color, own.shine) : size >= 80 ? own.default : own.small} width={size} height={size} />
+          {/* Offen oder ausgeblendet: Default mit Linien, hell. Erhalten in Listen: Small (Daria, 2026-11-27) */}
+          <SvgXml xml={muted ? own.default : lines || size < 80 ? own.small : own.default} width={size} height={size} />
         </View>
       </View>
     );

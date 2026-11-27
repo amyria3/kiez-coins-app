@@ -33,15 +33,10 @@ const RASTER = {
 const ABZEICHEN = {
   pionier: { color: '#FFCC00', striche: [1, 2, 3, 4, 5, 11, 12, 13, 14, 15] },
   lotse: { color: '#34C759', striche: [3, 4, 6, 7, 8, 11, 12, 13, 14, 15] },
-  anfuehrer: { color: '#6155F5', striche: [2, 3, 4, 5, 6, 8, 10, 11, 13, 14, 19, 20, 21, 22, 23] },
-  seebaer: { color: '#CB30E0', striche: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+  // Steuerrad und Anker: Small bleibt Darias Export, Gegenstand im Kreis (Daria, 2026-11-27)
+  anfuehrer: { color: '#6155F5', striche: [2, 3, 4, 5, 6, 8, 10, 11, 13, 14, 19, 20, 21, 22, 23], smallWieExport: true },
+  seebaer: { color: '#CB30E0', striche: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11], smallWieExport: true },
   macher: { color: '#FF8D28', striche: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
-};
-
-/** Glanzlichter, die in der Fassung Default auf Farbe hell bleiben (Linse und Rohr des Fernrohrs), in Koordinaten des Exports */
-const GLANZ = {
-  pionier:
-    'M110.80 61.15 109.90 61.15 108.30 60.25 106.80 59.05 105.35 57.50 102.45 53.30 101.25 51.30 99.75 48.60 97.15 43.20 95.45 39.00 93.85 34.30 93.45 32.00 93.65 30.70 94.35 28.90 94.85 28.10 95.80 27.35 96.40 27.35 97.60 27.85 99.75 29.50 100.55 30.60 103.05 33.30 103.55 34.30 105.75 37.30 107.15 39.50 108.35 43.30 109.55 45.80 110.15 48.40 110.55 51.70 110.85 52.90 110.85 54.20 111.25 57.00 111.25 60.30 111.05 60.90Z M72.60 47.15 72.35 47.10 72.35 46.80 72.85 45.40 73.15 43.80 73.75 42.20 75.85 38.10 77.75 35.60 78.20 35.25 78.45 35.90 78.35 37.50 77.75 41.50 77.35 42.30 76.45 43.50 73.60 46.35Z',
 };
 
 const KREIS = Math.PI * 60 * 60;
@@ -137,18 +132,27 @@ async function hinausragen(flaechen, regel) {
     const rohS = fs.readFileSync(path.join(ICONS, 'original', `${kind}-small.svg`), 'utf8');
     const pfade = [...rohS.matchAll(/<path([^>]*?)d="([^"]+)"([^>]*)\/>/g)].slice(1);
     const flaechen = pfade.map((p) => [p[2], /evenodd/.test(p[1] + p[3]) ? 'evenodd' : 'nonzero']);
-    const tS = await hinausragen(flaechen, RASTER.small);
     const K = RASTER.small.kreis;
-    const small =
-      `<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">\n<circle cx="${K}" cy="${K}" r="${K}" fill="${a.color}"/>\n` +
-      pfade.map((p) => `<path${p[1]}d="${verschiebe(p[2], tS)}"${p[3].trimEnd()}/>`).join('\n') +
-      '\n</svg>\n';
+    let small, kreis, info;
+    if (a.smallWieExport) {
+      small = rohS.replace(/\s+/g, ' ').trim() + '\n';
+      kreis = [60, 60, 60];
+      info = 'Small wie Export';
+    } else {
+      const tS = await hinausragen(flaechen, RASTER.small);
+      small =
+        `<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">\n<circle cx="${K}" cy="${K}" r="${K}" fill="${a.color}"/>\n` +
+        pfade.map((p) => `<path${p[1]}d="${verschiebe(p[2], tS)}"${p[3].trimEnd()}/>`).join('\n') +
+        '\n</svg>\n';
+      kreis = [K, K, K];
+      info = `Small ${(tS.flaeche / (Math.PI * K * K) * 100).toFixed(1)} % des Kreises, ${(tS.aussen * 100).toFixed(1)} % außerhalb`;
+    }
 
     fs.writeFileSync(path.join(ICONS, `${kind}-default.svg`), def);
     fs.writeFileSync(path.join(ICONS, `${kind}-small.svg`), small);
-    ts[kind] = { color: a.color, small: small.trim().replace(/\n/g, ' '), default: def.trim().replace(/\n/g, ' '), glanz: GLANZ[kind] ? verschiebe(GLANZ[kind], t) : undefined };
+    ts[kind] = { color: a.color, small: small.trim().replace(/\n/g, ' '), default: def.trim().replace(/\n/g, ' '), kreis };
     bericht.push(
-      `${kind}: Default ${(g.flaeche / KREIS * 100).toFixed(1)} % Fläche, r ${g.radius.toFixed(1)}, Striche r ${r.toFixed(1)} · Small ${(tS.flaeche / (Math.PI * K * K) * 100).toFixed(1)} % des Kreises, ${(tS.aussen * 100).toFixed(1)} % außerhalb`,
+      `${kind}: Default ${(g.flaeche / KREIS * 100).toFixed(1)} % Fläche, r ${g.radius.toFixed(1)}, Striche r ${r.toFixed(1)} · ${info}`,
     );
   }
   await browser.close();
@@ -156,20 +160,21 @@ async function hinausragen(flaechen, regel) {
   const zeilen = Object.entries(ts).map(
     ([k, v]) =>
       `  ${k}: {\n    color: '${v.color}',\n    small: \`${v.small}\`,\n    default: \`${v.default}\`,\n` +
-      (v.glanz ? `    shine: '${v.glanz}',\n` : '') +
+      `    circle: [${v.kreis.join(', ')}],\n` +
       '  },',
   );
   const out = `/**
  * Darias Abzeichen-Icons im Kiez-Look: Small für Avatar und Listen, Default ab 80 pt.
  * Erzeugt mit scripts/abzeichen/normalisieren.cjs aus design/abzeichen/icons/original (Stand 2026-11-27).
  * Alle Abzeichen folgen einem Raster: Default mit Kreis r 60 und Gegenstand mittig im Kreis,
- * Small mit Kreis r 46 oben links und Gegenstand, der bei allen gleich weit unten rechts hinausragt.
+ * Small mit Kreis r 46 oben links und Gegenstand, der gleich weit unten rechts hinausragt;
+ * Steuerrad und Anker behalten in Small Darias Export mit dem Gegenstand im Kreis.
  * Nicht von Hand ändern, sondern das Skript neu laufen lassen.
  */
 import type { BadgeKind } from '../../data/badges';
 
-/** shine: Glanzlichter, die auf der Farbe des Abzeichens hell bleiben (Fassung Default) */
-export const KIEZ_BADGE_SVGS: Partial<Record<BadgeKind, { small: string; default: string; color: string; shine?: string }>> = {
+/** circle: Farbkreis in Small als [cx, cy, r] auf 120 × 120, für den Ring am Avatar */
+export const KIEZ_BADGE_SVGS: Partial<Record<BadgeKind, { small: string; default: string; color: string; circle: [number, number, number] }>> = {
 ${zeilen.join('\n')}
 };
 `;
