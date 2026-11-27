@@ -1912,5 +1912,16 @@
   "Eine Kopie mit der Digitalen Visitenkarte ist unterwegs an {to}.": "A copy with the Digital Business Card is on its way to {to}.",
   "{name} erhält Deine Nachricht per Mail und kann Dir antworten. Du erhältst eine Kopie mit der Digitalen Visitenkarte.": "{name} receives your message by email and can reply to you. You receive a copy with the Digital Business Card.",
   "Für heute sind genug Nachrichten gesendet. Probier es morgen wieder.": "Enough messages have been sent for today. Try again tomorrow.",
-  "Nachricht in der Mail": "Message in the email"
+  "Nachricht in der Mail": "Message in the email",
+  "keine festen Termine": "no fixed appointments",
+  "noch keine festen Termine bekannt": "no fixed appointments known yet",
+  "bis {time}": "until {time}",
+  "und {n} weitere": "and {n} more",
+  "1 Termin: {list}": "1 appointment: {list}",
+  "{n} Termine: {list}": "{n} appointments: {list}",
+  "1 Aufgabe ohne Uhrzeit": "1 task without a time",
+  "{n} Aufgaben ohne Uhrzeit": "{n} tasks without a time",
+  "Dieser Tag ist schon vorbei.": "This day has already passed.",
+  "Das Datum verstehe ich nicht. Bitte so: 2.12. oder 2.12.2026": "I can’t read this date. Please type it like 2.12. or 2.12.2026",
+  "z. B. 2.12. oder 2.12.2026": "e.g. 2.12. or 2.12.2026"
 }

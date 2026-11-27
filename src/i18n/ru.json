@@ -1426,5 +1426,7 @@
   "Wie bekomme ich einen Buchungslink?": "Как получить ссылку для записи?",
   "Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch.": "С бесплатным аккаунтом на Cal.com ты решаешь, когда к тебе можно записаться. Ссылку на свою страницу записи укажи здесь. Тогда на витрине появится «Записаться». Другие сервисы записи тоже подойдут.",
   "Cal.com-Konto anlegen": "Создать аккаунт Cal.com",
-  "Freie Zeiten sehen und online buchen.": "Посмотреть свободное время и записаться онлайн."
+  "Freie Zeiten sehen und online buchen.": "Посмотреть свободное время и записаться онлайн.",
+  "{n} Termine: {list}": "{n, plural, one {# встреча} few {# встречи} many {# встреч} other {# встречи}}: {list}",
+  "{n} Aufgaben ohne Uhrzeit": "{n, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}} без времени"
 }

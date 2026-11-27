@@ -1440,5 +1440,7 @@
   "Wie bekomme ich einen Buchungslink?": "Comment obtenir un lien de réservation ?",
   "Mit einem kostenlosen Konto bei Cal.com legst Du fest, wann man bei Dir Termine buchen kann. Den Link zu Deiner Buchungsseite trägst Du hier ein. Im Schaufenster steht dann „Termin buchen“. Andere Buchungsdienste gehen auch.": "Avec un compte gratuit sur Cal.com, tu choisis quand on peut prendre rendez-vous chez toi. Saisis ici le lien vers ta page de réservation. Ta vitrine affiche alors « Prendre rendez-vous ». D’autres services de réservation fonctionnent aussi.",
   "Cal.com-Konto anlegen": "Créer un compte Cal.com",
-  "Freie Zeiten sehen und online buchen.": "Voir les créneaux libres et réserver en ligne."
+  "Freie Zeiten sehen und online buchen.": "Voir les créneaux libres et réserver en ligne.",
+  "{n} Termine: {list}": "{n} rendez-vous : {list}",
+  "{n} Aufgaben ohne Uhrzeit": "{n} tâches sans heure"
 }
