@@ -602,9 +602,10 @@ const monoOverrides = {
   financeDotInactive: mono.aus,
   showcasePlaceholder: { cover: ['#EDEDED', '#F7F7F7', '#E2E2E2'] },
   accountCards: {
-    activity: mono.surface,
-    posts: mono.surface,
-    // Gemeinsam und App ohne graue Fläche, Zeilen durch feine Linien getrennt (Daria, 2026-11-25: „maybe thin Trennlinien?“)
+    // Alle Bereiche ohne graue Fläche, Zeilen durch feine Linien getrennt (Daria, 2026-11-25: „maybe thin Trennlinien?“;
+    // Du on KiezCoins seit 2026-11-27 ebenso)
+    activity: 'transparent',
+    posts: 'transparent',
     friendship: ['transparent', 'transparent'],
     showcase: 'transparent',
     functional: ['transparent', 'transparent', 'transparent'],
