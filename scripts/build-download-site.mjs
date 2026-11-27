@@ -1445,11 +1445,12 @@ const { betriebeFunktionen } = await import('./site/betriebe.mjs');
 const betriebeCss = readFileSync(join(siteDir, 'betriebe.css'), 'utf8');
 const betriebeJs = readFileSync(join(siteDir, 'betriebe.js'), 'utf8');
 const betriebeIcons = {
-  zurueck: iconSvgs['chevron-left'].svg(C.text),
-  zahnrad: iconSvgs.settings.svg(C.text),
-  kalender: iconSvgs.calendar.svg('#1A1A1A'),
+  // Linien-Icons aus Phosphor wie im Look Mono (Daria, 2026-11-27)
+  zurueck: ph('caret-left', M.ink).svg,
+  zahnrad: ph('gear', M.ink).svg,
+  kalender: ph('calendar-blank', M.ink).svg,
   pin: iconSvgs['map-pin'].svg('#D6334A'),
-  haken: iconSvgs.check.svg('#1A1A1A'),
+  haken: ph('check', M.ink).svg,
 };
 const betriebeSeite = (L) => {
   const t = uebersetzer(L);
