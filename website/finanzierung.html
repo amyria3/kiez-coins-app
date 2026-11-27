@@ -76,6 +76,13 @@
 .fenster .scroller { position: absolute; inset: 0; overflow: hidden; z-index: 2; border-radius: 12px; outline-offset: 2px; }
 .fenster.ueber .scroller { overflow: auto; cursor: grab; scrollbar-width: thin; scrollbar-color: rgba(38,35,58,.25) transparent; }
 .fenster.ueber .scroller.zieht { cursor: grabbing; }
+/* Zoomen mit zwei Fingern, Strg/⌘ + Mausrad, Doppelklick oder den Knöpfen (Daria, 27.11.2026) */
+.fenster.zoombar .scroller { touch-action: pan-x pan-y; }
+.fenster .zoom { position: absolute; right: 8px; bottom: 8px; z-index: 3; display: none; flex-direction: column; gap: 4px; }
+.fenster.zoombar .zoom { display: flex; }
+.fenster .zoom button { width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: #FFFFFF; color: var(--feld-tinte);
+  font: 500 18px/1 Inter, sans-serif; cursor: pointer; display: grid; place-items: center; }
+.fenster .zoom button:disabled { opacity: .35; cursor: default; }
 .fenster.ueber::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: 12px; box-shadow: inset 0 0 22px 14px var(--feld-grund); }
 .legende { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--feld-neben); }
 .legende .tipp { flex-basis: 100%; }
@@ -366,6 +373,12 @@
     var scroller = el('div', 'scroller'); scroller.setAttribute('role', 'img');
     var raum = el('div'); scroller.appendChild(raum);
     fenster.appendChild(canvas); fenster.appendChild(scroller);
+    var knoepfe = el('div', 'zoom');
+    var plusK = el('button', null, '+'), minusK = el('button', null, '−');
+    plusK.type = minusK.type = 'button';
+    plusK.setAttribute('aria-label', 'Hineinzoomen'); minusK.setAttribute('aria-label', 'Herauszoomen');
+    knoepfe.appendChild(plusK); knoepfe.appendChild(minusK); fenster.appendChild(knoepfe);
+    var zoom = 1, gezoomt = false, zoomMin = 1, ZOOM_MAX = 4, ZOOM_AB = 150;
     var leg = el('ul', 'legende');
     feld.appendChild(fenster); feld.appendChild(leg);
     var bild = null, v = null;
@@ -376,7 +389,7 @@
       avatar.src = mk0.bild;
     }
 
-    function setze(werte) {
+    function setze(werte, anker) {
       v = werte;
       var bezahlt = [
         { n: v.schwalbe, farbe: '--schwalbe', name: 'Schwalbe' },
@@ -423,12 +436,23 @@
       var abstand = N ? R * Math.sqrt(Math.PI / N) : 0;
       var r = abstand * 0.4;
       if (N && r < MIN_R) { r = MIN_R; abstand = r / 0.4; R = abstand * Math.sqrt(N / Math.PI); }
-      var rand = abstand * 2 + 34;
       // Ist-Zustand: kleine Community, kleiner Rahmen
-      if (opt.anpassen) hgt = Math.min(hgt, Math.max(220, Math.ceil(2 * R + 2 * rand)));
+      if (opt.anpassen) hgt = Math.min(hgt, Math.max(220, Math.ceil(2 * R + 2 * (abstand * 2 + 34))));
       fenster.style.height = hgt + 'px';
-      var W = Math.max(w, Math.ceil(2 * R + 2 * rand)), H = Math.max(hgt, Math.ceil(2 * R + 2 * rand));
-      var ueber = W > w || H > hgt;
+      // Zoom: 1 ist die Grundgröße. Herauszoomen geht, bis die ganze Wolke in den Rahmen passt (Daria, 27.11.2026).
+      var zoombar = N >= ZOOM_AB;
+      zoomMin = N ? Math.min(1, (Math.min(w, hgt) / 2 - 10) / (R + r)) : 1;
+      // Solange niemand gezoomt hat: passt die Wolke mit etwas kleineren Punkten ganz hinein, dann so
+      if (!gezoomt) zoom = zoomMin >= 0.75 ? zoomMin : 1;
+      zoom = zoombar ? Math.max(zoomMin, Math.min(ZOOM_MAX, zoom)) : 1;
+      R *= zoom; abstand *= zoom; r *= zoom;
+      var rand = abstand * 2 + 34;
+      // Nur wenn Punkte wirklich über den Rand ragen, wird die Fläche größer und verschiebbar
+      var ausdehnung = 2 * (R + r) + 20;
+      var ueber = N > 0 && (ausdehnung > w || ausdehnung > hgt);
+      var W = ueber ? Math.max(w, Math.ceil(2 * R + 2 * rand)) : w, H = ueber ? Math.max(hgt, Math.ceil(2 * R + 2 * rand)) : hgt;
+      fenster.classList.toggle('zoombar', zoombar);
+      plusK.disabled = zoom >= ZOOM_MAX - 1e-6; minusK.disabled = zoom <= zoomMin + 1e-6;
 
       var x = new Float32Array(N), y = new Float32Array(N), takt = new Float32Array(N * 4);
       for (i = 0; i < N; i++) {
@@ -450,16 +474,21 @@
       }
 
       // Ausschnitt: beim ersten Mal die Mitte oder der eigene Punkt, danach dieselbe Stelle im Verhältnis
-      var alt = bild, fx = 0.5, fy = 0.5;
-      if (alt && alt.W) { fx = (scroller.scrollLeft + alt.w / 2) / alt.W; fy = (scroller.scrollTop + alt.h / 2) / alt.H; }
+      // Beim Zoomen bleibt der Punkt unter Finger oder Maus (anker) an seiner Stelle
+      var alt = bild, fx = 0.5, fy = 0.5, ax = w / 2, ay = hgt / 2;
+      if (anker) { ax = anker.x; ay = anker.y; }
+      if (alt && alt.W) {
+        var kx = (scroller.scrollLeft + ax - alt.W / 2) / alt.zoom, ky = (scroller.scrollTop + ay - alt.H / 2) / alt.zoom;
+        fx = (W / 2 + kx * zoom) / W; fy = (H / 2 + ky * zoom) / H;
+      }
       else if (ziel >= 0) { fx = x[ziel] / W; fy = y[ziel] / H; }
       fenster.classList.toggle('ueber', ueber);
       raum.style.width = W + 'px'; raum.style.height = H + 'px';
-      scroller.tabIndex = ueber ? 0 : -1;
-      scroller.scrollLeft = fx * W - w / 2; scroller.scrollTop = fy * H - hgt / 2;
+      scroller.tabIndex = (ueber || zoombar) ? 0 : -1;
+      scroller.scrollLeft = fx * W - ax; scroller.scrollTop = fy * H - ay;
 
       var start = alt && alt.ziel === ziel ? alt.start : performance.now();
-      bild = { N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, W: W, H: H, farben: farben,
+      bild = { zoom: zoom, N: N, art: art, x: x, y: y, takt: takt, r: r, abstand: abstand, w: w, h: hgt, W: W, H: H, farben: farben,
         ziel: ziel, start: start, tinte: cs.getPropertyValue('--du').trim(), duPunkt: cs.getPropertyValue('--du-punkt').trim(), papier: '#FFFFFF' };
       var dpr = window.devicePixelRatio || 1;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(hgt * dpr);
@@ -469,7 +498,7 @@
       leg.innerHTML = gruppen.filter(function (g) { return g.n > 0; }).map(function (g) {
         return '<li>' + punkt('var(' + g.farbe + ')') + zahl(g.n) + ' ' + g.name + '</li>';
       }).join('') + (ziel >= 0 ? '<li>' + (mk0.bild ? '<img class="punkt avatar" src="' + String(mk0.bild).replace(/[&"<>]/g, '') + '" alt="">' : punkt('var(--du-punkt)')) + 'Du</li>' : '') + (N ? '<li>1 Punkt = 1 Person</li>' : '<li>Noch niemand</li>')
-        + (ueber ? '<li class="tipp">Die Community ist größer als der Rahmen. Verschiebe die Ansicht, um alle zu sehen.</li>' : '');
+        + (zoombar ? '<li class="tipp">' + (ueber ? 'Ziehen verschiebt die Ansicht. ' : '') + 'Zoomen geht mit zwei Fingern, Strg/⌘ + Mausrad, Doppelklick oder + und −.</li>' : '');
       scroller.setAttribute('aria-label', 'Community: ' + gruppen.map(function (g) { return zahl(g.n) + ' ' + g.name; }).join(', '));
     }
 
@@ -566,6 +595,57 @@
     });
     function loslassen() { zug = null; scroller.classList.remove('zieht'); }
     scroller.addEventListener('pointerup', loslassen); scroller.addEventListener('pointercancel', loslassen);
+    // Zoomen: mehrere Schritte im selben Bild werden zusammengefasst
+    var offen = null;
+    function zoomeUm(faktor, anker) {
+      if (!v || !fenster.classList.contains('zoombar')) return;
+      var a = anker || { x: fenster.clientWidth / 2, y: fenster.clientHeight / 2 };
+      if (offen) { offen.f *= faktor; offen.a = a; return; }
+      offen = { f: faktor, a: a };
+      requestAnimationFrame(function () {
+        var o = offen; offen = null;
+        var neu = Math.max(zoomMin, Math.min(ZOOM_MAX, zoom * o.f));
+        if (Math.abs(neu - zoom) < 1e-4) return;
+        zoom = neu; gezoomt = true; setze(v, o.a);
+      });
+    }
+    function imFenster(cx, cy) { var b = fenster.getBoundingClientRect(); return { x: cx - b.left, y: cy - b.top }; }
+    plusK.addEventListener('click', function () { zoomeUm(1.5); });
+    minusK.addEventListener('click', function () { zoomeUm(1 / 1.5); });
+    scroller.addEventListener('dblclick', function (e) { zoomeUm(e.shiftKey ? 1 / 2 : 2, imFenster(e.clientX, e.clientY)); });
+    // Strg/⌘ + Mausrad; die Zwei-Finger-Geste auf dem Trackpad kommt in Chrome und Firefox genauso an
+    scroller.addEventListener('wheel', function (e) {
+      if (!(e.ctrlKey || e.metaKey) || !fenster.classList.contains('zoombar')) return;
+      e.preventDefault();
+      var d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      zoomeUm(Math.exp(-d * 0.01), imFenster(e.clientX, e.clientY));
+    }, { passive: false });
+    // Zwei Finger auf Handy und Tablet
+    var finger = null;
+    function abstandT(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+    scroller.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 2 && fenster.classList.contains('zoombar')) finger = abstandT(e.touches);
+    }, { passive: true });
+    scroller.addEventListener('touchmove', function (e) {
+      if (finger == null || e.touches.length !== 2) return;
+      e.preventDefault();
+      var d = abstandT(e.touches);
+      zoomeUm(d / finger, imFenster((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2));
+      finger = d;
+    }, { passive: false });
+    scroller.addEventListener('touchend', function (e) { if (e.touches.length < 2) finger = null; });
+    // Safari auf dem Mac meldet die Trackpad-Geste als gesture-Ereignis
+    var gs = 1;
+    scroller.addEventListener('gesturestart', function (e) { e.preventDefault(); gs = 1; });
+    scroller.addEventListener('gesturechange', function (e) {
+      e.preventDefault();
+      if (finger != null) return;
+      zoomeUm(e.scale / gs, imFenster(e.clientX, e.clientY)); gs = e.scale;
+    });
+    scroller.addEventListener('keydown', function (e) {
+      if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomeUm(1.5); }
+      else if (e.key === '-') { e.preventDefault(); zoomeUm(1 / 1.5); }
+    });
     new IntersectionObserver(function (e) { sichtbar = e[0].isIntersecting; if (sichtbar) starteBewegung(); }).observe(fenster);
     var breite = 0;
     new ResizeObserver(function () { if (v && fenster.clientWidth !== breite) { breite = fenster.clientWidth; setze(v); } }).observe(fenster);
