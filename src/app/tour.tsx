@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { ActionBar } from '../components/ActionBar';
 import { Button } from '../components/Button';
+import { IconButton } from '../components/IconButton';
 
 import { KaterCard, KaterCircle } from '../components/Content';
 import { CheckOption, SwitchRow, TextField } from '../components/Form';
@@ -21,13 +22,14 @@ import { useStore } from '../data/store';
 import { t } from '../data/texts';
 import { TOUR_FEEDBACK_OTHER_MAX, TOUR_SEEN_KEY, tourFeedbackOptions, tourSteps as allTourSteps, type TourStep } from '../data/tour';
 import { useAppDimensions } from '../theme/layout';
-import { color, radius, space, text } from '../theme/tokens';
+import { color, radius, size, space, text } from '../theme/tokens';
 import { KeyboardArea } from '../components/Keyboard';
 
 /**
  * Route `tour` („Wie geht KiezCoins“): Beispiele zum Ausprobieren für die Hauptfunktionen (Daria, 22./31.10.2026).
  * Etwa 5 Minuten nach dem Anheuern fragt die App, ob sie die Tour zeigen soll (TourOffer), sonst über Dein Konto › Wie geht KiezCoins. `next`: Ziel danach.
  * Wischen oder „Weiter“ blättert. Videos stehen in data/tour.ts.
+ * Das X oben links beendet die Tour auf jeder Seite, wie das X in der NavigationBar ein Modal schließt (Daria, 27.11.2026).
  */
 export default function Tour() {
   const router = useRouter();
@@ -92,13 +94,15 @@ export default function Tour() {
     setPage(i);
   };
 
-  // Im Browser blättern die Pfeiltasten vor und zurück; der Fokus bleibt auf „Weiter“ (Daria, 28.10.2026)
+  // Im Browser blättern die Pfeiltasten vor und zurück; der Fokus bleibt auf „Weiter“ (Daria, 28.10.2026).
+  // Escape beendet die Tour wie das X (Daria, 27.11.2026).
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const onKey = (e: KeyboardEvent) => {
       // Nicht beim Tippen im Feld „Anderes“
       if (e.target instanceof HTMLElement && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
-      if (e.key === 'ArrowRight' && page < tourSteps.length - 1) goTo(page + 1);
+      if (e.key === 'Escape') finish();
+      else if (e.key === 'ArrowRight' && page < tourSteps.length - 1) goTo(page + 1);
       else if (e.key === 'ArrowLeft' && page > 0) goTo(page - 1);
     };
     window.addEventListener('keydown', onKey);
@@ -118,8 +122,9 @@ export default function Tour() {
       style={[styles.screen, { paddingTop: insets.top + space[16] }]}
     >
       <View style={styles.top}>
-        <Text style={styles.step}>{t('{n} von {total}', { n: page + 1, total: tourSteps.length })}</Text>
-        {sent ? <View style={styles.topSpacer} /> : <Button label="Überspringen" variant="ghost" onPress={finish} />}
+        <IconButton icon="close" accessibilityLabel={t('Tour beenden')} onPress={finish} />
+        <Text style={[styles.step, styles.counter]}>{t('{n} von {total}', { n: page + 1, total: tourSteps.length })}</Text>
+        <View style={styles.topSpacer} />
       </View>
       <ScrollView
         ref={pager}
@@ -209,7 +214,7 @@ export default function Tour() {
             label={sending ? 'Wird gesendet …' : 'Absenden'}
             busy={sending}
             disabled={!answered || sending}
-            whyDisabled={() => !sending && explain('Noch keine Antwort', 'Wähle eine Antwort oder schreib etwas unter „Anderes“. Oder tippe oben auf „Überspringen“.')}
+            whyDisabled={() => !sending && explain('Noch keine Antwort', 'Wähle eine Antwort oder schreib etwas unter „Anderes“. Oder beende die Tour oben mit dem X.')}
             onPress={send}
           />
         ) : (
@@ -418,7 +423,9 @@ function TourVideo({ source, active }: { source: number | string; active: boolea
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingLeft: space[16] },
+  // Wie die NavigationBar eines Modals: X links, Zähler in der Mitte
+  top: { flexDirection: 'row', alignItems: 'center', padding: space[4] },
+  counter: { flex: 1, textAlign: 'center' },
   step: { ...text.caption, color: color.text.secondary },
   page: { paddingHorizontal: space[16], gap: space[16], paddingTop: space[8], paddingBottom: space[8] },
   // Nimmt den Platz, den Titel und Text übrig lassen, höchstens 460
@@ -438,7 +445,7 @@ const styles = StyleSheet.create({
   previewBox: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   previewCue: { paddingTop: space[16], paddingBottom: space[8] },
   flex: { flex: 1 },
-  topSpacer: { height: 44 },
+  topSpacer: { width: size.touchTarget, height: size.touchTarget },
   textBlock: { flexGrow: 0, flexShrink: 1 },
   textContent: { gap: space[16] },
   feedback: { gap: space[12], paddingBottom: space[24], alignItems: 'stretch' },
