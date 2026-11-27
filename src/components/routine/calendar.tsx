@@ -163,7 +163,7 @@ export function RoutineCalendar({
   const from = week < monthStart ? week : monthStart;
   const weekEnd = addDays(6, week);
   const to = weekEnd > monthEnd ? weekEnd : monthEnd;
-  const key = `${localDate(from)} ${list.map((r) => `${r.id}:${r.doneThisWeek}`).join(',')}`;
+  const key = `${localDate(from)} ${list.map((r) => `${r.id}:${r.doneThisWeek}:${r.skippedThisWeek ?? 0}`).join(',')}`;
   useEffect(() => {
     loadRoutineDays(from, to).then(setDays, () => setDays(null));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -504,6 +504,7 @@ function DayBar({
     ...(days?.givenUpBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('aufgegeben')})`),
     ...(days?.cancelledBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('abgebrochen')})`),
     ...(days?.calledOffBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('abgesagt')})`),
+    ...(days?.skippedBy.get(day) ?? []).map((w) => `${capitalize(w)} (${t('ausgesetzt')})`),
   ];
   // Mit Uhrzeit zuerst, nach Zeit sortiert
   const timed: [string, string][] = [
@@ -519,6 +520,8 @@ function DayBar({
     ...(day >= today
       ? list
           .filter((r) => (r.onDate ? r.onDate === day : r.weekdays ? r.weekdays.includes(isoWeekday(date)) : day === today))
+          // Ausgesetzte stehen hinten mit „(ausgesetzt)“
+          .filter((r) => !days?.skippedBy.get(day)?.includes(r.want))
           .map((r) => capitalize(r.want) + (done.includes(r.want) ? ' ✓' : ''))
       : [...done.map((w) => `${capitalize(w)} ✓`), ...missed.map((w) => `${capitalize(w)} ✗`)]),
   ].filter((n) => !timedNames.has(n.replace(/ [✓✗]$/, '')));

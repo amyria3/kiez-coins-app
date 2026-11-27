@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { addDays, capitalize, dueAt, dueToday, goalOf, isoWeekday, kindOf, localDate, parseDate, parseUntil, routineLabel, weekStart } from '../src/data/reminderDates';
+import { addDays, canSkip, capitalize, dueAt, dueToday, goalOf, plannedGoalOf, isoWeekday, kindOf, localDate, parseDate, parseUntil, routineLabel, weekStart } from '../src/data/reminderDates';
 import type { Reminder } from '../src/data/reminders';
 
 // Mittwoch, 2026-11-18, 10:00 Ortszeit
@@ -99,5 +99,32 @@ describe('Feld „Bis“ mit Tag', () => {
     assert.equal(parseUntil('22.11. abends', NOW), null);
     assert.equal(parseUntil('31.02.', NOW), null);
     assert.equal(parseUntil('', NOW), null);
+  });
+});
+
+describe('Einmal aussetzen', () => {
+  it('senkt das Wochenziel, der Balken behält alle Striche', () => {
+    const r = reminder({ perWeek: 5, skippedThisWeek: 1 });
+    assert.equal(goalOf(r), 4);
+    assert.equal(plannedGoalOf(r), 5);
+    assert.equal(goalOf({ weekdays: [1, 3, 5], skippedThisWeek: 1 }), 2);
+    assert.equal(goalOf({ perWeek: 1, skippedThisWeek: 1 }), 0);
+  });
+  it('einmalige zählen Aussetzer nicht', () => assert.equal(goalOf({ onDate: '2026-11-20', skippedThisWeek: 1 }), 1));
+  it('geht einmal pro Woche bei offenen wiederkehrenden', () => {
+    assert.equal(canSkip(reminder({ perWeek: 5, doneThisWeek: 1 }), NOW), true);
+    assert.equal(canSkip(reminder({ perWeek: 5, skippedThisWeek: 1 }), NOW), false);
+    assert.equal(canSkip(reminder({ perWeek: 5, doneToday: true, doneThisWeek: 1 }), NOW), false);
+    assert.equal(canSkip(reminder({ perWeek: 2, doneThisWeek: 2 }), NOW), false);
+    assert.equal(canSkip(reminder({ onDate: '2026-11-18', untilTime: '18:00' }), NOW), false);
+  });
+  it('feste Tage nur an einem ihrer Tage', () => {
+    assert.equal(canSkip(reminder({ weekdays: [3] }), NOW), true);
+    assert.equal(canSkip(reminder({ weekdays: [1] }), NOW), false);
+  });
+  it('heute ausgesetzt ist nicht mehr fällig', () => {
+    assert.equal(dueToday(reminder({ weekdays: [3], skippedToday: true, skippedThisWeek: 1 }), NOW), false);
+    assert.equal(dueToday(reminder({ perWeek: 3, skippedToday: true, skippedThisWeek: 1 }), NOW), false);
+    assert.equal(dueAt(reminder({ weekdays: [3], atTime: '18:00', skippedToday: true }), NOW)?.getTime(), new Date(2026, 10, 25, 18, 0).getTime());
   });
 });
