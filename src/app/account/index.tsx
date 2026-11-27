@@ -7,7 +7,7 @@ import { FieldGroup } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
 
-import { NavGroup, NavGroupRow, NavRow, ProfileHeader } from '../../components/Rows';
+import { NavGroup, NavGroupRow, NavList, NavRow, ProfileHeader } from '../../components/Rows';
 import { KATER_AVATAR_YELLOW, katerAvatarSvg } from '../../components/icons/katerAvatarSvg';
 import { SubScreen } from '../../components/Screen';
 import { TabBar } from '../../components/TabBar';
@@ -216,7 +216,7 @@ export default function Account() {
         </NavGroup>
       </View>
       <FieldGroup heading label="Einstellungen">
-        <View style={styles.list}>
+        <NavList>
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
@@ -233,10 +233,10 @@ export default function Account() {
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
           {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/survey/results')} /> : null}
           {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texts')} /> : null}
-        </View>
+        </NavList>
       </FieldGroup>
       <FieldGroup heading label="Konto">
-        <View style={styles.list}>
+        <NavList>
           <NavRow
             label="Zugangsdaten"
             value={hasPassword ? 'E-Mail und Passwort' : 'Passwort fehlt noch'}
@@ -245,15 +245,15 @@ export default function Account() {
           <NavRow label="Abmelden" onPress={toStart} />
           <NavRow label="Konto 3 Monate pausieren" onPress={() => router.push('/account/pause')} />
           <NavRow label="Konto löschen" tone="danger" onPress={() => router.push('/account/delete')} />
-        </View>
+        </NavList>
       </FieldGroup>
       <FieldGroup heading label="Rechtliches">
-        <View style={styles.list}>
+        <NavList>
           <NavRow label="Community-Regeln" onPress={() => router.push('/legal/regeln')} />
           <NavRow label="Impressum" onPress={() => router.push('/legal/impressum')} />
           <NavRow label="Datenschutz" onPress={() => router.push('/legal/datenschutz')} />
           <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/legal/bedingungen')} />
-        </View>
+        </NavList>
       </FieldGroup>
       </Animated.View>
       <SurveyOverlay visible={survey} onClose={() => setSurvey(false)} />
@@ -267,7 +267,6 @@ const ROW_ICON = 16;
 const styles = StyleSheet.create({
   // Derselbe Abstand wie im Inhalt von SubScreen, die Hülle für das Wischen nimmt ihn sonst weg
   slide: { gap: space[16] },
-  list: { gap: space[8] },
   // Kater der Bildmarke größer als sein gelbgrüner Kreis, der Kreis schneidet Ohren und Unterkante ab
   catCircle: { width: 40, height: 40, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: KATER_AVATAR_YELLOW },
   catBleed: { marginBottom: -10 },
