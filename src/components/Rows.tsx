@@ -1,4 +1,4 @@
-import { Children, Fragment, useRef, useState, type ReactNode } from 'react';
+import { Children, createContext, Fragment, useContext, useRef, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
@@ -110,11 +110,37 @@ type NavRowProps = {
   onPress: () => void;
 };
 
+/** In einer `NavList` mit Trennlinien liegen die Zeilen flach auf dem Grund */
+const FlatRows = createContext(false);
+
+/**
+ * Liste von `NavRow`s. Kiez: einzelne Kacheln mit Abstand. Mono (`color.accountCards.divider`): flach, Zeilen durch
+ * feine Linien getrennt wie die übrigen Bereiche der Kontoseite (Daria, 2026-11-27).
+ */
+export function NavList({ children }: { children: ReactNode }) {
+  const divider = color.accountCards.divider;
+  if (!divider) return <View style={styles.navList}>{children}</View>;
+  const rows = Children.toArray(children);
+  return (
+    <FlatRows.Provider value>
+      <View>
+        {rows.map((row, i) => (
+          <Fragment key={i}>
+            {i > 0 ? <View style={[styles.listDivider, { backgroundColor: divider }]} /> : null}
+            {row}
+          </Fragment>
+        ))}
+      </View>
+    </FlatRows.Provider>
+  );
+}
+
 /** Figma „NavRow“ (Default, Danger): Zeile, die zu einem anderen Screen führt. */
 export function NavRow({ label, value, tone = 'default', onPress }: NavRowProps) {
+  const flat = useContext(FlatRows);
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.navRow, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.navRow, flat && styles.flatRow, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={value ? `${label}, ${value}` : label}
       onPress={onPress}
@@ -237,6 +263,9 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   navRow: { minHeight: 48 },
+  navList: { gap: space[8] },
+  flatRow: { backgroundColor: 'transparent', borderRadius: 0 },
+  listDivider: { height: 1, marginLeft: space[12] },
   navGroup: { borderRadius: radius.md, overflow: 'hidden' },
   groupRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[12], paddingVertical: space[12], minHeight: 60 },
   // Beginnt unter dem Titel: Innenabstand 12, Icon-Feld 40, Abstand 12

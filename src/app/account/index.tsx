@@ -7,7 +7,7 @@ import { FieldGroup } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
 
-import { NavGroup, NavGroupRow, NavRow, ProfileHeader } from '../../components/Rows';
+import { NavGroup, NavGroupRow, NavList, NavRow, ProfileHeader } from '../../components/Rows';
 import { KATER_AVATAR_YELLOW, katerAvatarSvg } from '../../components/icons/katerAvatarSvg';
 import { SubScreen } from '../../components/Screen';
 import { TabBar } from '../../components/TabBar';
@@ -64,6 +64,38 @@ export default function Account() {
     router.replace('/onboarding/welcome');
   };
 
+  // Kiez: eigene Karten für Aktivität, Posts und Schaufenster. Mono: jeder Bereich eine Gruppe, Zeilen durch
+  // Trennlinien getrennt, ohne graue Fläche (Daria, 2026-11-27: „Manchmal mit, manchmal ohne Trennlinie“)
+  const oneGroup = !!color.accountCards.divider;
+  const activityRow = (
+    <NavGroupRow
+      title="Meine Aktivität"
+      description="Geschafft, Ziele und Gruppen"
+      leading={<CrownIcon height={24} fill={color.accountCards.ink} />}
+      background={color.accountCards.activity}
+      onPress={() => router.push('/me')}
+    />
+  );
+  const postsRow = (
+    <NavGroupRow
+      title="Meine Posts"
+      description="Entwürfe, offen, geschlossen"
+      leading={<Icon name="ship" size={ROW_ICON} color={color.accountCards.ink} />}
+      background={color.accountCards.posts}
+      onPress={() => router.push('/manage')}
+    />
+  );
+
+  const showcaseRow = (
+    <NavGroupRow
+      title="Schaufenster"
+      description="Für Laden, Verein oder Club"
+      leading={<Icon name="village" size={ROW_ICON} color={color.accountCards.ink} />}
+      background={color.accountCards.showcase}
+      onPress={() => router.push('/schaufenster')}
+    />
+  );
+
   return (
     <SubScreen
       title="Dein Konto"
@@ -86,24 +118,17 @@ export default function Account() {
       />
       {/* Gruppen nach dem Farbcode der App (Daria, 2026-11-17). Zeilen einer Gruppe in Stufen heller. */}
       <FieldGroup heading label="Du on KiezCoins">
-        <NavGroup>
-          <NavGroupRow
-            title="Meine Aktivität"
-            description="Geschafft, Ziele und Gruppen"
-            leading={<CrownIcon height={24} fill={color.accountCards.ink} />}
-            background={color.accountCards.activity}
-            onPress={() => router.push('/me')}
-          />
-        </NavGroup>
-        <NavGroup>
-          <NavGroupRow
-            title="Meine Posts"
-            description="Entwürfe, offen, geschlossen"
-            leading={<Icon name="ship" size={ROW_ICON} color={color.accountCards.ink} />}
-            background={color.accountCards.posts}
-            onPress={() => router.push('/manage')}
-          />
-        </NavGroup>
+        {oneGroup ? (
+          <NavGroup>
+            {activityRow}
+            {postsRow}
+          </NavGroup>
+        ) : (
+          <>
+            <NavGroup>{activityRow}</NavGroup>
+            <NavGroup>{postsRow}</NavGroup>
+          </>
+        )}
       </FieldGroup>
       <FieldGroup heading label="Gemeinsam">
         <NavGroup>
@@ -130,19 +155,10 @@ export default function Account() {
               onPress={() => router.push('/groups')}
             />
           ) : null}
+          {showcase && oneGroup ? showcaseRow : null}
         </NavGroup>
         {/* „Schaufenster“, wenn Schaufenster für die Person freigeschaltet ist (Daria, 2026-11-10) */}
-        {showcase ? (
-          <NavGroup>
-            <NavGroupRow
-              title="Schaufenster"
-              description="Für Laden, Verein oder Club"
-              leading={<Icon name="village" size={ROW_ICON} color={color.accountCards.ink} />}
-              background={color.accountCards.showcase}
-              onPress={() => router.push('/schaufenster')}
-            />
-          </NavGroup>
-        ) : null}
+        {showcase && !oneGroup ? <NavGroup>{showcaseRow}</NavGroup> : null}
       </FieldGroup>
       <FieldGroup heading label="App">
         <NavGroup>
@@ -200,7 +216,7 @@ export default function Account() {
         </NavGroup>
       </View>
       <FieldGroup heading label="Einstellungen">
-        <View style={styles.list}>
+        <NavList>
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
           <NavRow label="Zahlungsdaten" value={payoutValue} onPress={() => router.push('/account/payout')} />
           <NavRow label="Umfrage" value="7 Fragen zur App" onPress={() => setSurvey(true)} />
@@ -217,10 +233,10 @@ export default function Account() {
           {moderator ? <NavRow label="Moderation" value="Meldungen prüfen" onPress={() => router.push('/moderation')} /> : null}
           {moderator ? <NavRow label="Umfrage-Ergebnis" value="Antworten zählen" onPress={() => router.push('/account/survey/results')} /> : null}
           {moderator ? <NavRow label="Texte" value="Buttons, Kater, Rechtstexte" onPress={() => router.push('/texts')} /> : null}
-        </View>
+        </NavList>
       </FieldGroup>
       <FieldGroup heading label="Konto">
-        <View style={styles.list}>
+        <NavList>
           <NavRow
             label="Zugangsdaten"
             value={hasPassword ? 'E-Mail und Passwort' : 'Passwort fehlt noch'}
@@ -229,15 +245,15 @@ export default function Account() {
           <NavRow label="Abmelden" onPress={toStart} />
           <NavRow label="Konto 3 Monate pausieren" onPress={() => router.push('/account/pause')} />
           <NavRow label="Konto löschen" tone="danger" onPress={() => router.push('/account/delete')} />
-        </View>
+        </NavList>
       </FieldGroup>
       <FieldGroup heading label="Rechtliches">
-        <View style={styles.list}>
+        <NavList>
           <NavRow label="Community-Regeln" onPress={() => router.push('/legal/regeln')} />
           <NavRow label="Impressum" onPress={() => router.push('/legal/impressum')} />
           <NavRow label="Datenschutz" onPress={() => router.push('/legal/datenschutz')} />
           <NavRow label="Nutzungsbedingungen" value="Testphase" onPress={() => router.push('/legal/bedingungen')} />
-        </View>
+        </NavList>
       </FieldGroup>
       </Animated.View>
       <SurveyOverlay visible={survey} onClose={() => setSurvey(false)} />
@@ -251,7 +267,6 @@ const ROW_ICON = 16;
 const styles = StyleSheet.create({
   // Derselbe Abstand wie im Inhalt von SubScreen, die Hülle für das Wischen nimmt ihn sonst weg
   slide: { gap: space[16] },
-  list: { gap: space[8] },
   // Kater der Bildmarke größer als sein gelbgrüner Kreis, der Kreis schneidet Ohren und Unterkante ab
   catCircle: { width: 40, height: 40, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: KATER_AVATAR_YELLOW },
   catBleed: { marginBottom: -10 },

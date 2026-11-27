@@ -57,3 +57,12 @@ describe('Aufgaben mit Puffer in der Woche (2026-11-16)', () => {
     assert.deepEqual(sortByUrgency(list, NOW, {}).map((x) => x.id), ['fest', 'locker3', 'locker1']);
   });
 });
+
+describe('Ausgesetzte Karten', () => {
+  it('ruhen hinten und sind nicht dringend', () => {
+    const skipped = r('weg', { weekdays: [3], atTime: '10:30', skippedToday: true, skippedThisWeek: 1 });
+    assert.equal(isUrgent(skipped, NOW, {}), false);
+    const order = sortByUrgency([skipped, r('offen', { perWeek: 3 })], NOW, {}).map((x) => x.id);
+    assert.deepEqual(order, ['offen', 'weg']);
+  });
+});

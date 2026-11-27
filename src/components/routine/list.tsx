@@ -24,6 +24,8 @@ export const RoutineList = memo(function RoutineList({
   onEdit,
   onCopy,
   onUndo,
+  onSkip,
+  onUndoSkip,
   onChanged,
   onDragLock,
   showCalendar = true,
@@ -41,6 +43,9 @@ export const RoutineList = memo(function RoutineList({
   onCopy: (r: Reminder) => void;
   /** Haken von heute zurücknehmen (Daria, 2026-11-18) */
   onUndo: (r: Reminder) => void;
+  /** Einmal aussetzen und zurücknehmen, ohne Rückfrage (Daria, 2026-11-27, „Skip one“) */
+  onSkip?: (r: Reminder) => void;
+  onUndoSkip?: (r: Reminder) => void;
   onChanged: () => void;
   /** Karte angehoben: Seite nicht scrollen (Daria, 2026-11-13) */
   onDragLock?: (on: boolean) => void;
@@ -78,7 +83,7 @@ export const RoutineList = memo(function RoutineList({
       {tasks.length ? (
         <Group title="Aufgaben" count={tasks.length}>
           {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} />
+            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} onSkip={onSkip && (() => onSkip(r))} onUndoSkip={onUndoSkip && (() => onUndoSkip(r))} />
           ))}
         </Group>
       ) : null}
