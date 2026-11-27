@@ -4,7 +4,6 @@ import { TextField } from './Form';
 import { Icon } from './icons/Icon';
 import { ClampText } from './ClampText';
 import { PlaceField } from './PlaceField';
-import { Text } from './T';
 import { t } from '../data/texts';
 import { callPhone, openInMaps, openLink, shortLinkText } from '../lib/places';
 import { space, text } from '../theme/tokens';
