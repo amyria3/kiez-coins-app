@@ -275,7 +275,7 @@ def lichtrand(fid, r_breit, r_schmal, begin):
             f'<feComposite in="ring2" in2="rand" operator="out" result="linie"/><feMerge><feMergeNode in="linie"/><feMergeNode in="schein"/><feMergeNode in="SourceGraphic"/></feMerge></filter>')
 
 # ---------------------------------------------------------------- Strahlen (wie Badge Received)
-ICON = open(ICONS + 'Property 1=Default, Type=Bottle.svg').read()
+ICON = open(ICONS + 'original/lotse-default.svg').read()
 subs = parse_path(re.findall(r' d="([^"]+)"', ICON)[0]).continuous_subpaths()
 blades = []
 for i in (13, 14, 15, 6, 7, 8):

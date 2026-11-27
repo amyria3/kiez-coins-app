@@ -48,33 +48,6 @@ function grey(hex: string) {
   return `#${v}${v}${v}`;
 }
 
-/** Glanzlichter, die im hellen Kreis ausgespart sind und hell bleiben: Linse und Rohr des Fernrohrs (Daria, 2026-11-02) */
-const SHINE: Partial<Record<BadgeKind, string>> = {
-  pionier: 'M110.80 61.15 109.90 61.15 108.30 60.25 106.80 59.05 105.35 57.50 102.45 53.30 101.25 51.30 99.75 48.60 97.15 43.20 95.45 39.00 93.85 34.30 93.45 32.00 93.65 30.70 94.35 28.90 94.85 28.10 95.80 27.35 96.40 27.35 97.60 27.85 99.75 29.50 100.55 30.60 103.05 33.30 103.55 34.30 105.75 37.30 107.15 39.50 108.35 43.30 109.55 45.80 110.15 48.40 110.55 51.70 110.85 52.90 110.85 54.20 111.25 57.00 111.25 60.30 111.05 60.90Z M72.60 47.15 72.35 47.10 72.35 46.80 72.85 45.40 73.15 43.80 73.75 42.20 75.85 38.10 77.75 35.60 78.20 35.25 78.45 35.90 78.35 37.50 77.75 41.50 77.35 42.30 76.45 43.50 73.60 46.35Z',
-};
-
-/** Fassung Default mit den Linien, der helle Kreis in der Farbe des Abzeichens (Daria, 2026-11-02) */
-const colored = new Map<string, string>();
-function withColor(kind: BadgeKind, xml: string, fill: string) {
-  let out = colored.get(kind);
-  if (!out) {
-    out = xml.replaceAll('#F0F0F0', fill);
-    const shine = SHINE[kind];
-    if (shine) out = out.replace('</svg>', `<path d="${shine}" fill="#F0F0F0"/></svg>`);
-    colored.set(kind, out);
-  }
-  return out;
-}
-
-/** Runde Farbfläche im Small-Icon: Rahmen (w × h) sowie Mitte und Radius des Kreises, aus badgeSvgs gemessen */
-const AREA_SMALL: Record<BadgeKind, { w: number; h: number; cx: number; cy: number; r: number }> = {
-  pionier: { w: 128, h: 120, cx: 68, cy: 60, r: 60 },
-  lotse: { w: 120, h: 120, cx: 55, cy: 55, r: 55 },
-  anfuehrer: { w: 120, h: 120, cx: 60, cy: 60, r: 60 },
-  seebaer: { w: 120, h: 120, cx: 60, cy: 60, r: 60 },
-  macher: { w: 120, h: 121, cx: 69, cy: 51, r: 51 },
-};
-
 /** Breite des Rings am Avatar */
 const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
 
@@ -97,7 +70,7 @@ export function BadgeIcon({
   muted?: boolean;
   /** Schmaler Ring in der Farbe des Grunds um die Farbfläche, z. B. am Avatar (Daria, 2026-11-02) */
   ring?: boolean;
-  /** Erhalten, in Listen: Fassung Default mit den Linien auf der Farbe des Abzeichens */
+  /** Erhalten, in Listen: Fassung Small in jeder Größe (Daria, 2026-11-27) */
   lines?: boolean;
   /** Farbe des Rings, wenn der Avatar nicht auf dem Grund liegt, z. B. auf einer Karte */
   ringColor?: string;
@@ -105,7 +78,7 @@ export function BadgeIcon({
   const meta = badgeMeta(kind);
   const own = KIEZ_BADGE_SVGS[kind];
   if (own) {
-    // Darias Icon bringt Farbfläche und Symbol selbst mit; Small ragt unten rechts über die Fläche hinaus
+    // Darias Icon bringt Farbfläche und Symbol selbst mit; beide Fassungen folgen dem Abzeichen-Raster (2026-11-27)
     if (size < BADGE_MIN) {
       return (
         <View
@@ -123,33 +96,24 @@ export function BadgeIcon({
         accessibilityLabel={badgeTitle(kind, number)}
         style={{ width: size, height: size }}
       >
-        {ring && size < 80
-          ? (() => {
-              // Farbfläche in Small, je Abzeichen aus Darias Icon gemessen (Daria, 2026-11-05: Ring saß bei Pionier:in daneben)
-              const f = AREA_SMALL[kind];
-              const scale = size / Math.max(f.w, f.h);
-              const offX = (size - f.w * scale) / 2;
-              const offY = (size - f.h * scale) / 2;
-              const r = RING(size);
-              return (
-                <View
-                  style={{
-                    position: 'absolute',
-                    left: offX + (f.cx - f.r) * scale - r,
-                    top: offY + (f.cy - f.r) * scale - r,
-                    width: f.r * 2 * scale + r * 2,
-                    height: f.r * 2 * scale + r * 2,
-                    borderRadius: size,
-                    backgroundColor: ringColor ?? color.bg.screen,
-                  }}
-                />
-              );
-            })()
-          : null}
+        {ring && size < 80 ? (
+          // Farbkreis in Small je Abzeichen aus badgeSvgs (Raster, Daria 2026-11-27)
+          <View
+            style={{
+              position: 'absolute',
+              left: ((own.circle[0] - own.circle[2]) * size) / 120 - RING(size),
+              top: ((own.circle[1] - own.circle[2]) * size) / 120 - RING(size),
+              width: (own.circle[2] * 2 * size) / 120 + RING(size) * 2,
+              height: (own.circle[2] * 2 * size) / 120 + RING(size) * 2,
+              borderRadius: size,
+              backgroundColor: ringColor ?? color.bg.screen,
+            }}
+          />
+        ) : null}
         {/* Eigene Ebene über dem Ring: Im Web malt der Browser absolut gesetzte Elemente über die übrigen */}
         <View style={{ position: 'absolute', left: 0, top: 0 }}>
-          {/* Offen oder ausgeblendet: Default mit Linien, hell. Erhalten in Listen: Default auf der Farbe des Abzeichens (Daria, 2026-11-02) */}
-          <SvgXml xml={muted ? own.default : lines ? withColor(kind, own.default, own.color) : size >= 80 ? own.default : own.small} width={size} height={size} />
+          {/* Offen oder ausgeblendet: Default mit Linien, hell. Erhalten in Listen: Small (Daria, 2026-11-27) */}
+          <SvgXml xml={muted ? own.default : lines || size < 80 ? own.small : own.default} width={size} height={size} />
         </View>
       </View>
     );
