@@ -2,7 +2,7 @@
 // gefüllt nur das Herz bei „gefällt mir“. Lizenz: MIT (phosphoricons.com). Grundlage ist das Set des alten Looks
 // „Fashionable“ (Git-Tag `fashionable-archiv`), ergänzt um die Icons, die seitdem dazugekommen sind.
 // Fehlt ein Name hier, zeigt Icon.tsx Darias Icon aus svgs.ts (z. B. der Kater als Marke).
-import { phosphorFill, phosphorRegular, type PhosphorName } from './phosphorSvgs';
+import { type PhosphorName } from './phosphorSvgs';
 import { phXml } from './phosphor';
 import type { IconName } from './svgs';
 
@@ -11,21 +11,24 @@ type LineSvg = (c: string, filled?: boolean) => string;
 const ph = (name: PhosphorName): LineSvg => (c, filled) => phXml(name, c, filled);
 
 /**
- * Doppelherz als Linie für den Feed (Daria, 27.10.2026, aus dem Fashionable-Look): vorn das Phosphor-Herz, dahinter
- * ein zweites, das eine Maske um das vordere Herz und rechts von dessen Mitte ausspart.
+ * Doppelherz als Linie für den Feed (Daria, 2026-11-27): zwei Herzen in der Strichstärke der Phosphor-Icons (16 von
+ * 256). Das hintere ist eine offene Linie mit runden Enden und hält überall denselben Abstand zum vorderen, wie die
+ * zwei Sprechblasen bei Chats. Die alte Fassung aus verkleinertem Herz und Maske lief in dünne Spitzen aus.
  */
+const HEART_LINE =
+  'M128,76 C117,58 98,48 78,48 C48.18,48 24,72.18 24,102 C24,162 112,212 128,222 C144,212 232,162 232,102 ' +
+  'C232,72.18 207.82,48 178,48 C158,48 139,58 128,76 Z';
+/** Dasselbe Herz von 84 % bis 40 % seines Umfangs: rechter Bogen, Kerbe, linker Bogen, linke Flanke */
+const HEART_BACK_LINE =
+  'M213.86,61.63 C204.32,53.15 191.76,48 178,48 C158,48 139,58 128,76 C117,58 98,48 78,48 C48.18,48 24,72.18 24,102 ' +
+  'C24,134.94 50.52,164.87 77.09,186.81';
 const doubleHeartLine: LineSvg = (c) => {
-  const [line] = phosphorRegular.heart;
-  const [fill] = phosphorFill.heart;
-  const back = 'translate(0 16) scale(0.88)';
-  const front = 'translate(31 16) scale(0.88)';
+  const width = 16 / 0.7;
+  const line = `fill="none" stroke="${c}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"`;
   return (
     `<svg width="24" height="24" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">` +
-    `<defs><mask id="kc-doppelherz-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="256" height="256">` +
-    `<rect width="256" height="256" fill="white"/><rect x="112" width="144" height="256" fill="black"/>` +
-    `<path d="${fill}" transform="${front}" fill="black" stroke="black" stroke-width="22" stroke-linejoin="round"/></mask></defs>` +
-    `<g mask="url(#kc-doppelherz-mask)"><path d="${line}" transform="${back}" fill="${c}"/></g>` +
-    `<path d="${line}" transform="${front}" fill="${c}"/></svg>`
+    `<path d="${HEART_BACK_LINE}" transform="translate(4 18) scale(0.7)" ${line}/>` +
+    `<path d="${HEART_LINE}" transform="translate(72 58) scale(0.7)" ${line}/></svg>`
   );
 };
 
