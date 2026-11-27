@@ -41,11 +41,10 @@ export const styles = StyleSheet.create({
   },
   cardBody: { gap: space[6] },
   cardRest: { gap: space[6] },
-  headRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12] },
-  head: { flex: 1, gap: space[2] },
+  head: { gap: space[2] },
   // Platz für den Sticker, der links unter dem Kater herausragt
   // Kater und Sticker als Spalte: Der Sticker hat eigenen Platz und liegt höchstens auf dem Ring
-  katerSide: { alignSelf: 'flex-start' },
+  katerSide: { position: 'absolute', top: 0, right: 0 },
   chip: {
     backgroundColor: color.bg.screen,
     borderRadius: 20,
@@ -83,6 +82,7 @@ export const styles = StyleSheet.create({
     color: INK_SOFT,
     paddingVertical: 11,
   },
+  stateQuiet: { paddingVertical: 0 },
   bar: { flexDirection: 'row', gap: space[4], marginTop: space[4] },
   // Offen als Umriss, erledigt gefüllt, ausgesetzt oder nicht mehr zu schaffen grau (Daria, 2026-11-27)
   segment: { flex: 1, flexBasis: 0, height: 4, borderRadius: 2, borderWidth: 1, borderColor: INK, overflow: 'hidden' },

@@ -14,6 +14,7 @@ import { color, space } from '../../theme/tokens';
 import { KaterCircle } from '../Content';
 import { handShapePath } from '../handShape';
 import { Icon, type IconName } from '../icons/Icon';
+import { ClampText, FullCard } from '../ClampText';
 import { ReminderExtrasRow } from '../ReminderExtras';
 import { ManageButton } from '../ShowcaseManage';
 import { Text } from '../T';
@@ -262,7 +263,30 @@ function Card({
   }, [tilt, drag.lift, drag.pos, wobble]);
   const transform = useMemo(() => [{ translateX: drag.pos.x }, { translateY: drag.pos.y }, { rotate }, { scale }], [drag.pos, rotate, scale]);
 
+  // Gekürzte Texte: Tippen zeigt die Karte ganz, nochmal Tippen kürzt wieder. Ohne Kürzung öffnet Tippen wie bisher
+  // das Menü (Daria, 2026-11-27).
+  const [full, setFull] = useState(false);
+  const [cuts, setCuts] = useState(() => new Set<object>());
+  const report = useCallback((key: object, cut: boolean) => {
+    setCuts((prev) => {
+      if (prev.has(key) === cut) return prev;
+      const next = new Set(prev);
+      if (cut) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }, []);
+  const fullCard = useMemo(() => ({ full, report }), [full, report]);
+  const canGrow = cuts.size > 0;
+  const tap = full ? () => setFull(false) : canGrow ? () => setFull(true) : onPress;
   const sticker = stickerOf(tiltKey);
+  // Kater und Sticker liegen oben rechts über der Karte und schieben den Rest nicht nach unten (Daria, 2026-11-27:
+  // „Wieder viel Platz“). Titel und Zeit halten Abstand zur Breite des Katers, die Karte ist mindestens so hoch wie er.
+  const [side, setSide] = useState({ w: 90, h: 67 });
+  const measureSide = (e: LayoutChangeEvent) => {
+    const { width: w, height: h } = e.nativeEvent.layout;
+    if (Math.abs(w - side.w) > 0.5 || Math.abs(h - side.h) > 0.5) setSide({ w, h });
+  };
   const chip = (
     // Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12), nie über seinem Gesicht (2026-11-14)
     <View style={[styles.chip, sticker.above ? styles.chipAbove : styles.chipBelow, { transform: [{ rotate: `${sticker.rotate}deg` }] }]} pointerEvents="none">
@@ -273,7 +297,7 @@ function Card({
   );
   const kater = (
     // Ring in der Farbe des Grunds (Daria, 2026-11-12)
-    <View style={[styles.katerSide, { alignItems: sticker.avatar }]}>
+    <View style={[styles.katerSide, { alignItems: sticker.avatar }]} onLayout={measureSide}>
       {sticker.above ? chip : null}
       <View style={styles.katerRing}>
         <KaterCircle size={40} bg={bg} />
@@ -283,11 +307,11 @@ function Card({
   );
   const card = (
     <Pressable
-      onPress={drag.press(onPress)}
+      onPress={drag.press(tap)}
       onPressIn={drag.pressIn}
       onPressOut={drag.pressOut}
       accessibilityHint={[
-        onPress ? t(pressHint ?? 'Tippen öffnet das Menü') : '',
+        full ? t('Tippen kürzt die Karte wieder') : canGrow ? t('Tippen zeigt die ganze Karte') : onPress ? t(pressHint ?? 'Tippen öffnet das Menü') : '',
         drag.on
           ? t('Halten und ziehen: {moves}', {
               moves: [drag.on && onDragRight && t('rechts erledigt'), drag.on && onDragLeft && t('links {what}', { what: t(leftLabel).toLowerCase() }), drag.on && onDragUp && t('oben später')]
@@ -301,13 +325,13 @@ function Card({
       style={[styles.card, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
       {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13), oben rechts in der Ecke (Daria, 2026-11-16) */}
-      <View style={styles.cardBody}>
-        <View style={styles.headRow}>
-          <View style={styles.head}>{head}</View>
-          {kater}
-        </View>
-        <View style={styles.cardRest}>{children}</View>
+      <FullCard.Provider value={fullCard}>
+      <View style={[styles.cardBody, { minHeight: side.h }]}>
+        <View style={[styles.head, { marginRight: side.w + space[12] }]}>{head}</View>
+        {children ? <View style={styles.cardRest}>{children}</View> : null}
+        {kater}
       </View>
+      </FullCard.Provider>
       {/* Beim Ziehen zeigt die Karte selbst, was das Loslassen auslöst (Daria, 2026-11-13: keine Rückfrage, die Karte
           ändert sich). Bis zur Schwelle schimmert die Farbe nur, ab der Schwelle deckt sie und das Wort wird größer. */}
       {drag.on ? (
@@ -659,9 +683,9 @@ function CardHead({ meta, title }: { meta: string; title: string }) {
   return (
     <>
       <Text style={styles.meta}>{meta}</Text>
-      <Text noTranslate style={styles.title} numberOfLines={2}>
+      <ClampText noTranslate style={styles.title} lines={2}>
         {title}
-      </Text>
+      </ClampText>
     </>
   );
 }
@@ -691,14 +715,15 @@ export function CalendarCard({ event: e }: { event: CalendarEvent }) {
       head={
         <>
           <Text style={styles.meta}>{when}</Text>
-          <Text noTranslate style={styles.title} numberOfLines={2}>
+          <ClampText noTranslate style={styles.title} lines={2}>
             {e.title}
-          </Text>
+          </ClampText>
         </>
       }
     >
       <View style={styles.actions}>
-        <Text noTranslate style={styles.state}>
+        {/* Ohne Knöpfe daneben braucht der Kalendername keine Knopfhöhe (Daria, 2026-11-27: „Wieder viel Platz“) */}
+        <Text noTranslate style={[styles.state, styles.stateQuiet]}>
           {e.calendar || t('Aus Deinem Kalender')}
         </Text>
         <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" openRef={menu} items={items} />
@@ -758,15 +783,15 @@ export function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: ()
       head={
         <>
           <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
-          <Text noTranslate style={[styles.title, e.cancelled && styles.struck]} numberOfLines={2}>
+          <ClampText noTranslate style={[styles.title, e.cancelled && styles.struck]} lines={2}>
             {e.title}
-          </Text>
+          </ClampText>
         </>
       }
     >
-      <Text noTranslate style={styles.sub} numberOfLines={1}>
+      <ClampText noTranslate style={styles.sub} lines={1}>
         {e.location ? `${e.showcase} · ${e.location}` : e.showcase}
-      </Text>
+      </ClampText>
       <View style={styles.actions}>
         <HandButton label="Entfernen" onPress={remove} disabled={busy} />
         {/* Genau sagen, was passiert (Daria, 2026-11-13): im Browser eine Kalenderdatei, in der
