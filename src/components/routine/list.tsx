@@ -9,7 +9,7 @@ import { RoutineCalendar } from './calendar';
 import { CalendarCard, EventCard, Group, SavedCard, TaskCard } from './cards';
 import { OLIVE, POWDER } from './constants';
 import { AsideWhenCalendar, Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
-import { isUrgent, sortByUrgency } from '../../data/urgency';
+import { isUrgent, sortAgenda, sortByUrgency } from '../../data/urgency';
 
 /**
  * `memo`: Die Seite rendert neu, wenn eine Karte angehoben wird (Scrollen sperren). Die Karten sollen dabei nicht
@@ -69,6 +69,8 @@ export const RoutineList = memo(function RoutineList({
   // Karten nur für die nächsten 7 Tage, der Kalender oben zeigt alle geladenen Termine (Daria, 2026-11-14)
   const lastCardDay = localDate(addDays(6, now));
   const calendar = events.filter((e) => eventDate(e) <= lastCardDay).slice(0, 20);
+  // Erinnerungen und Kalendertermine in einer Reihe nach Beginn, Erledigte und Vergangene hinten (Daria, 2026-11-27)
+  const agenda = sortAgenda(fixed, calendar, now, later);
 
   return (
     <Motion.Provider value={motion}>
@@ -88,13 +90,14 @@ export const RoutineList = memo(function RoutineList({
         </Group>
       ) : null}
       {fixed.length || calendar.length ? (
-        <Group title="Feste Termine" count={fixed.length + calendar.length}>
-          {fixed.map((r) => (
-            <EventCard key={r.id} reminder={r} bg={OLIVE} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} />
-          ))}
-          {calendar.map((e) => (
-            <CalendarCard key={e.id} event={e} />
-          ))}
+        <Group title="Feste Termine" count={agenda.length}>
+          {agenda.map((item) =>
+            item.kind === 'event' ? (
+              <CalendarCard key={item.event.id} event={item.event} />
+            ) : (
+              <EventCard key={item.reminder.id} reminder={item.reminder} bg={OLIVE} onDone={() => onDone(item.reminder)} onEnd={() => onEnd(item.reminder, 'cancelled')} onEdit={() => onEdit(item.reminder)} onCopy={() => onCopy(item.reminder)} onDelete={() => onEnd(item.reminder, 'deleted')} onLater={() => snooze(item.reminder.id)} urgent={urgentOf(item.reminder)} onDragCancel={() => onEnd(item.reminder, 'cancelled', false)} onDragDelete={() => onEnd(item.reminder, 'deleted', false)} onUndo={() => onUndo(item.reminder)} />
+            ),
+          )}
         </Group>
       ) : null}
       {optional.length || saved.length ? (
