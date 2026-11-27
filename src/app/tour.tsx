@@ -30,6 +30,7 @@ import { KeyboardArea } from '../components/Keyboard';
  * Etwa 5 Minuten nach dem Anheuern fragt die App, ob sie die Tour zeigen soll (TourOffer), sonst über Dein Konto › Wie geht KiezCoins. `next`: Ziel danach.
  * Wischen oder „Weiter“ blättert. Videos stehen in data/tour.ts.
  * Das X oben links beendet die Tour auf jeder Seite, wie das X in der NavigationBar ein Modal schließt (Daria, 27.11.2026).
+ * „Nächste Frage“ oben rechts blättert weiter, auch auf Seiten, die auf eine Aktion warten (Daria, 27.11.2026).
  */
 export default function Tour() {
   const router = useRouter();
@@ -123,8 +124,8 @@ export default function Tour() {
     >
       <View style={styles.top}>
         <IconButton icon="close" accessibilityLabel={t('Tour beenden')} onPress={finish} />
-        <Text style={[styles.step, styles.counter]}>{t('{n} von {total}', { n: page + 1, total: tourSteps.length })}</Text>
-        <View style={styles.topSpacer} />
+        <Text style={[styles.step, styles.counter]} pointerEvents="none">{t('{n} von {total}', { n: page + 1, total: tourSteps.length })}</Text>
+        {last ? <View style={styles.topSpacer} /> : <Button label="Nächste Frage" variant="ghost" onPress={() => goTo(page + 1)} />}
       </View>
       <ScrollView
         ref={pager}
@@ -423,9 +424,10 @@ function TourVideo({ source, active }: { source: number | string; active: boolea
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
-  // Wie die NavigationBar eines Modals: X links, Zähler in der Mitte
-  top: { flexDirection: 'row', alignItems: 'center', padding: space[4] },
-  counter: { flex: 1, textAlign: 'center' },
+  // X links, Zähler in der Mitte, „Nächste Frage“ rechts
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: space[4] },
+  // Mittig über die ganze Breite, unabhängig von der Breite der Knöpfe links und rechts
+  counter: { position: 'absolute', left: 0, right: 0, textAlign: 'center' },
   step: { ...text.caption, color: color.text.secondary },
   page: { paddingHorizontal: space[16], gap: space[16], paddingTop: space[8], paddingBottom: space[8] },
   // Nimmt den Platz, den Titel und Text übrig lassen, höchstens 460
