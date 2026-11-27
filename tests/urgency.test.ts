@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import type { Reminder } from '../src/data/reminders';
 import { isRelaxed, slackOf } from '../src/data/reminderDates';
-import { isUrgent, sortByUrgency } from '../src/data/urgency';
+import { isUrgent, sortAgenda, sortByUrgency } from '../src/data/urgency';
 
 const NOW = new Date(2026, 10, 18, 10, 0);
 const r = (id: string, patch: Partial<Reminder>): Reminder => ({ id, want: id, doneThisWeek: 0, doneToday: false, ...patch }) as Reminder;
@@ -64,5 +64,27 @@ describe('Ausgesetzte Karten', () => {
     assert.equal(isUrgent(skipped, NOW, {}), false);
     const order = sortByUrgency([skipped, r('offen', { perWeek: 3 })], NOW, {}).map((x) => x.id);
     assert.deepEqual(order, ['offen', 'weg']);
+  });
+});
+
+describe('Reihenfolge der Termine (2026-11-27)', () => {
+  const FRI = new Date(2026, 10, 27, 15, 0);
+  it('erledigter Termin am 02.12. steht hinter dem Kalendertermin von heute', () => {
+    const toepfe = r('toepfe', { onDate: '2026-12-02', atTime: '14:00', doneToday: true, doneThisWeek: 1 });
+    const offen = r('offen', { onDate: '2026-11-29', atTime: '10:00' });
+    const heute = { id: 'heute', start: new Date(2026, 10, 27, 16, 0).toISOString(), allDay: false };
+    const morgen = { id: 'morgen', start: '2026-11-28', allDay: true };
+    const vorbei = { id: 'vorbei', start: new Date(2026, 10, 27, 9, 0).toISOString(), end: new Date(2026, 10, 27, 10, 0).toISOString(), allDay: false };
+    const order = sortAgenda([toepfe, offen], [vorbei, heute, morgen], FRI, {}).map((x) => (x.kind === 'event' ? x.event.id : x.reminder.id));
+    assert.deepEqual(order, ['heute', 'morgen', 'offen', 'vorbei', 'toepfe']);
+  });
+  it('Aufgaben: heute fällige ohne Uhrzeit vor Fristen an späteren Tagen', () => {
+    const list = [
+      r('frist', { onDate: '2026-12-01', untilTime: '18:00' }),
+      r('montags', { weekdays: [1] }),
+      r('heute', { weekdays: [5] }),
+      r('heuteFrist', { onDate: '2026-11-27', untilTime: '18:00' }),
+    ];
+    assert.deepEqual(sortByUrgency(list, FRI, {}).map((x) => x.id), ['heuteFrist', 'heute', 'montags', 'frist']);
   });
 });
