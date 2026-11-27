@@ -24,8 +24,9 @@ const ICONS = path.join(REPO, 'design/abzeichen/icons');
 const RASTER = {
   // Default: Gegenstand höchstens 26 % der Kreisfläche, höchstens r 50 von der Mitte, Bewegungsstriche höchstens r 56
   default: { flaeche: 0.26, radius: 50, striche: 56 },
-  // Small: ohne Bewegungsstriche, deshalb etwas größer, höchstens 32 % und r 52
-  small: { flaeche: 0.32, radius: 52 },
+  // Small: Farbkreis r 46 oben links, Gegenstand ragt unten rechts hinaus (Daria, 2026-11-27).
+  // Gegenstand 45 % der Kreisfläche, davon 25 % außerhalb des Kreises, Verschiebung auf der Diagonale nach unten rechts
+  small: { kreis: 46, flaeche: 0.45, aussen: 0.25 },
 };
 
 /** Farbe und Teilpfade der Bewegungsstriche im Default-Pfad (Teilpfad 0 ist der Kreis) */
@@ -50,9 +51,9 @@ const verschiebe = (d, t) => SP(d).abs().scale(t.s).translate(t.x, t.y).round(2)
 
 let page;
 /** Rastert Flächen [d, Füllregel] mit 10 px je Einheit: Fläche, Begrenzung, größter Abstand zu einem Punkt */
-async function messe(flaechen, cx, cy) {
+async function messe(flaechen, cx, cy, kreis) {
   return page.evaluate(
-    ([flaechen, cx, cy]) => {
+    ([flaechen, cx, cy, kreis]) => {
       const c = document.getElementById('c');
       const x = c.getContext('2d');
       x.setTransform(1, 0, 0, 1, 0, 0);
@@ -60,17 +61,18 @@ async function messe(flaechen, cx, cy) {
       x.setTransform(10, 0, 0, 10, 0, 0);
       for (const [d, regel] of flaechen) x.fill(new Path2D(d), regel);
       const px = x.getImageData(0, 0, 1200, 1200).data;
-      let n = 0, a = 1e9, b = 1e9, e = -1, f = -1, r = 0;
+      let n = 0, a = 1e9, b = 1e9, e = -1, f = -1, r = 0, aussen = 0;
       for (let y = 0; y < 1200; y++)
         for (let i = 0; i < 1200; i++)
           if (px[(y * 1200 + i) * 4 + 3] > 127) {
             n++;
             a = Math.min(a, i); e = Math.max(e, i); b = Math.min(b, y); f = Math.max(f, y);
             if (cx != null) r = Math.max(r, ((i + 0.5) / 10 - cx) ** 2 + ((y + 0.5) / 10 - cy) ** 2);
+            if (kreis && ((i + 0.5) / 10 - kreis) ** 2 + ((y + 0.5) / 10 - kreis) ** 2 > kreis * kreis) aussen++;
           }
-      return { flaeche: n / 100, box: [a / 10, b / 10, (e + 1) / 10, (f + 1) / 10], radius: Math.sqrt(r) };
+      return { flaeche: n / 100, box: [a / 10, b / 10, (e + 1) / 10, (f + 1) / 10], radius: Math.sqrt(r), aussen: aussen / n };
     },
-    [flaechen, cx ?? null, cy ?? null],
+    [flaechen, cx ?? null, cy ?? null, kreis ?? null],
   );
 }
 
@@ -82,6 +84,30 @@ async function einpassen(flaechen, regel) {
   const { radius } = await messe(flaechen, cx, cy);
   const s = Math.min(Math.sqrt((regel.flaeche * KREIS) / m.flaeche), regel.radius / radius);
   return { s, x: 60 - cx * s, y: 60 - cy * s };
+}
+
+/** Small: Größe nach Fläche, dann auf der Diagonale verschieben, bis der Anteil außerhalb stimmt; ragt er aus 120 × 120, kleiner */
+async function hinausragen(flaechen, regel) {
+  const K = regel.kreis;
+  const m = await messe(flaechen);
+  const cx = (m.box[0] + m.box[2]) / 2;
+  const cy = (m.box[1] + m.box[3]) / 2;
+  let s = Math.sqrt((regel.flaeche * Math.PI * K * K) / m.flaeche);
+  for (;;) {
+    const bei = async (d) => {
+      const t = { s, x: K + d - cx * s, y: K + d - cy * s };
+      return { t, m: await messe(flaechen.map(([p, r]) => [verschiebe(p, t), r]), null, null, K) };
+    };
+    let lo = 0, hi = 60, best;
+    for (let i = 0; i < 16; i++) {
+      const mid = (lo + hi) / 2;
+      best = await bei(mid);
+      if (best.m.aussen < regel.aussen) lo = mid; else hi = mid;
+    }
+    const [a, b, e, f] = best.m.box;
+    if (a >= 0 && b >= 0 && e <= 120 && f <= 120) return { ...best.t, aussen: best.m.aussen, flaeche: best.m.flaeche };
+    s *= 0.97;
+  }
 }
 
 (async () => {
@@ -111,18 +137,18 @@ async function einpassen(flaechen, regel) {
     const rohS = fs.readFileSync(path.join(ICONS, 'original', `${kind}-small.svg`), 'utf8');
     const pfade = [...rohS.matchAll(/<path([^>]*?)d="([^"]+)"([^>]*)\/>/g)].slice(1);
     const flaechen = pfade.map((p) => [p[2], /evenodd/.test(p[1] + p[3]) ? 'evenodd' : 'nonzero']);
-    const tS = await einpassen(flaechen, RASTER.small);
+    const tS = await hinausragen(flaechen, RASTER.small);
+    const K = RASTER.small.kreis;
     const small =
-      `<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">\n<circle cx="60" cy="60" r="60" fill="${a.color}"/>\n` +
+      `<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">\n<circle cx="${K}" cy="${K}" r="${K}" fill="${a.color}"/>\n` +
       pfade.map((p) => `<path${p[1]}d="${verschiebe(p[2], tS)}"${p[3].trimEnd()}/>`).join('\n') +
       '\n</svg>\n';
-    const gS = await messe(flaechen.map(([d, regel]) => [verschiebe(d, tS), regel]), 60, 60);
 
     fs.writeFileSync(path.join(ICONS, `${kind}-default.svg`), def);
     fs.writeFileSync(path.join(ICONS, `${kind}-small.svg`), small);
     ts[kind] = { color: a.color, small: small.trim().replace(/\n/g, ' '), default: def.trim().replace(/\n/g, ' '), glanz: GLANZ[kind] ? verschiebe(GLANZ[kind], t) : undefined };
     bericht.push(
-      `${kind}: Default ${(g.flaeche / KREIS * 100).toFixed(1)} % Fläche, r ${g.radius.toFixed(1)}, Striche r ${r.toFixed(1)} · Small ${(gS.flaeche / KREIS * 100).toFixed(1)} % Fläche, r ${gS.radius.toFixed(1)}`,
+      `${kind}: Default ${(g.flaeche / KREIS * 100).toFixed(1)} % Fläche, r ${g.radius.toFixed(1)}, Striche r ${r.toFixed(1)} · Small ${(tS.flaeche / (Math.PI * K * K) * 100).toFixed(1)} % des Kreises, ${(tS.aussen * 100).toFixed(1)} % außerhalb`,
     );
   }
   await browser.close();
@@ -136,7 +162,8 @@ async function einpassen(flaechen, regel) {
   const out = `/**
  * Darias Abzeichen-Icons im Kiez-Look: Small für Avatar und Listen, Default ab 80 pt.
  * Erzeugt mit scripts/abzeichen/normalisieren.cjs aus design/abzeichen/icons/original (Stand 2026-11-27).
- * Alle Abzeichen folgen einem Raster: Kreis r 60 auf 120 × 120, Gegenstand mittig, gleiche Fläche, Abstand zum Rand.
+ * Alle Abzeichen folgen einem Raster: Default mit Kreis r 60 und Gegenstand mittig im Kreis,
+ * Small mit Kreis r 46 oben links und Gegenstand, der bei allen gleich weit unten rechts hinausragt.
  * Nicht von Hand ändern, sondern das Skript neu laufen lassen.
  */
 import type { BadgeKind } from '../../data/badges';

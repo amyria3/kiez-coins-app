@@ -60,6 +60,9 @@ function withColor(kind: BadgeKind, xml: string, fill: string, shine?: string) {
   return out;
 }
 
+/** Durchmesser des Farbkreises in Small, Anteil an der Kantenlänge (92 von 120) */
+const SMALL_CIRCLE = 92 / 120;
+
 /** Breite des Rings am Avatar */
 const RING = (size: number) => Math.max(2, Math.round(size * 0.07));
 
@@ -109,14 +112,14 @@ export function BadgeIcon({
         style={{ width: size, height: size }}
       >
         {ring && size < 80 ? (
-          // Alle Abzeichen haben denselben Kreis über die ganze Fläche (Raster, Daria 2026-11-27)
+          // Farbkreis in Small: bei allen Abzeichen r 46 oben links auf 120 × 120 (Raster, Daria 2026-11-27)
           <View
             style={{
               position: 'absolute',
               left: -RING(size),
               top: -RING(size),
-              width: size + RING(size) * 2,
-              height: size + RING(size) * 2,
+              width: size * SMALL_CIRCLE + RING(size) * 2,
+              height: size * SMALL_CIRCLE + RING(size) * 2,
               borderRadius: size,
               backgroundColor: ringColor ?? color.bg.screen,
             }}
