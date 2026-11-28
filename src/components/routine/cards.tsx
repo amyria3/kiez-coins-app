@@ -819,6 +819,7 @@ export function HandButton({
   bg,
   tone,
   icon,
+  glyph,
   disabled,
 }: {
   label: string;
@@ -829,6 +830,8 @@ export function HandButton({
   tone?: string;
   /** Icon vor dem Text, z. B. Haken bei „Gemerkt“ (Daria, 2026-11-17) */
   icon?: IconName;
+  /** Eigenes Zeichen vor dem Text, gezeichnet in der Schriftfarbe (z. B. „Nach Typ sortieren“) */
+  glyph?: (ink: string) => ReactNode;
   disabled?: boolean;
 }) {
   const label = useTexts()(original);
@@ -859,6 +862,7 @@ export function HandButton({
       ) : null}
       <View style={styles.handRow}>
         {icon ? <Icon name={icon} size={14} color={filled ? bg : (tone ?? INK)} /> : null}
+        {glyph ? glyph(filled ? (bg ?? INK) : (tone ?? INK)) : null}
         <Text noTranslate style={[styles.handLabel, { color: filled ? bg : (tone ?? INK) }]}>
           {label}
         </Text>
