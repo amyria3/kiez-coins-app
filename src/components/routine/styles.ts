@@ -48,12 +48,14 @@ export const styles = StyleSheet.create({
   chip: {
     backgroundColor: color.bg.screen,
     borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: space[4],
+    paddingHorizontal: 8,
+    paddingVertical: space[4] - 2,
+    borderWidth: 2,
     zIndex: 1,
   },
-  chipBelow: { marginTop: -5 },
-  chipAbove: { marginBottom: -5 },
+  // Sticker liegt tiefer auf dem Ring, so bleibt die Spalte aus Kater und Sticker niedrig (Daria, 2026-11-28)
+  chipBelow: { marginTop: -8 },
+  chipAbove: { marginBottom: -8 },
   chipText: {
     ...text.captionStrong,
     color: color.text.primary,

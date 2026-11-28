@@ -287,6 +287,7 @@ function Card({
   onDragUp,
   leftLabel = 'Abbrechen',
   leftTone = 'end',
+  clearKater = true,
 }: {
   bg: string;
   mood: Mood;
@@ -306,6 +307,8 @@ function Card({
   /** Was nach links ziehen bedeutet: „Abbrechen“, „Absagen“ oder „Löschen“ (Daria, 2026-11-13) */
   leftLabel?: string;
   leftTone?: 'end' | 'delete';
+  /** Inhalt unter dem Titel beginnt erst unter Kater und Sticker; aus bei Karten ohne Knöpfe (Kalender) */
+  clearKater?: boolean;
 }) {
   const motion = useContext(Motion);
   const drag = useLiftDrag(motion ? { right: onDragRight, left: onDragLeft, up: onDragUp } : {});
@@ -358,14 +361,21 @@ function Card({
   const sticker = stickerOf(tiltKey);
   // Kater und Sticker liegen oben rechts über der Karte und schieben den Rest nicht nach unten (Daria, 2026-11-27:
   // „Wieder viel Platz“). Titel und Zeit halten Abstand zur Breite des Katers, die Karte ist mindestens so hoch wie er.
-  const [side, setSide] = useState({ w: 90, h: 67 });
+  const [side, setSide] = useState({ w: 90, h: 58 });
+  // Knöpfe und Fortschritt beginnen erst unter Kater und Sticker (Daria, 2026-11-28: „im anderen zu wenig“ Platz)
+  const [headH, setHeadH] = useState(0);
   const measureSide = (e: LayoutChangeEvent) => {
     const { width: w, height: h } = e.nativeEvent.layout;
     if (Math.abs(w - side.w) > 0.5 || Math.abs(h - side.h) > 0.5) setSide({ w, h });
   };
   const chip = (
     // Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12), nie über seinem Gesicht (2026-11-14)
-    <View style={[styles.chip, sticker.above ? styles.chipAbove : styles.chipBelow, { transform: [{ rotate: `${sticker.rotate}deg` }] }]} pointerEvents="none">
+    // Rand in der Farbe der Karte, wie ein ausgeschnittener Sticker (Daria, 2026-11-28: „Gib der Pille … einen stroke“,
+    // „gelb auf gelben Karten, grün auf grünen“)
+    <View
+      style={[styles.chip, sticker.above ? styles.chipAbove : styles.chipBelow, { borderColor: bg, transform: [{ rotate: `${sticker.rotate}deg` }] }]}
+      pointerEvents="none"
+    >
       <Text style={styles.chipText} numberOfLines={1}>
         {mood}
       </Text>
@@ -403,8 +413,10 @@ function Card({
       {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13), oben rechts in der Ecke (Daria, 2026-11-16) */}
       <FullCard.Provider value={fullCard}>
       <View style={[styles.cardBody, { minHeight: side.h }]}>
-        <View style={[styles.head, { marginRight: side.w + space[12] }]}>{head}</View>
-        {children ? <View style={styles.cardRest}>{children}</View> : null}
+        <View style={[styles.head, { marginRight: side.w + space[12] }]} onLayout={(e) => setHeadH(e.nativeEvent.layout.height)}>
+          {head}
+        </View>
+        {children ? <View style={[styles.cardRest, { marginTop: clearKater && headH ? Math.max(0, side.h + space[4] - headH - space[6]) : 0 }]}>{children}</View> : null}
         {kater}
       </View>
       </FullCard.Provider>
@@ -788,6 +800,7 @@ export function CalendarCard({ event: e }: { event: CalendarEvent }) {
       onPress={() => menu.current?.()}
       onDragLeft={hide}
       leftLabel="Ausblenden"
+      clearKater={false}
       head={
         <>
           <Text style={styles.meta}>{when}</Text>
