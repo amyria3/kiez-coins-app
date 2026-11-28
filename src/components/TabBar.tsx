@@ -423,7 +423,8 @@ const NAV_ICON = isMono
       burger: Math.round(((size.icon * 35) / 21.5) * 10) / 10,
     };
 /** Kamera mit eigenem Maßstab (Icon.tsx, CAMERA_SCALE 1,2 statt 1,5): ohne Pille so hoch wie die anderen Icons */
-const CAMERA_ICON_PLAIN = 25;
+// Mono: Die Linien-Kamera hat keinen eigenen Maßstab, mit 25 war ihr Strich ein Viertel dicker als bei den Nachbarn
+const CAMERA_ICON_PLAIN = isMono ? size.icon : 25;
 /** Nur im Feed größer, in der lila Pille (Daria, 2026-11-13) */
 const CAMERA_ICON_FEED = 30;
 /** Knöpfe der Leiste; mit Hauptaktion (Kamera im Feed, Plus in der Routine) etwas kleiner (Daria, 2026-11-23 und 2026-11-27) */
@@ -509,7 +510,9 @@ const PLUS_ICON = 26;
  * schmaler läuft als seine Nachbarn.
  */
 const NAV_IDLE = isMono ? 1.05 : 0.8;
-const NAV_SELECTED = isMono ? 1.1 : 1;
+// Mono: gewählt nicht größer, sonst wird der Strich dicker als bei den Nachbarn (Daria, 2026-11-28: „ungleiche
+// Strichdicke“). Die Wahl zeigt die Pille.
+const NAV_SELECTED = isMono ? NAV_IDLE : 1;
 // Das Doppelherz ist selbst groß genug gezeichnet (lineSvgs), eine Vergrößerung hier machte seinen Strich dicker
 const NAV_OPTICAL: Partial<Record<IconName, number>> = {};
 const navSize = (full: number, selected: boolean, name?: IconName) =>

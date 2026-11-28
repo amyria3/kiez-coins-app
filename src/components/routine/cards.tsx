@@ -579,7 +579,9 @@ function TaskDetail({ r }: { r: Reminder }) {
               </View>
             ))}
           </View>
-          {parts.length ? <Text style={styles.sub}>{parts.join(' · ')}</Text> : null}
+          {/* Bei festen Tagen zeigen die Kreise alles; die Zeile nur bei x-mal pro Woche, dort sagt sie, was nicht mehr zu
+              schaffen und was noch offen ist (Daria, 2026-11-28) */}
+          {parts.length && !r.weekdays?.length ? <Text style={styles.sub}>{parts.join(' · ')}</Text> : null}
         </View>
       ) : null}
     </View>

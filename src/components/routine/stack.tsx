@@ -7,6 +7,7 @@ import { markCardSwipe } from '../../lib/cardSwipe';
 import { color } from '../../theme/tokens';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
+import { HandButton } from './cards';
 import { DragLock, Motion, PageLock, ScrollToView, StackHead, shiftOf, tiltOf, useReduceMotion } from './shared';
 import { stackStyles as styles } from './styles';
 
@@ -502,5 +503,36 @@ export function DayHead({ label, index, count, onDay }: { label: string; index: 
         </View>
       ) : null}
     </View>
+  );
+}
+
+/**
+ * „Nach Typ sortieren“ (Daria, 2026-11-28): zweitrangiger Knopf mit Umriss, leicht schräg am rechten Rand. Er schwirrt
+ * langsam ein paar Punkte hin und her; mit „Bewegung reduzieren“ steht er still. Sortiert heißt er „Alles zusammen“
+ * und kippt zur anderen Seite.
+ */
+export function SortButton({ on, onPress }: { on: boolean; onPress: () => void }) {
+  const reduce = useReduceMotion();
+  const drift = useRef(new Animated.Value(0)).current;
+  const tilt = useRef(new Animated.Value(on ? 1 : 0)).current;
+  useEffect(() => {
+    if (reduce) return;
+    const step = (to: number, ms: number) => Animated.timing(drift, { toValue: to, duration: ms, useNativeDriver: Platform.OS !== 'web' });
+    const loop = Animated.loop(Animated.sequence([step(1, 1600), step(-0.6, 1400), step(0.4, 1300), step(0, 1500)]));
+    loop.start();
+    return () => loop.stop();
+  }, [reduce, drift]);
+  useEffect(() => {
+    Animated.spring(tilt, { toValue: on ? 1 : 0, ...SPRING, useNativeDriver: Platform.OS !== 'web' }).start();
+  }, [on, tilt]);
+  const transform = [
+    { translateX: drift.interpolate({ inputRange: [-1, 1], outputRange: [-3, 3] }) },
+    { translateY: drift.interpolate({ inputRange: [-1, 1], outputRange: [2, -3] }) },
+    { rotate: tilt.interpolate({ inputRange: [0, 1], outputRange: ['-5deg', '4deg'] }) },
+  ];
+  return (
+    <Animated.View style={[styles.sort, { transform }]}>
+      <HandButton label={on ? 'Alles zusammen' : 'Nach Typ sortieren'} onPress={onPress} tone={color.text.primary} />
+    </Animated.View>
   );
 }
