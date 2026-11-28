@@ -202,7 +202,7 @@ function Sidebar({ wide }: { wide: boolean }) {
       {/* „Was Du so machst“: am Handy führt das Logo über dem Feed dorthin, hier steht es in der Leiste */}
       <NavItem
         wide={wide}
-        glyph={(tint) => <CrownIcon height={size.icon} fill={tint} />}
+        glyph={(tint) => <CrownIcon height={30} fill={tint} />}
         label={t('Was Du so machst')}
         role={color.nav.calendar}
         selected={active === 'reise'}

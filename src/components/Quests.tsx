@@ -4,7 +4,7 @@ import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, View } from 
 import { SvgXml } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { color, radius, space, text } from '../theme/tokens';
+import { color, radius, space, stroke, text } from '../theme/tokens';
 import { iconSvgs } from './icons/svgs';
 import { Text } from './T';
 import { t } from '../data/texts';
@@ -12,7 +12,7 @@ import type { Quest } from '../data/achievements';
 
 /**
  * Ziele mit Fortschrittsbalken und Geschenk (Daria, 29.10.2026), ähnlich „Start a streak“ in Lern-Apps:
- * Titel, lila Balken mit „1 / 1“, rechts das Geschenk. Ist ein Ziel neu erreicht, öffnet sich das Geschenk
+ * Titel, schmaler Balken mit „1 von 1“, rechts das Geschenk. Ist ein Ziel neu erreicht, öffnet sich das Geschenk
  * einmal und pinke Herzen steigen heraus. Danach bleibt es offen. Gemerkt pro Gerät und Ziel.
  */
 const native = Platform.OS !== 'web';
@@ -57,17 +57,16 @@ export function Quests({ quests, label }: { quests: Quest[]; label?: string }) {
 function QuestRow({ quest, index }: { quest: Quest; index: number }) {
   const done = quest.value >= quest.goal;
   const share = Math.min(1, quest.value / quest.goal);
+  const steps = { have: Math.min(quest.value, quest.goal), need: quest.goal };
   return (
-    <View style={styles.row} accessible accessibilityLabel={`${t(quest.title)}, ${Math.min(quest.value, quest.goal)} / ${quest.goal}`}>
+    <View style={[styles.row, index > 0 && styles.divider]} accessible accessibilityLabel={`${t(quest.title)}, ${t('{have} von {need}', steps)}`}>
       <View style={styles.texts}>
-        <Text style={styles.title}>{t(quest.title)}</Text>
+        <View style={styles.head}>
+          <Text style={styles.title}>{t(quest.title)}</Text>
+          <Text style={styles.count}>{t('{have} von {need}', steps)}</Text>
+        </View>
         <View style={styles.bar}>
-          <View style={[styles.fill, { width: `${share * 100}%` }]}>
-            <View style={styles.shine} />
-          </View>
-          <Text style={styles.count}>
-            {Math.min(quest.value, quest.goal)} / {quest.goal}
-          </Text>
+          <View style={[styles.fill, done && styles.fillDone, { width: `${share * 100}%` }]} />
         </View>
       </View>
       <Gift open={done} seenKey={quest.seenKey} share={share} index={index} />
@@ -232,26 +231,19 @@ function Gift({ open, seenKey, share, index }: { open: boolean; seenKey: string;
 }
 
 const styles = StyleSheet.create({
-  // Ziele enger zusammen, mehr Luft zum nächsten Abschnitt (Daria, 29.10.2026)
-  list: { gap: space[4], marginBottom: space[12] },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space[12],
-    paddingTop: space[8],
-    paddingBottom: space[12],
-    paddingHorizontal: space[12],
-    // Etwas eckiger (Daria, 29.10.2026)
-    borderRadius: radius.md,
-    backgroundColor: color.bg.surface,
-  },
+  // Wie „Deine Abzeichen“ darunter: eine Fläche, Zeilen mit feiner Linie, schmaler Balken, „1 von 1“ rechts
+  // (Daria, 2026-11-28: lila Balken auf einzelnen Karten „passt stilistisch nicht“)
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, marginBottom: space[12] },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[16], paddingHorizontal: space[16] },
+  divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   texts: { flex: 1, gap: space[6] },
-  title: { ...text.cardTitleCompact, color: color.text.primary },
-  bar: { height: 18, borderRadius: 6, backgroundColor: color.bg.screen, overflow: 'hidden', justifyContent: 'center' },
-  fill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 6, backgroundColor: color.accent.primary },
-  // Heller Streifen oben im Balken wie im Vorbild
-  shine: { position: 'absolute', left: 6, right: 6, top: 3, height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,.28)' },
-  count: { ...text.tag, textAlign: 'center', color: color.text.primary },
+  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: space[8] },
+  title: { ...text.label, flexShrink: 1, color: color.text.primary },
+  count: { ...text.caption, color: color.text.secondary },
+  bar: { height: 6, borderRadius: 3, backgroundColor: color.line.hairline, overflow: 'hidden' },
+  fill: { height: 6, borderRadius: 3, backgroundColor: color.text.secondary },
+  // Erreicht: grün wie das offene Geschenk daneben
+  fillDone: { backgroundColor: color.accent.confirmation },
   gift: { width: GIFT_W + 8, height: GIFT_H, alignItems: 'center' },
   part: { position: 'absolute', left: 4, width: GIFT_W, overflow: 'hidden' },
   heart: { position: 'absolute', top: GIFT_H * 0.3, left: GIFT_W / 2 - 4 },
