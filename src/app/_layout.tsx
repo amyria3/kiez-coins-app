@@ -41,6 +41,7 @@ import { ErrorScreen } from '../components/ErrorScreen';
 import { setLastScreen } from '../lib/errorReport';
 import { HeartBurst } from '../components/HeartBurst';
 import { markIntroDone } from '../lib/intro';
+import { paintLookPage } from '../theme/look';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -140,6 +141,7 @@ function RootStack() {
   useEffect(() => {
     if (intro) return;
     markIntroDone();
+    paintLookPage();
     // Zahnräder aus public/index.html; sonst räumt sie StartKater weg
     if (Platform.OS === 'web' && typeof document !== 'undefined') {
       document.getElementById('boot')?.remove();
@@ -159,7 +161,8 @@ function RootStack() {
     <>
       {loading ? null : (
         <>
-        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        {/* Während der Startanimation helle Statusleiste: ihr Grund ist in jedem Look dunkel (Daria, 2026-11-28) */}
+        <StatusBar style={intro || scheme === 'dark' ? 'light' : 'dark'} />
         {/* Hinweise erst nach dem Startbildschirm, sonst liegen sie über ihm oder laufen ungesehen darunter ab */}
         {intro ? null : <BadgeNotice />}
         <Stack

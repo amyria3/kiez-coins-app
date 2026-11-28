@@ -194,14 +194,14 @@ export function StartKater({ loaded, onDone }: { loaded: boolean; onDone: () => 
         </View>
       </Pressable>
       <View pointerEvents="none" style={[styles.gears, { bottom: insets.bottom + space[32] }]}>
-        <GearsLoader size={gearsSize} tints={color.icon.startGears} exit={gearsOut} exitDistance={screenWidth} exitFloor={insets.bottom + space[32]} />
+        <GearsLoader size={gearsSize} tint={color.start.gear} tints={color.start.gears} exit={gearsOut} exitDistance={screenWidth} exitFloor={insets.bottom + space[32]} />
       </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { backgroundColor: color.bg.screen, zIndex: 10 },
+  screen: { backgroundColor: color.start.ground, zIndex: 10 },
   area: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   part: { position: 'absolute' },
   gears: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },

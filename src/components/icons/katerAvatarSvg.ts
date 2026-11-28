@@ -26,6 +26,9 @@ export function katerHeartsSvg(): string {
   return `<svg viewBox="0 0 2204 2204" fill="none" xmlns="http://www.w3.org/2000/svg">${HEARTS}</svg>`;
 }
 
+/** Dicker Ring der Bildmarke, Tinte wie in assets/marke/bildmarke-ring-dick.svg */
+const RING = '<rect x="48" y="48" width="2108" height="2108" rx="1054" stroke="#000027" stroke-width="92"/>';
+
 /**
  * Bildmarke mit dickem Ring wie assets/marke/bildmarke-ring-dick.svg (Daria, 2026-11-24): Kater im Kreis beschnitten,
  * dunkler Ring in Tinte, ohne Fläche. Für hellen Grund wie die gelbgrüne Digitale Visitenkarte, wo der gelbgrüne Kreis
@@ -36,6 +39,11 @@ export function katerRingSvg(): string {
     '<svg viewBox="0 0 2204 2204" fill="none" xmlns="http://www.w3.org/2000/svg">' +
     '<defs><clipPath id="katerRing"><rect x="2" y="2" width="2200" height="2200" rx="1100" fill="white"/></clipPath></defs>' +
     `<g clip-path="url(#katerRing)">${KATER}${HEARTS}</g>` +
-    '<rect x="48" y="48" width="2108" height="2108" rx="1054" stroke="#000027" stroke-width="92"/></svg>'
+    RING + '</svg>'
   );
+}
+
+/** Nur der dicke Ring von katerRingSvg, als oberste Ebene über dem beweglichen Kater in KaterCircle */
+export function katerRingOnlySvg(): string {
+  return '<svg viewBox="0 0 2204 2204" fill="none" xmlns="http://www.w3.org/2000/svg">' + RING + '</svg>';
 }

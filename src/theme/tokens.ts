@@ -174,6 +174,16 @@ const kiezColor = {
     startGears: { 3: palette.pink, 4: swatch.senf, 5: palette.green } as Record<number, string>,
   },
   /**
+   * Startanimation (StartKater): in jedem Look der dunkle Grund und die Zahnräder des Kiez-Looks (Daria, 2026-11-28:
+   * „Startanimation braucht einen dunklen Hintergrund, damit das Logo wirkt“). Die Wortbildmarke mit gelbgrünem Kreis
+   * steht immer auf dunklem Grund (Designsystem). Light und Mono überschreiben diese Rolle deshalb nicht.
+   */
+  start: {
+    ground: palette.black,
+    gear: swatch.beige,
+    gears: { 3: palette.pink, 4: swatch.senf, 5: palette.green } as Record<number, string>,
+  },
+  /**
    * Untere Leiste im Kiez-Look (Daria, 2026-11-12): Aubergine statt Grau, Icons in Beige. Jede Seite hat ihre Farbe:
    * Kalender Senf, Feed Rosa, Nachrichten Schneeweiß, Menü Gelbgrün. Die aktive Seite sitzt auf einer grauen Blase.
    * In Mono zeigt der ausgewählte Tab seinen Namen auf zart lila Pille (Daria, 2026-11-27), vorerst nur dort.
