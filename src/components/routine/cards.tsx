@@ -22,7 +22,20 @@ import { CARD_MAX, CARD_MIN, DRAG_AT, GUTTER, INK, INK_SOFT, LIFT_MS, MUSTARD, O
 import { DragLock, Motion, PageLock, Saved, stickerOf, tiltOf, useReduceMotion } from './shared';
 import { styles } from './styles';
 
-export function Group({ title, count, children }: { title: string; count: number; children: ReactNode }) {
+export function Group({
+  title,
+  count,
+  children,
+  leaving,
+  onGone,
+}: {
+  title: string;
+  count: number;
+  children: ReactNode;
+  /** Schlüssel der Karten, die nach links hinausgleiten (Daria, 2026-11-27: vergangene Termine) */
+  leaving?: string[];
+  onGone?: (key: string) => void;
+}) {
   const { width: screen } = useWindowDimensions();
   const page = useContext(PageLock);
   const [locked, setLocked] = useState(false);
@@ -56,7 +69,13 @@ export function Group({ title, count, children }: { title: string; count: number
               (touch-action: none), dann scrollt die Seite nicht, wenn der Finger auf der Karte startet (Daria, 2026-11-13). */}
           {cards.length === 1 ? (
             <View style={[styles.rowScroll, styles.row]}>
-              <View style={{ width: cardWidth }}>{cards[0]}</View>
+              <LeaveLeft
+                width={cardWidth}
+                leaving={!!leaving?.includes((cards[0] as { key?: string | null }).key ?? '0')}
+                onGone={() => onGone?.((cards[0] as { key?: string | null }).key ?? '0')}
+              >
+                {cards[0]}
+              </LeaveLeft>
             </View>
           ) : (
             <ScrollView
@@ -68,16 +87,73 @@ export function Group({ title, count, children }: { title: string; count: number
               style={styles.rowScroll}
               contentContainerStyle={styles.row}
             >
-              {cards.map((c, i) => (
-                <View key={i} style={{ width: cardWidth }}>
-                  {c}
-                </View>
-              ))}
+              {cards.map((c, i) => {
+                const key = (c as { key?: string | null }).key ?? String(i);
+                return (
+                  <LeaveLeft key={key} width={cardWidth} leaving={!!leaving?.includes(key)} onGone={() => onGone?.(key)}>
+                    {c}
+                  </LeaveLeft>
+                );
+              })}
             </ScrollView>
           )}
         </DragLock.Provider>
       </View>
     </View>
+  );
+}
+
+/** Wartezeit, bis die Reihe zu sehen ist, und Dauer des Hinausgleitens (Daria, 2026-11-27: „langsam“) */
+const LEAVE_WAIT = 1200;
+const LEAVE_MS = 900;
+const CLOSE_MS = 450;
+
+/**
+ * Platz einer Karte in der Reihe. `leaving`: Die Karte gleitet kurz nach dem Einblenden langsam nach links hinaus und
+ * blasst aus, dann schließt sich die Lücke und die übrigen Karten rücken nach (Daria, 2026-11-27). Ohne bewegte Karten
+ * oder mit „weniger Bewegung“ verschwindet sie sofort.
+ */
+function LeaveLeft({ width, leaving, onGone, children }: { width: number; leaving: boolean; onGone: () => void; children: ReactNode }) {
+  const motion = useContext(Motion);
+  const reduce = useReduceMotion();
+  const out = useRef(new Animated.Value(0)).current;
+  const close = useRef(new Animated.Value(0)).current;
+  const gone = useRef(onGone);
+  useEffect(() => {
+    gone.current = onGone;
+  });
+  useEffect(() => {
+    if (!leaving) return;
+    if (!motion || reduce) {
+      gone.current();
+      return;
+    }
+    const anim = Animated.sequence([
+      Animated.delay(LEAVE_WAIT),
+      Animated.timing(out, { toValue: 1, duration: LEAVE_MS, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
+      Animated.timing(close, { toValue: 1, duration: CLOSE_MS, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+    ]);
+    anim.start(({ finished }) => finished && gone.current());
+    return () => anim.stop();
+  }, [leaving, motion, reduce, out, close]);
+  if (!leaving) return <View style={{ width }}>{children}</View>;
+  return (
+    <Animated.View
+      style={{
+        width: close.interpolate({ inputRange: [0, 1], outputRange: [width, 0] }),
+        marginRight: close.interpolate({ inputRange: [0, 1], outputRange: [0, -space[12]] }),
+      }}
+    >
+      <Animated.View
+        style={{
+          width,
+          opacity: out.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+          transform: [{ translateX: out.interpolate({ inputRange: [0, 1], outputRange: [0, -(width + GUTTER)] }) }],
+        }}
+      >
+        {children}
+      </Animated.View>
+    </Animated.View>
   );
 }
 

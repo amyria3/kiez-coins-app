@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import type { Reminder } from '../src/data/reminders';
 import { isRelaxed, slackOf } from '../src/data/reminderDates';
-import { isUrgent, sortAgenda, sortByUrgency } from '../src/data/urgency';
+import { eventOver, isUrgent, sortAgenda, sortByUrgency, titleTime } from '../src/data/urgency';
 
 const NOW = new Date(2026, 10, 18, 10, 0);
 const r = (id: string, patch: Partial<Reminder>): Reminder => ({ id, want: id, doneThisWeek: 0, doneToday: false, ...patch }) as Reminder;
@@ -69,14 +69,14 @@ describe('Ausgesetzte Karten', () => {
 
 describe('Reihenfolge der Termine (2026-11-27)', () => {
   const FRI = new Date(2026, 10, 27, 15, 0);
-  it('erledigter Termin am 02.12. steht hinter dem Kalendertermin von heute', () => {
+  it('erledigter Termin hinten, vergangener Kalendertermin vorn zum Hinausgleiten', () => {
     const toepfe = r('toepfe', { onDate: '2026-12-02', atTime: '14:00', doneToday: true, doneThisWeek: 1 });
     const offen = r('offen', { onDate: '2026-11-29', atTime: '10:00' });
     const heute = { id: 'heute', start: new Date(2026, 10, 27, 16, 0).toISOString(), allDay: false };
     const morgen = { id: 'morgen', start: '2026-11-28', allDay: true };
     const vorbei = { id: 'vorbei', start: new Date(2026, 10, 27, 9, 0).toISOString(), end: new Date(2026, 10, 27, 10, 0).toISOString(), allDay: false };
     const order = sortAgenda([toepfe, offen], [vorbei, heute, morgen], FRI, {}).map((x) => (x.kind === 'event' ? x.event.id : x.reminder.id));
-    assert.deepEqual(order, ['heute', 'morgen', 'offen', 'vorbei', 'toepfe']);
+    assert.deepEqual(order, ['vorbei', 'heute', 'morgen', 'offen', 'toepfe']);
   });
   it('Aufgaben: heute fällige ohne Uhrzeit vor Fristen an späteren Tagen', () => {
     const list = [
@@ -86,5 +86,32 @@ describe('Reihenfolge der Termine (2026-11-27)', () => {
       r('heuteFrist', { onDate: '2026-11-27', untilTime: '18:00' }),
     ];
     assert.deepEqual(sortByUrgency(list, FRI, {}).map((x) => x.id), ['heuteFrist', 'heute', 'montags', 'frist']);
+  });
+});
+
+describe('Vergangene Kalendertermine (2026-11-27)', () => {
+  const day = (h: number, m = 0) => new Date(2026, 10, 27, h, m);
+  it('Uhrzeit im Titel', () => {
+    assert.equal(titleTime('Josef bei Polina um 16.00'), 16 * 60);
+    assert.equal(titleTime('Treffen ab 9:30'), 9 * 60 + 30);
+    assert.equal(titleTime('Arzt 14:15'), 14 * 60 + 15);
+    assert.equal(titleTime('Chor 19 Uhr'), 19 * 60);
+    assert.equal(titleTime('Abgabe am 02.12.'), null);
+    assert.equal(titleTime('Geburtstag Polina'), null);
+  });
+  it('ganztägig mit Uhrzeit im Titel: vorbei eine Stunde danach', () => {
+    const e = { start: '2026-11-27', allDay: true, title: 'Josef bei Polina um 16.00' };
+    assert.equal(eventOver(e, day(16, 30)), false);
+    assert.equal(eventOver(e, day(23, 44)), true);
+  });
+  it('ganztägig ohne Uhrzeit: bleibt den ganzen Tag', () => {
+    assert.equal(eventOver({ start: '2026-11-27', allDay: true, title: 'Geburtstag Polina' }, day(23, 59)), false);
+  });
+  it('mit Uhrzeit: am Ende vorbei, ohne Ende nach einer Stunde', () => {
+    const start = day(10).toISOString();
+    assert.equal(eventOver({ start, end: day(12).toISOString(), allDay: false }, day(11)), false);
+    assert.equal(eventOver({ start, end: day(12).toISOString(), allDay: false }, day(12)), true);
+    assert.equal(eventOver({ start, allDay: false }, day(10, 30)), false);
+    assert.equal(eventOver({ start, allDay: false }, day(11)), true);
   });
 });
