@@ -1,5 +1,6 @@
-import { memo, useMemo, useState, type ReactElement } from 'react';
-import { View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { memo, useEffect, useMemo, useRef, type ReactElement } from 'react';
+import { Pressable, View } from 'react-native';
 
 import { eventDate, type CalendarEvent } from '../../data/calendar';
 import { daySummary } from '../../data/daySummary';
@@ -9,12 +10,16 @@ import { addDays, capitalize, kindOf, localDate, type Reminder, type ReminderEnd
 import { localeTag, t } from '../../data/texts';
 import { eventOver, isUrgent, restingOf, sortAgenda, sortByUrgency } from '../../data/urgency';
 import { KaterCard } from '../Content';
-import { RoutineCalendar } from './calendar';
+import { RoutineCalendarStages } from './calendar';
 import { CalendarCard, EventCard, SavedCard, TaskCard } from './cards';
 import { OLIVE, POWDER } from './constants';
 import { AsideWhenCalendar, Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
 import { DayHead, DayStack } from './stack';
-import { stackStyles } from './styles';
+import { stackStyles, styles } from './styles';
+import { setRoutineDay, useRoutineDay } from '../../data/routineView';
+import { useAccentColor } from '../../theme/signal';
+import { Icon } from '../icons/Icon';
+import { Text } from '../T';
 
 type DayCards = { tasks: Reminder[]; fixed: Reminder[]; events: CalendarEvent[]; optional: Reminder[]; saved: Saved[] };
 
@@ -78,6 +83,8 @@ export const RoutineList = memo(function RoutineList({
   const lastDay = localDate(addDays(6, now));
   const dayOf = (date?: string) => (!date || date < today ? today : date);
   const inRange = (date: string) => date <= lastDay;
+  // Gewählter Tag, geteilt mit dem Kalender (Daria, 2026-11-28: „Click auf den Tag öffnet den Tag“)
+  const pickedDay = useRoutineDay();
   const cardDays = useMemo(() => {
     const days = new Map<string, DayCards>();
     const at = (date: string) => {
@@ -103,13 +110,22 @@ export const RoutineList = memo(function RoutineList({
       if (inRange(date)) at(date).saved.push(e);
     }
     at(today);
+    // Im Kalender gewählter Tag bekommt einen Stapel, auch ohne Karten: Dort lässt sich gleich etwas anlegen
+    if (pickedDay) at(pickedDay);
     return [...days.entries()].sort(([a], [b]) => a.localeCompare(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sorted, events, saved, today, lastDay, now]);
+  }, [sorted, events, saved, today, lastDay, now, pickedDay]);
 
-  const [picked, setPicked] = useState<{ date: string; dir: -1 | 0 | 1 }>({ date: today, dir: 0 });
-  const index = Math.max(0, cardDays.findIndex(([d]) => d === picked.date));
+  const index = Math.max(0, cardDays.findIndex(([d]) => d === (pickedDay ?? today)));
   const [date, cardsOfDay] = cardDays[index] ?? [today, undefined];
+  // Richtung für das Hereinfliegen: späterer Tag von rechts, früherer von links
+  const shownBefore = useRef(date);
+  const enter: -1 | 0 | 1 = date === shownBefore.current ? 0 : date > shownBefore.current ? 1 : -1;
+  useEffect(() => {
+    shownBefore.current = date;
+  }, [date]);
+  const router = useRouter();
+  const accent = useAccentColor();
   const isToday = date === today;
 
   const taskCard = (r: Reminder) => (
@@ -160,11 +176,29 @@ export const RoutineList = memo(function RoutineList({
           <KaterCard>{katerText}</KaterCard>
         </AsideWhenCalendar>
       ) : null}
-      {showCalendar ? <RoutineCalendar list={list} events={events} saved={saved} /> : null}
-      {cards.length || cardDays.length > 1 ? (
+      {showCalendar ? <RoutineCalendarStages list={list} events={events} saved={saved} /> : null}
+      {cards.length || cardDays.length > 1 || pickedDay ? (
         <View style={stackStyles.wrap}>
-          <DayHead label={dayLabel} index={index} count={cardDays.length} onDay={(i, dir) => setPicked({ date: cardDays[i][0], dir })} />
-          {cards.length ? <DayStack key={date} cards={cards} enter={picked.date === date ? picked.dir : 0} /> : null}
+          <DayHead label={dayLabel} index={index} count={cardDays.length} onDay={(i) => setRoutineDay(cardDays[i][0] === today ? null : cardDays[i][0])} />
+          {/* Für den Tag gleich etwas planen, nicht für vergangene Tage (Daria, 2026-11-14 und 2026-11-28) */}
+          {date >= today ? (
+            <Pressable
+              onPress={() => router.push({ pathname: '/routine/new', params: { tag: date } })}
+              accessibilityRole="button"
+              hitSlop={8}
+              style={({ pressed }) => [styles.dayCreate, pressed && styles.pressed]}
+            >
+              <Icon name="plus" size={16} color={accent} />
+              <Text style={[styles.dayCreateText, { color: accent }]}>
+                {isToday ? t('Erinnerung für heute') : t('Erinnerung am {day}', { day: shortDate(date) })}
+              </Text>
+            </Pressable>
+          ) : null}
+          {cards.length ? (
+            <DayStack key={date} cards={cards} enter={enter} />
+          ) : (
+            <Text style={styles.dayBar}>{t('Noch nichts an diesem Tag.')}</Text>
+          )}
         </View>
       ) : null}
     </PageLock.Provider>
