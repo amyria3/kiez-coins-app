@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { whenUntouched } from '../lib/touching';
 import { Animated, Easing, FlatList, I18nManager, Platform, Pressable, StyleSheet, View } from 'react-native';
-import Svg, { Defs, G, Mask, Path, Rect } from 'react-native-svg';
+import Svg, { Defs, G, Mask, Path, Rect, SvgXml } from 'react-native-svg';
 import { Text } from './T';
 import { fitShape, SWITCH_KNOB, SWITCH_TRACK } from './handSwitch';
 import { Image } from 'expo-image';
 
 import type { Challenge } from '../data/types';
-import { handDrawn } from '../theme/look';
+import { handDrawn, isLight } from '../theme/look';
+import { useDesktop } from '../theme/layout';
+import { BILDMARKE_SVG } from './icons/wordmarkLetters';
+import { katerRingOnlySvg } from './icons/katerAvatarSvg';
 import { color, font, motion, radius, size, space, stroke, text } from '../theme/tokens';
 import { useAccentColor, usePrivateSignal } from '../theme/signal';
 import { Notice } from './Content';
@@ -38,6 +41,7 @@ export function AppHeader(props: AppHeaderProps) {
 const LOGO_SLOP = { top: 8, bottom: 8, left: 8, right: 8 };
 
 function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) {
+  const { desktop } = useDesktop();
   return (
     <View style={styles.header}>
       <Pressable
@@ -48,12 +52,28 @@ function KiezHeader({ onLogoPress, onLogoLongPress, hasTasks }: AppHeaderProps) 
         style={styles.logo}
         hitSlop={LOGO_SLOP}
       >
-        {/* Logo mit Kater rechts (Daria, 2026-11-12: neues Logo; 2026-11-15: nach rechts). Ohne gelben Punkt am Kater */}
-        <Logo height={28} />
+        {/* Logo mit Kater rechts (Daria, 2026-11-12: neues Logo; 2026-11-15: nach rechts). Ohne gelben Punkt am Kater.
+            Desktop (Daria, 2026-11-28): nur der Kater, der Schriftzug steht schon links in der Seitenleiste. */}
+        {desktop ? <DesktopKater /> : <Logo height={28} />}
       </Pressable>
     </View>
   );
 }
+
+/** Runder Kater wie im Logo, auf hellem Grund mit dickem Ring (Designsystem, Daria 2026-11-28) */
+function DesktopKater() {
+  return (
+    <View style={styles.desktopKater}>
+      <SvgXml xml={BILDMARKE_SVG} width={DESKTOP_KATER} height={DESKTOP_KATER} />
+      {isLight ? (
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <SvgXml xml={katerRingOnlySvg()} width={DESKTOP_KATER} height={DESKTOP_KATER} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+const DESKTOP_KATER = 36;
 
 /** Offene öffentliche Posts nach Art (ohne Gruppen und private Posts), für die Zeile unter der Begrüßung */
 export type FeedCounts = { challenges: number; me: number; photos: number };
@@ -698,6 +718,7 @@ const styles = StyleSheet.create({
     paddingBottom: space[16],
   },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
+  desktopKater: { width: DESKTOP_KATER, height: DESKTOP_KATER },
   greeting: { paddingHorizontal: space[16], paddingTop: space[4], paddingBottom: space[16], gap: space[4] },
   greetingTitle: { ...text.display, color: color.text.primary },
   // Ansprache in der Unbounded wie Namen und Hashtags über dem Foto (Daria, 09.11.2026)
