@@ -53,8 +53,8 @@ export function useCalendarShown(): boolean {
 
 /**
  * Kalender als Teil der Seite in Stufen (Daria, 2026-11-28: „Statt Overlay ist der Kalender ein Teil des Screens“):
- * 0 zu, 1 kurze Liste mit Terminen, 2 nur die Woche, 3 ganzer Monat. Dazwischen und den Karten liegt eine Pille zum
- * Schieben.
+ * 0 zu, 1 nur die Woche, 2 kurze Liste mit Terminen, 3 ganzer Monat. Dazwischen und den Karten liegt eine Pille zum
+ * Schieben. Die Liste kommt nach der Woche (Daria, 2026-11-28: „Diese Ansicht NACH der Ansicht mit den Wochen-Kreisen“).
  */
 export type CalendarLevel = 0 | 1 | 2 | 3;
 let calendarLevel: CalendarLevel = 1;
@@ -78,7 +78,7 @@ export function useCalendarLevel(): CalendarLevel {
 
 /** Ganzer Monat statt einer Woche (Daria, 2026-11-14), heute die oberste Stufe des Kalenders */
 export function setCalendarMonth(on: boolean) {
-  setCalendarLevel(on ? 3 : Math.min(calendarLevel, 2));
+  setCalendarLevel(on ? 3 : Math.min(calendarLevel, 1));
 }
 export function useCalendarMonth(): boolean {
   return useCalendarLevel() === 3;
@@ -100,4 +100,25 @@ const subscribeDay = (l: () => void) => {
 };
 export function useRoutineDay(): string | null {
   return useSyncExternalStore(subscribeDay, () => routineDay, () => routineDay);
+}
+
+/**
+ * Karte, zu der die Seite springen soll (Daria, 2026-11-28: „Tap auf einen Termin sollte zur Karte scrollen und die
+ * Karte wählen“). Der Stapel des Tages holt sie nach vorn und meldet sie danach als erledigt.
+ */
+let focusCard: string | null = null;
+const focusListeners = new Set<() => void>();
+export function setFocusCard(key: string | null) {
+  if (focusCard === key) return;
+  focusCard = key;
+  focusListeners.forEach((l) => l());
+}
+const subscribeFocus = (l: () => void) => {
+  focusListeners.add(l);
+  return () => {
+    focusListeners.delete(l);
+  };
+};
+export function useFocusCard(): string | null {
+  return useSyncExternalStore(subscribeFocus, () => focusCard, () => focusCard);
 }

@@ -169,7 +169,8 @@ function MonoTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
       {calendarLabeled ? label(t('Routine'), color.nav.calendar) : null}
     </Pressable>
   ) : null;
-  // Quick Button: neue Erinnerung für heute (Daria, 2026-11-23). Senf wie der Kalender, als volle Pille.
+  // Quick Button: neue Erinnerung für heute (Daria, 2026-11-23), als volle Pille. Farbe des Hauptknopfs (Daria,
+  // 2026-11-28: „probeweise in lila statt in schwarz“)
   const plus = routineOn ? (
     <Animated.View
       key="plus"
@@ -185,7 +186,7 @@ function MonoTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
           countButton('plus-leiste', look);
           router.push('/routine/new');
         }}
-        style={({ pressed }) => [styles.item, styles.primary, { backgroundColor: color.nav.calendar }, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.item, styles.primary, { backgroundColor: color.nav.create }, pressed && styles.pressed]}
       >
         <Icon name="plus" size={PLUS_ICON} color={color.nav.onCreate} />
       </Pressable>

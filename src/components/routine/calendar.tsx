@@ -1,11 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Animated, Easing, PanResponder, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Easing, PanResponder, Platform, Pressable, Text as InlineText, StyleSheet, View } from 'react-native';
 import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
 
 import { eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { weekdayShort } from '../../data/katerRoutine';
 import { addDays, capitalize, isoWeekday, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../../data/reminders';
-import { setCalendarLevel, setCalendarMonth, setRoutineDay, useCalendarLevel, useCalendarMonth, useRoutineDay, type CalendarLevel } from '../../data/routineView';
+import { setCalendarLevel, setCalendarMonth, setFocusCard, setRoutineDay, useCalendarLevel, useCalendarMonth, useRoutineDay, type CalendarLevel } from '../../data/routineView';
 import { localeTag, t } from '../../data/texts';
 import { Text } from '../T';
 import { HATCH } from './constants';
@@ -452,7 +452,7 @@ function DayBar({
 
 /** Stufe, ab der ein Zug an der Pille eine Stufe weiter geht */
 const LEVEL_STEP = 56;
-const LEVEL_NAMES = ['Kalender zu', 'Kurze Liste', 'Woche', 'Monat'];
+const LEVEL_NAMES = ['Kalender zu', 'Woche', 'Kurze Liste', 'Monat'];
 
 /**
  * Kalender als Teil der Seite (Daria, 2026-11-28): „Statt Overlay ist der Kalender ein Teil des Screens in vier
@@ -465,7 +465,8 @@ export function RoutineCalendarStages({ list, events, saved }: { list: Reminder[
   return (
     <View>
       <GrowBox>
-        {level === 1 ? <ShortList list={list} events={events} saved={saved} /> : level >= 2 ? <RoutineCalendar list={list} events={events} saved={saved} variant="inline" /> : null}
+        {/* Reihenfolge (Daria, 2026-11-28): zu, Woche, kurze Liste, Monat */}
+        {level === 2 ? <ShortList list={list} events={events} saved={saved} /> : level !== 0 ? <RoutineCalendar list={list} events={events} saved={saved} variant="inline" /> : null}
       </GrowBox>
       <CalendarHandle level={level} />
     </View>
@@ -503,6 +504,8 @@ function ShortList({ list, events, saved }: { list: Reminder[]; events: Calendar
     <View style={styles.short}>
       {days.map((day) => {
         const on = (picked ?? today) === day;
+        const items = shortItems(day, today, list, events, saved);
+        const label = day === today ? t('Heute') : day === days[1] ? t('Morgen') : shortDay(day);
         return (
           <Pressable
             key={day}
@@ -511,12 +514,51 @@ function ShortList({ list, events, saved }: { list: Reminder[]; events: Calendar
             accessibilityState={{ selected: on }}
             style={({ pressed }) => [styles.shortRow, on && styles.shortRowOn, pressed && styles.pressed]}
           >
-            <DayBar day={day} today={today} days={null} list={list} events={events} saved={saved} lines={1} style={styles.shortText} />
+            <Text noTranslate style={[styles.dayBar, styles.shortText]} numberOfLines={1}>
+              {label}
+              {items.length
+                ? items.map((item) => (
+                    // Schlichter Text ohne eigenen Umbruch: erbt Schrift und „eine Zeile“ von außen (`T` setzt im
+                    // Browser Umbruch, das hob die eine Zeile auf)
+                    <InlineText
+                      key={item.key}
+                      // Tippen auf einen Termin springt zu seiner Karte und holt sie nach vorn (Daria, 2026-11-28)
+                      onPress={() => {
+                        setRoutineDay(day === today ? null : day);
+                        setFocusCard(item.key);
+                      }}
+                    >
+                      {` · ${item.text}`}
+                    </InlineText>
+                  ))
+                : ` · ${t('nichts geplant')}`}
+            </Text>
           </Pressable>
         );
       })}
     </View>
   );
+}
+
+/** „Mo, 30.11.“ */
+const shortDay = (day: string) => {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: '2-digit', month: '2-digit' }).format(new Date(y, m - 1, d));
+};
+
+/**
+ * Was an einem Tag im Stapel liegt, mit dem Schlüssel der Karte (wie in `RoutineList`): mit Uhrzeit zuerst, nach Zeit
+ * sortiert. Wiederkehrendes und Überfälliges liegt heute.
+ */
+function shortItems(day: string, today: string, list: Reminder[], events: CalendarEvent[], saved: Saved[]) {
+  const dayOf = (date?: string) => (!date || date < today ? today : date);
+  const items: { key: string; time: string; text: string }[] = [
+    ...list.filter((r) => dayOf(r.onDate) === day).map((r) => ({ key: `r:${r.id}`, time: r.atTime ?? r.untilTime ?? '', text: capitalize(r.want) })),
+    ...events.filter((e) => eventDate(e) === day).map((e) => ({ key: `e:${e.id}`, time: e.allDay ? '' : eventTime(e.start), text: e.title })),
+    ...saved.filter((e) => dayOf(localDate(new Date(e.startsAt))) === day).map((e) => ({ key: `s:${e.id}`, time: eventTime(e.startsAt), text: e.title })),
+  ];
+  const timed = items.filter((i) => i.time).sort((a, b) => a.time.localeCompare(b.time));
+  return [...timed.map((i) => ({ ...i, text: `${i.time} ${i.text}` })), ...items.filter((i) => !i.time)];
 }
 
 /**
