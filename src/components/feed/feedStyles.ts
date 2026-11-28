@@ -15,7 +15,9 @@ export const styles = StyleSheet.create({
   // Mehr Luft zwischen den Posts, Bilder dürfen dafür kleiner sein (Daria, 2026-11-28). Ein Raster: 48 px zwischen den
   // Bildern (Karten bringen je 16 px Rand mit) und 48 px zwischen den Reihen, wie im Desktop-Rahmen (`GRID`).
   pair: { flexDirection: 'row', alignItems: 'flex-start', gap: space[16] },
-  listWall: { gap: space[48] },
+  wallGap: { height: space[48] },
+  // Erste Reihe 48 px unter den Schaltern, auf einer Linie mit „Posten“ links und dem Kater rechts
+  listTopWall: { paddingTop: space[40] },
   pairCell: { flex: 1, minWidth: 0 },
   routineDesktop: { maxWidth: 620 },
   clip: { overflow: 'hidden' },

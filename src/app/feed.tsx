@@ -70,6 +70,8 @@ import { styles } from '../components/feed/feedStyles';
 let startChecked = false;
 
 /** Route `feed` – Figma „FeedScreen“ (Filled, Loading, Empty, Error, Offline). */
+const WallGap = () => <View style={styles.wallGap} />;
+
 export default function FeedScreen() {
   const router = useRouter();
   const routineOn = useRoutineEnabled();
@@ -1045,7 +1047,8 @@ export default function FeedScreen() {
           : t('Überall');
 
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
-  const headerStyle = headerHeight
+  // Desktop: kein Kopf, der wegfahren könnte. Die Luft über den Schaltern bleibt stehen, sonst springt das Raster.
+  const headerStyle = headerHeight && !desktop
     ? {
         // Nachschwingen über 1 hinaus: Höhe bleibt bei 0, nur die Verschiebung schwingt mit
         // Beim Erstellen immer weg, egal wo der Feed gerade steht
@@ -1271,7 +1274,9 @@ export default function FeedScreen() {
           onScrollBeginDrag={() => (dragging.current = true)}
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
-          contentContainerStyle={[styles.list, wall && styles.listWall, styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          // Wand: Abstand als Trenner statt als `gap`, sonst schiebt der leere Listenkopf die erste Reihe aus dem Raster
+          ItemSeparatorComponent={wall ? WallGap : undefined}
+          contentContainerStyle={[wall ? null : styles.list, styles.listTop, wall && styles.listTopWall, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
           // Kater erinnert an fällige Erinnerungen, vorerst nur mit Routine (Daria, 2026-11-10)
           ListHeaderComponent={routineOn ? <RoutineNudge enabled onOpen={routineOn && !composing && true ? openRoutine : undefined} /> : null}
           ListFooterComponent={emptyItem ? renderItem({ item: emptyItem }) : null}

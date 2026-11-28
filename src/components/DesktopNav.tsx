@@ -330,7 +330,9 @@ const styles = StyleSheet.create({
   },
   sideWide: { width: SIDE_WIDE, paddingHorizontal: space[12] },
   sideRail: { width: SIDE_RAIL, alignItems: 'center' },
-  brand: { height: ITEM, justifyContent: 'center', paddingHorizontal: space[8], marginBottom: space[8] },
+  // Zeile 1 des Rasters: Logo auf der Höhe der Schalter. Darunter 48 px, dann beginnt mit „Posten“ Zeile 2,
+  // auf einer Linie mit der ersten Reihe Posts und dem Kater rechts (Daria, 2026-11-28).
+  brand: { height: ITEM, justifyContent: 'center', paddingHorizontal: space[8], marginTop: space[8], marginBottom: GRID - space[4] },
   gap: { height: space[12] },
   item: {
     flexDirection: 'row',

@@ -127,7 +127,8 @@ function Row({ onPress, children }: { onPress: () => void; children: React.React
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: space[12] },
+  // Beginnt auf der Linie der ersten Reihe Posts: 48 px Schalter plus 48 px Abstand unter der Oberkante der Spalte
+  wrap: { gap: space[12], paddingTop: space[48] + space[48] },
   own: {
     flexDirection: 'row',
     alignItems: 'center',
