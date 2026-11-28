@@ -9,7 +9,6 @@ import { useFocusColor } from '../theme/signal';
 import { color, emphasis, radius, space, stroke, text } from '../theme/tokens';
 import { IconButton } from './IconButton';
 import { phXml } from './icons/phosphor';
-import { Icon } from './icons/Icon';
 import { ShowcaseLogo } from './ShowcasePlaceholder';
 import { Text } from './T';
 
@@ -75,7 +74,7 @@ export function ShowcaseHitList({ hits, onOpen }: { hits: ShowcaseHit[]; onOpen:
 }
 
 /**
- * Ein Treffer als eigene Karte (Daria, 2026-11-28: „besser anordnen“): oben Logo, Name und Kiez mit Ortsmarke wie
+ * Ein Treffer als eigene Karte (Daria, 2026-11-28: „besser anordnen“): oben Logo, Name und Kiez wie
  * eine Visitenkarte, darunter „Über uns“ über die volle Breite in zurückgenommener Tinte. Antippen öffnet das
  * Schaufenster.
  */
@@ -89,12 +88,11 @@ function ShowcaseHitCard({ hit, onPress }: { hit: ShowcaseHit; onPress: () => vo
             {hit.name}
           </Text>
           {hit.kiez ? (
-            <View style={styles.place}>
-              <Icon name="map-pin" size={14} color={color.text.secondary} />
-              <Text style={styles.meta} numberOfLines={1}>
-                {hit.kiez}
-              </Text>
-            </View>
+            // Ohne Ortsmarke: Sie stand eingerückt neben der Schriftkante und war größer als die Schrift (Daria,
+            // 2026-11-28: „Ist das gutes Design?“). Der Kiez fluchtet jetzt mit dem Namen.
+            <Text style={styles.meta} numberOfLines={1}>
+              {hit.kiez}
+            </Text>
           ) : null}
         </View>
       </View>
@@ -157,7 +155,6 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.6 },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   headText: { flex: 1, gap: space[4] },
-  place: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
   name: { ...text.cardTitle, color: color.text.primary },
   meta: { ...text.small, color: color.text.secondary },
   about: { ...text.bodySm, color: color.text.primary, opacity: emphasis.humble },
