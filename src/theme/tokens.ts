@@ -532,13 +532,14 @@ const mono = {
   /** Zarte Tönung für Ausgewähltes */
   lila: '#E1E2FE',
   /**
-   * Karten in Routine: dieselben Farben wie im Kiez-Look, nur heller und leichter, je halb zu Weiß gemischt
-   * (Daria, 2026-11-28: „Gleiche Farben wie im Kiez Look, nur heller / leichter“). Senf, Olive, Puder, Gelbgrün.
+   * Karten in Routine: derselbe Farbton wie im Kiez-Look, nur heller und leichter (Daria, 2026-11-28: „Gleiche Farben
+   * wie im Kiez Look, nur heller / leichter“). Nicht mit Weiß gemischt, das wirkte grau („Bitte weniger grau, hell,
+   * sanft, aber gleiche Farbe“): gleicher Farbton, Helligkeit 86–88 %, Sättigung höher. Senf, Olive, Puder, Gelbgrün.
    */
-  senfHell: '#F0E4B6',
-  oliveHell: '#E3E8CA',
-  puderHell: '#F3EBE0',
-  gelbgruenHell: '#F8FFD3',
+  senfHell: '#FFF1B8',
+  oliveHell: '#EAF3C3',
+  puderHell: '#F8E4C9',
+  gelbgruenHell: '#F5FFC2',
   /** Sprechblase des Katers, Gelb aus seinem Kreis */
   katerGelb: '#FFF4C2',
   /** Ausgeschaltete Schalter */
