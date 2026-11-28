@@ -12,9 +12,10 @@ export const styles = StyleSheet.create({
   // Desktop: Umschalter schmaler als die Lesebreite, links bündig (Daria, 2026-11-28)
   desktopSwitch: { flexGrow: 0, flexBasis: 'auto', width: '100%', maxWidth: 460 },
   // Desktop: Wand aus Posts, zwei nebeneinander, oben bündig (Daria, 2026-11-28)
-  // Mehr Luft zwischen den Posts, Bilder dürfen dafür kleiner sein (Daria, 2026-11-28)
-  pair: { flexDirection: 'row', alignItems: 'flex-start', gap: space[40] },
-  listWall: { gap: space[48] + space[24] },
+  // Mehr Luft zwischen den Posts, Bilder dürfen dafür kleiner sein (Daria, 2026-11-28). Ein Raster: 48 px zwischen den
+  // Bildern (Karten bringen je 16 px Rand mit) und 48 px zwischen den Reihen, wie im Desktop-Rahmen (`GRID`).
+  pair: { flexDirection: 'row', alignItems: 'flex-start', gap: space[16] },
+  listWall: { gap: space[48] },
   pairCell: { flex: 1, minWidth: 0 },
   routineDesktop: { maxWidth: 620 },
   clip: { overflow: 'hidden' },
