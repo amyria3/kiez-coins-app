@@ -142,6 +142,9 @@ async function feed(token: string): Promise<Response> {
     'PRODID:-//KiezCoins//Routine//DE',
     'CALSCALE:GREGORIAN',
     'X-WR-CALNAME:KiezCoins Routine',
+    // Zeiten ohne Zeitzone liest Google im Abo als UTC: 14:00 erschien als 15:00 (Daria, 2026-11-28). Diese Angabe
+    // legt fest, in welcher Zeitzone sie gemeint sind. Apple und Outlook zeigen sie weiter in Ortszeit.
+    'X-WR-TIMEZONE:Europe/Berlin',
     'REFRESH-INTERVAL;VALUE=DURATION:PT1H',
     'X-PUBLISHED-TTL:PT1H',
     ...events.flat(),
