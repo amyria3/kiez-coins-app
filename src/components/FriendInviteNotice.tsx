@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { KaterCard } from './Content';
+import { TAB_BAR_HEIGHT, tabBarBottom } from './TabBar';
 import { space } from '../theme/tokens';
 
 import { useAuth } from '../data/auth';
@@ -14,7 +15,8 @@ import { t } from '../data/texts';
 /**
  * Hinweis an die einladende Person: Wer ihre Freundschaftseinladung angenommen hat, meldet die App beim Start
  * und jedes Mal, wenn sie wieder nach vorn kommt. Die Datenbank merkt sich, dass der Hinweis gesehen ist.
- * Der Kater meldet es als Sprechblase oben über dem Screen (Daria, 2026-11-11: „Uh-la-la, das ging aber schnell!“).
+ * Der Kater meldet es als Sprechblase (Daria, 2026-11-11: „Uh-la-la, das ging aber schnell!“), unten über der Leiste:
+ * Oben verdeckte sie die Umschalter und stand direkt über der Blase der Routine (Daria, 2026-11-28: „Ungünstig“).
  * Ein Tipp öffnet die Freundschaften, das Kreuz schließt die Blase.
  */
 export function FriendInviteNotice() {
@@ -52,7 +54,7 @@ export function FriendInviteNotice() {
 
   if (!line) return null;
   return (
-    <View style={[styles.wrap, { top: insets.top + space[8] }]} pointerEvents="box-none">
+    <View style={[styles.wrap, { bottom: tabBarBottom(insets.bottom) + TAB_BAR_HEIGHT + space[12] }]} pointerEvents="box-none">
       <KaterCard
         floating
         accessibilityHint={t('Öffnet Deine Freundschaften')}

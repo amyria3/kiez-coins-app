@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 
+import { handDrawn } from '../../theme/look';
 import { color, font, radius, space, text } from '../../theme/tokens';
 import { DAY, INK, INK_SOFT, INK_TRACK, MUSTARD } from './constants';
 
@@ -163,7 +164,8 @@ export const stackStyles = StyleSheet.create({
   wrap: { gap: space[8] },
   // Platz für Neigung und Bogen, ohne dass etwas abgeschnitten wird
   stack: { position: 'relative', overflow: 'visible' },
-  // Kräftiger Schatten unter jeder Karte, auch aufgefächert (Daria, 2026-11-28: „Mehr Schatten“)
+  // Kräftiger Schatten unter jeder Karte, auch aufgefächert (Daria, 2026-11-28: „Mehr Schatten“). Auf hellem Grund
+  // (Mono) nur ein Hauch, sonst wirkt er schmutzig (Daria, 2026-11-28: „Schatten zu aggressiv“).
   slot: {
     position: 'absolute',
     top: 0,
@@ -172,9 +174,9 @@ export const stackStyles = StyleSheet.create({
     borderRadius: radius.md,
     userSelect: 'none',
     shadowColor: '#000',
-    shadowOpacity: color.routine.cardRaised ? 0.18 : 0.42,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
+    ...(handDrawn
+      ? { shadowOpacity: 0.42, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } }
+      : { shadowOpacity: 0.07, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }),
   },
   cover: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: radius.md },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[8] },
