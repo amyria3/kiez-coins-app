@@ -318,6 +318,10 @@ const kiezColor = {
     cover: [palette.purple, palette.pink, palette.orange] as const,
     mask: swatch.maske,
     circle: swatch.schwarz,
+    /** Standard-Posts als kleine Plakate (Daria, 2026-11-28): Tinte und Gelbgrün, fest wie das Bild der Visitenkarte */
+    posterInk: '#161616',
+    posterLime: swatch.gelbgruen,
+    posterRule: 'rgba(22,22,22,0.25)',
   },
   /**
    * Karten im Schaufenster (Daria, 2026-11-17): Gefühl wie im Kalender. Eine neutrale Kartenfarbe, die Signalfarbe (Gelbgrün) als einziger

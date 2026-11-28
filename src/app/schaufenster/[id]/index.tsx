@@ -10,7 +10,7 @@ import { RichText } from '../../../components/RichText';
 import { SubScreen } from '../../../components/Screen';
 import { ManageButton, type ManageItem } from '../../../components/ShowcaseManage';
 import { ShowcaseEventCard } from '../../../components/ShowcaseEventCard';
-import { PlaceholderPost, PlaceholderText, ShowcaseCover, ShowcaseLogo } from '../../../components/ShowcasePlaceholder';
+import { PlaceholderText, ShowcaseCover, ShowcaseLogo, StandardPosts } from '../../../components/ShowcasePlaceholder';
 import { Text } from '../../../components/T';
 import { Icon } from '../../../components/icons/Icon';
 import { HandButton } from '../../../components/routine/cards';
@@ -332,10 +332,11 @@ export default function ShowcaseScreen() {
                 <Text style={styles.meta}>{t('Hier stehen die {n} neuesten Posts und Termine.', { n: VISIBLE_ENTRIES })}</Text>
               )}
             </View>
-          ) : access.canSee && access.team ? (
+          ) : access.canSee ? (
+            // Ohne Posts die Standard-Posts für alle, nicht nur fürs Team (Daria, 2026-11-28)
             <View style={routine.group}>
-              <SectionHead title="Posts" />
-              <PlaceholderPost />
+              <SectionHead title="Neu im Schaufenster" />
+              <StandardPosts name={s.name} kiez={s.kiez} services={s.services} openingHours={s.openingHours} address={s.address} />
             </View>
           ) : null}
 
