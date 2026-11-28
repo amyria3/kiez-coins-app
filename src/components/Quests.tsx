@@ -1,7 +1,7 @@
 import { SectionBlock } from './Content';
 import { BARE, paper } from '../theme/kiezPage';
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -59,20 +59,59 @@ function QuestRow({ quest, index }: { quest: Quest; index: number }) {
   const done = quest.value >= quest.goal;
   const share = Math.min(1, quest.value / quest.goal);
   const steps = { have: Math.min(quest.value, quest.goal), need: quest.goal };
-  return (
-    <View style={[styles.row, index > 0 && styles.divider]} accessible accessibilityLabel={`${t(quest.title)}, ${t('{have} von {need}', steps)}`}>
+  // Tipp auf ein erreichtes Ziel: Das Geschenk geht noch einmal auf (Daria, 2026-11-28: „Hier fehlt die Animation“)
+  const [replay, setReplay] = useState(0);
+  const grow = useGrow(share, index);
+  const gift = <Gift open={done} seenKey={quest.seenKey} share={share} index={index} replay={replay} />;
+  // Kiez: Geschenk vorn wie das Abzeichen in den Listen darunter. Erreicht: ohne Balken, „Geschafft“ statt „1 von 1“
+  const kiezDone = BARE && done;
+  const body = (
+    <>
+      {BARE ? gift : null}
       <View style={styles.texts}>
         <View style={styles.head}>
           <Text style={styles.title}>{t(quest.title)}</Text>
-          <Text style={styles.count}>{t('{have} von {need}', steps)}</Text>
+          {kiezDone ? <Text style={styles.reached}>Geschafft</Text> : <Text style={styles.count}>{t('{have} von {need}', steps)}</Text>}
         </View>
-        <View style={styles.bar}>
-          <View style={[styles.fill, done && styles.fillDone, { width: `${share * 100}%` }]} />
-        </View>
+        {kiezDone ? null : (
+          <View style={styles.bar}>
+            <Animated.View style={[styles.fill, done && styles.fillDone, { width: grow }]} />
+          </View>
+        )}
       </View>
-      <Gift open={done} seenKey={quest.seenKey} share={share} index={index} />
+      {BARE ? null : gift}
+    </>
+  );
+  const label = `${t(quest.title)}, ${done ? t('Geschafft') : t('{have} von {need}', steps)}`;
+  const rowStyle = [styles.row, index > 0 && styles.divider];
+  return done ? (
+    <Pressable style={rowStyle} accessibilityRole="button" accessibilityLabel={label} onPress={() => setReplay((n) => n + 1)}>
+      {body}
+    </Pressable>
+  ) : (
+    <View style={rowStyle} accessible accessibilityLabel={label}>
+      {body}
     </View>
   );
+}
+
+/** Der Balken wächst beim Öffnen der Seite auf seinen Stand, Zeile für Zeile versetzt. Ohne Bewegung steht er sofort. */
+function useGrow(share: number, index: number) {
+  const value = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    let active = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then((still) => {
+        if (!active) return;
+        if (still) value.setValue(share);
+        else Animated.timing(value, { toValue: share, duration: 700, delay: 250 + index * 150, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+      });
+    return () => {
+      active = false;
+    };
+  }, [share, index, value]);
+  return value.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] });
 }
 
 const HEARTS = [
@@ -125,7 +164,7 @@ function useWiggle(active: boolean, share: number, index: number) {
   };
 }
 
-function Gift({ open, seenKey, share, index }: { open: boolean; seenKey: string; share: number; index: number }) {
+function Gift({ open, seenKey, share, index, replay = 0 }: { open: boolean; seenKey: string; share: number; index: number; replay?: number }) {
   const wiggle = useWiggle(!open, share, index);
   // 0 = zu, 1 = offen
   const lid = useRef(new Animated.Value(0)).current;
@@ -150,29 +189,38 @@ function Gift({ open, seenKey, share, index }: { open: boolean; seenKey: string;
         // dann einfach öffnen
       }
       if (!active) return;
-      if (seen || still) {
+      if (still) {
         lid.setValue(1);
+        return;
+      }
+      // Kurz rütteln, dann springt der Deckel auf
+      const pop = (extra: Animated.CompositeAnimation[] = []) => [
+        Animated.sequence([0.06, -0.06, 0.04, 0].map((v) => Animated.timing(lid, { toValue: v, duration: 70, useNativeDriver: native }))),
+        Animated.parallel([Animated.spring(lid, { toValue: 1, friction: 4, tension: 120, useNativeDriver: native }), ...extra]),
+      ];
+      lid.setValue(0);
+      // Schon gesehen: Der Deckel springt bei jedem Besuch kurz auf, eins nach dem anderen. Herzen nur beim ersten Mal
+      // und beim Tipp auf das Ziel.
+      if (seen && !replay) {
+        Animated.sequence([Animated.delay(700 + index * 350), ...pop()]).start();
         return;
       }
       AsyncStorage.setItem(SEEN(seenKey), '1').catch(() => {});
       setBurst(true);
       rise.forEach((v) => v.setValue(0));
       Animated.sequence([
-        Animated.delay(400),
-        // Kurz rütteln, dann springt der Deckel auf
-        Animated.sequence([0.06, -0.06, 0.04, 0].map((v) => Animated.timing(lid, { toValue: v, duration: 70, useNativeDriver: native }))),
-        Animated.parallel([
-          Animated.spring(lid, { toValue: 1, friction: 4, tension: 120, useNativeDriver: native }),
-          ...rise.map((v, i) =>
+        Animated.delay(replay ? 0 : 400),
+        ...pop(
+          rise.map((v, i) =>
             Animated.timing(v, { toValue: 1, duration: 1300, delay: HEARTS[i].delay, easing: Easing.out(Easing.cubic), useNativeDriver: native }),
           ),
-        ]),
+        ),
       ]).start(() => active && setBurst(false));
     })();
     return () => {
       active = false;
     };
-  }, [open, seenKey, lid, rise]);
+  }, [open, seenKey, lid, rise, index, replay]);
 
   // Offenes Geschenk grün (Ziel erreicht), Herzen pink (Daria, 30.10.2026: Geschenk und Herzen in verschiedenen Farben)
   const xml = iconSvgs.gift.svg(open ? color.accent.confirmation : color.text.secondary);
@@ -241,11 +289,13 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: space[8] },
   title: { ...text.label, flexShrink: 1, color: color.text.primary },
   count: { ...text.caption, color: color.text.secondary },
+  reached: { ...text.captionStrong, color: color.accent.confirmation },
   bar: { height: 6, borderRadius: 3, backgroundColor: color.line.hairline, overflow: 'hidden' },
   fill: { height: 6, borderRadius: 3, backgroundColor: color.text.secondary },
   // Erreicht: grün wie das offene Geschenk daneben
   fillDone: { backgroundColor: color.accent.confirmation },
-  gift: { width: GIFT_W + 8, height: GIFT_H, alignItems: 'center' },
-  part: { position: 'absolute', left: 4, width: GIFT_W, overflow: 'hidden' },
-  heart: { position: 'absolute', top: GIFT_H * 0.3, left: GIFT_W / 2 - 4 },
+  // Kiez: so breit wie die Abzeichen in den Listen darunter, damit die Titel in einer Flucht stehen
+  gift: { width: BARE ? 51 : GIFT_W + 8, height: GIFT_H, alignItems: 'center', marginTop: BARE ? space[12] : 0 },
+  part: { position: 'absolute', left: BARE ? (51 - GIFT_W) / 2 : 4, width: GIFT_W, overflow: 'hidden' },
+  heart: { position: 'absolute', top: GIFT_H * 0.3, left: (BARE ? 51 : GIFT_W + 8) / 2 - 8 },
 });

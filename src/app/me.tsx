@@ -124,7 +124,8 @@ function Journey() {
           >
             <Thumb entry={entry} size={64} />
             <View style={styles.flex}>
-              <Text style={styles.taskKicker}>Du bist dran</Text>
+              {/* Kiez: Die Überschrift darüber sagt es schon */}
+              {BARE ? null : <Text style={styles.taskKicker}>Du bist dran</Text>}
               <Text style={styles.taskTitle} numberOfLines={1}>
                 {taskLabel(entry)}
               </Text>
@@ -141,6 +142,10 @@ function Journey() {
 
         {/* Ziele mit Geschenk, für das ganze Konto (Daria, 29.10.2026) */}
         <Quests quests={goals} label="Deine Ziele" />
+
+        {/* Erst alles, was noch zu holen ist (Ziele, offene Abzeichen), dann das Geholte (Abzeichen, Bilanz):
+            vorher wechselten sich beide ab (Daria, 2026-11-28: Aufbau der Seite „nicht durchdacht“) */}
+        <BadgeOverview part="open" />
 
         {/* Icons zwischen den Wörtern: Herz Diese Community Daumen braucht Schiffchen Dich Krone (Daria, 02.11.2026).
             In anderen Sprachen stehen die Icons vor dem übersetzten Satz, da die Wortfolge dort eine andere ist. */}
@@ -169,7 +174,7 @@ function Journey() {
         )}
 
         {/* Erhaltene und offene Abzeichen (Daria, 2026-11-01) */}
-        <BadgeOverview />
+        <BadgeOverview part="earned" />
 
         <View style={styles.journeyHead}>
           {/* Nicht „Geschafft“: So heißt schon die Fotoreihe darunter */}

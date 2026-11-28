@@ -26,17 +26,19 @@ export function BadgeStepsBar({ steps }: { steps: { have: number; need: number }
 /**
  * Abzeichen in „Me“ (Daria, 2026-11-01): erhaltene und offene mit Fortschritt. Ein Tipp auf ein Abzeichen
  * öffnet sein Detail (`badges/[kind]`, 2026-11-02).
+ * `part`: nur die erhaltenen oder nur die offenen, wenn die Seite beide an verschiedenen Stellen zeigt.
  * `gutter`: seitlicher Rand der Seite, falls die Liste ihn selbst braucht (Fashionable-Profil).
  */
-export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
+export function BadgeOverview({ gutter = 0, part }: { gutter?: number; part?: 'earned' | 'open' }) {
   const router = useRouter();
   const { mine } = useMyBadges();
   if (!mine) return null;
+  const show = (which: 'earned' | 'open') => !part || part === which;
   const earned = BADGES.map((meta) => ({ meta, own: mine.badges.find((b) => b.badge === meta.kind) })).filter((x) => !!x.own);
   const open = BADGES.filter((meta) => !mine.badges.some((b) => b.badge === meta.kind) && meta.kind !== 'pionier');
   return (
     <View style={[styles.wrap, { paddingHorizontal: gutter }]}>
-      {earned.length ? (
+      {earned.length && show('earned') ? (
         <View style={styles.block}>
           <SectionLabel>Deine Abzeichen</SectionLabel>
           <View style={styles.list}>
@@ -60,7 +62,7 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
           </View>
         </View>
       ) : null}
-      {open.length ? (
+      {open.length && show('open') ? (
         <View style={styles.block}>
           <SectionLabel>Das gibt es zu gewinnen</SectionLabel>
           <View style={styles.list}>
