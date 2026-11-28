@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import { handDrawn } from '../../theme/look';
-import { color, font, radius, space, text } from '../../theme/tokens';
+import { color, font, radius, space, stroke, text } from '../../theme/tokens';
 import { DAY, INK, INK_SOFT, INK_TRACK, MUSTARD } from './constants';
 
 export const styles = StyleSheet.create({
@@ -217,10 +217,10 @@ export const stackStyles = StyleSheet.create({
     right: 0,
     borderRadius: radius.md,
     userSelect: 'none',
-    shadowColor: '#000',
+    // Auf hellem Grund feine Linie statt Schatten (Daria, 2026-11-28: „Alternative zum Schatten?“)
     ...(handDrawn
-      ? { shadowOpacity: 0.42, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } }
-      : { shadowOpacity: 0.07, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } }),
+      ? { shadowColor: '#000', shadowOpacity: 0.42, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } }
+      : { borderWidth: stroke.thin, borderColor: color.text.primary }),
   },
   cover: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: radius.md },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[8] },
