@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
+import { SvgXml } from 'react-native-svg';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 import { Button } from '../../../components/Button';
@@ -8,6 +9,7 @@ import { Explanation, FieldGroup, Notice, QuestionHint } from '../../../componen
 import { CheckOption } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
+import { phXml } from '../../../components/icons/phosphor';
 import { WEB_APP_URL } from '../../../data/groups';
 import { loadShowcase, type Showcase } from '../../../data/showcase';
 import { useStore } from '../../../data/store';
@@ -25,8 +27,8 @@ const web = Platform.OS === 'web';
  * (lib/businessCardCanvas.ts); in der Android-App öffnet der Knopf dieselbe Seite im Browser. Nur fürs Team.
  *
  * „Auf der Druckbaren Visitenkarte zeigen“ (Daria, 2026-11-23): Häkchen bei Services (vorne) und Links (hinten).
- * Vorausgewählt sind die ersten Einträge der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links legt
- * „Inhalte bearbeiten“ fest. Ist eine Seite voll, sind weitere Häkchen gesperrt, und eine Frage erklärt warum. Passt eine
+ * Vorausgewählt sind die ersten Einträge der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links kommt
+ * aus „Inhalte bearbeiten“ und lässt sich hier mit Pfeilen nur für die Karte ändern (2026-11-28). Ist eine Seite voll, sind weitere Häkchen gesperrt, und eine Frage erklärt warum. Passt eine
  * Auswahl trotzdem nicht ganz (lange Einträge brauchen zwei Zeilen), sagt der Bildschirm, was fehlt.
  */
 export default function PrintableBusinessCard() {
@@ -40,7 +42,19 @@ export default function PrintableBusinessCard() {
   // Auswahl je Eintrag; null, bis die erste Zeichnung zeigt, wie viel passt
   const [linkOn, setLinkOn] = useState<boolean[] | null>(null);
   const [serviceOn, setServiceOn] = useState<boolean[] | null>(null);
+  // Reihenfolge der Links nur für die Druckbare Visitenkarte (Daria, 2026-11-28: „Reihenfolge hier anpassen“). Anfangs wie
+  // unter „Inhalte bearbeiten“; die Seite und die Digitale Visitenkarte bleiben, wie sie sind. `linkOn` gilt je Link
+  // in der Reihenfolge aus „Inhalte bearbeiten“, `linkOrder` sagt, an welcher Stelle er auf der Karte steht.
+  const [linkOrder, setLinkOrder] = useState<number[] | null>(null);
   const links = useMemo(() => showcase?.links ?? [], [showcase]);
+  const order = linkOrder && linkOrder.length === links.length ? linkOrder : links.map((_, i) => i);
+  const moveLink = (pos: number, by: -1 | 1) => {
+    const j = pos + by;
+    if (j < 0 || j >= order.length) return;
+    const next = [...order];
+    [next[pos], next[j]] = [next[j], next[pos]];
+    setLinkOrder(next);
+  };
   const services = useMemo(() => servicesPlain(showcase?.services), [showcase]);
 
   useFocusEffect(
@@ -60,7 +74,7 @@ export default function PrintableBusinessCard() {
     let off = false;
     const chosen = linkOn && serviceOn;
     const data = chosen
-      ? { ...cardData(showcase), links: links.filter((_, i) => linkOn[i]), serviceLines: services.filter((_, i) => serviceOn[i]) }
+      ? { ...cardData(showcase), links: order.filter((i) => linkOn[i]).map((i) => links[i]), serviceLines: services.filter((_, i) => serviceOn[i]) }
       : cardData(showcase);
     drawBusinessCard(data).then((s) => {
       if (off || !s) return;
@@ -76,7 +90,8 @@ export default function PrintableBusinessCard() {
     return () => {
       off = true;
     };
-  }, [showcase, links, services, linkOn, serviceOn]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `order` ist aus linkOrder und links abgeleitet
+  }, [showcase, links, services, linkOn, serviceOn, linkOrder]);
 
   // Gewählt, aber nicht (ganz) auf der Karte
   const missingLinks = sides && linkOn ? linkOn.filter(Boolean).length - sides.fit.links : 0;
@@ -145,15 +160,24 @@ export default function PrintableBusinessCard() {
             ) : null}
             {links.length ? (
               <View style={styles.choices}>
-                <Text style={styles.label}>{t('Links, hinten, in der Reihenfolge aus „Inhalte bearbeiten“')}</Text>
-                {links.map((l, i) => (
-                  <CheckOption
-                    key={`l${i}`}
-                    label={printLink(l)}
-                    selected={linkOn[i]}
-                    disabled={linksFull && !linkOn[i]}
-                    onPress={() => toggle(linkOn, setLinkOn, i)}
-                  />
+                <Text style={styles.label}>{t('Links, hinten')}</Text>
+                {order.map((i, pos) => (
+                  <View key={`l${i}`} style={styles.linkRow}>
+                    <View style={styles.flex}>
+                      <CheckOption
+                        label={printLink(links[i])}
+                        selected={linkOn[i]}
+                        disabled={linksFull && !linkOn[i]}
+                        onPress={() => toggle(linkOn, setLinkOn, i)}
+                      />
+                    </View>
+                    {order.length > 1 ? (
+                      <View style={styles.move}>
+                        <MoveButton up disabled={pos === 0} label={t('Link {n} nach oben', { n: pos + 1 })} onPress={() => moveLink(pos, -1)} />
+                        <MoveButton disabled={pos === order.length - 1} label={t('Link {n} nach unten', { n: pos + 1 })} onPress={() => moveLink(pos, 1)} />
+                      </View>
+                    ) : null}
+                  </View>
                 ))}
                 {linksFull && linkOn.some((on) => !on) ? (
                   <QuestionHint
@@ -189,6 +213,25 @@ export default function PrintableBusinessCard() {
   );
 }
 
+/** Pfeil nach oben oder unten, um einen Link auf der Druckbaren Visitenkarte zu verschieben */
+function MoveButton({ up, disabled, label, onPress }: { up?: boolean; disabled: boolean; label: string; onPress: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      hitSlop={4}
+      onPress={onPress}
+      style={({ pressed }) => [styles.moveButton, disabled && styles.moveDisabled, pressed && styles.movePressed]}
+    >
+      <View style={{ transform: [{ rotate: up ? '-90deg' : '90deg' }] }}>
+        <SvgXml xml={phXml('caret-right', color.text.primary)} width={18} height={18} accessible={false} />
+      </View>
+    </Pressable>
+  );
+}
+
 /** „Nicht alles passt“ mit den Zahlen, die fehlen; Einzahl und Mehrzahl stehen im Text, damit die Übersetzung stimmt */
 function missingText(links: number, services: number): string {
   const parts = [
@@ -205,4 +248,10 @@ const styles = StyleSheet.create({
   card: { width: '100%', aspectRatio: CARD_W / CARD_H, borderRadius: radius.md, marginBottom: space[12] },
   buttons: { gap: space[12] },
   choices: { gap: space[8] },
+  linkRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  flex: { flex: 1 },
+  move: { gap: space[2] },
+  moveButton: { width: 32, height: 24, alignItems: 'center', justifyContent: 'center', borderRadius: radius.sm },
+  moveDisabled: { opacity: 0.25 },
+  movePressed: { opacity: 0.6 },
 });

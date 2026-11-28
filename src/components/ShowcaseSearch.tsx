@@ -4,6 +4,7 @@ import { SvgXml } from 'react-native-svg';
 
 import type { ShowcaseHit } from '../data/showcase';
 import { t } from '../data/texts';
+import { isMono } from '../theme/look';
 import { useFocusColor } from '../theme/signal';
 import { color, radius, space, stroke, text } from '../theme/tokens';
 import { IconButton } from './IconButton';
@@ -31,7 +32,7 @@ export function ShowcaseSearchField({
   // Fokus wie in allen Eingabefeldern (useFocusColor), nicht die Akzentfarbe (Daria, 2026-11-13)
   const accent = useFocusColor();
   return (
-    <View style={[styles.field, focused && { borderColor: accent }]}>
+    <View style={[styles.field, isMono && styles.fieldMono, focused && { borderColor: accent }, isMono && focused && styles.fieldMonoFocused]}>
       <SvgXml xml={phXml('magnifying-glass', color.text.secondary)} width={SEARCH_ICON} height={SEARCH_ICON} accessible={false} />
       <TextInput
         value={value}
@@ -92,7 +93,8 @@ const styles = StyleSheet.create({
     marginHorizontal: space[16],
     // Etwas mehr Abstand zum Umschalter (Daria, 2026-11-13)
     marginTop: space[4],
-    marginBottom: space[8],
+    // Mehr Luft zum ersten Post darunter (Daria, 2026-11-28)
+    marginBottom: space[16],
     // Abzüglich des Rands, der immer da ist und nur im aktiven Feld Farbe bekommt; so springt nichts
     paddingLeft: space[12] - stroke.focus,
     paddingRight: space[4] - stroke.focus,
@@ -100,6 +102,20 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     borderRadius: radius.sm,
     backgroundColor: color.bg.surface,
+  },
+  // Mono: kein graues Feld, sondern eine feine schwarze Linie auf Weiß wie die Knöpfe; aktiv wird die Linie dicker
+  // (Daria, 2026-11-28: „grau hervorgehobenen Bereich anders hervorheben“)
+  fieldMono: {
+    backgroundColor: color.bg.screen,
+    borderWidth: stroke.thin,
+    borderColor: color.text.primary,
+    paddingLeft: space[12] - stroke.thin,
+    paddingRight: space[4] - stroke.thin,
+  },
+  fieldMonoFocused: {
+    borderWidth: stroke.focus,
+    paddingLeft: space[12] - stroke.focus,
+    paddingRight: space[4] - stroke.focus,
   },
   input: { ...text.body, flex: 1, color: color.text.primary, paddingVertical: space[8] },
   row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[16] },

@@ -1450,5 +1450,8 @@
   "Weiter posten": "Продовжити публікацію",
   "Nichts posten, zurück zum Feed": "Нічого не публікувати, назад до стрічки",
   "Nichts posten und zurück": "Нічого не публікувати й повернутися",
-  "Meine Digitale Visitenkarte zeigen": "Показати мою цифрову візитну картку"
+  "Meine Digitale Visitenkarte zeigen": "Показати мою цифрову візитну картку",
+  "Links, hinten": "Посилання, на звороті",
+  "Link {n} nach oben": "Перемістити посилання {n} вгору",
+  "Link {n} nach unten": "Перемістити посилання {n} вниз"
 }
