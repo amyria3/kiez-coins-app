@@ -510,7 +510,8 @@ const PLUS_ICON = 26;
  */
 const NAV_IDLE = isMono ? 1.05 : 0.8;
 const NAV_SELECTED = isMono ? 1.1 : 1;
-const NAV_OPTICAL: Partial<Record<IconName, number>> = isMono ? { feed: 1.12 } : {};
+// Das Doppelherz ist selbst groß genug gezeichnet (lineSvgs), eine Vergrößerung hier machte seinen Strich dicker
+const NAV_OPTICAL: Partial<Record<IconName, number>> = {};
 const navSize = (full: number, selected: boolean, name?: IconName) =>
   Math.round(full * (selected ? NAV_SELECTED : NAV_IDLE) * ((name && NAV_OPTICAL[name]) ?? 1) * 10) / 10;
 

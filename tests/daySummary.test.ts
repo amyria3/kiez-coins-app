@@ -20,4 +20,11 @@ describe('Pille über dem Tagesstapel (2026-11-28)', () => {
     assert.equal(daySummary({ day: 'Mo, 30.11.', today: false, tasks: [], dates: 4 }, tr), 'Am Mo, 30.11. hast Du ganze 4 Termine. WTF.');
     assert.equal(daySummary({ day: 'Mo, 30.11.', today: false, tasks: [], dates: 0 }, tr), 'Am Mo, 30.11. steht noch nichts an.');
   });
+  it('vergangener Tag: geschafft und ausgefallen', () => {
+    assert.equal(
+      daySummary({ day: 'Mi, 25.11.', today: false, tasks: [], dates: 0, past: { done: ['Klavier', 'Yoga'], missed: ['Tatum anrufen'] } }, tr),
+      'Am Mi, 25.11. hast Du geschafft: Klavier und Yoga. Ausgefallen: Tatum anrufen.',
+    );
+    assert.equal(daySummary({ day: 'Mi, 25.11.', today: false, tasks: [], dates: 0, past: { done: [], missed: [] } }, tr), 'Am Mi, 25.11. stand nichts an.');
+  });
 });

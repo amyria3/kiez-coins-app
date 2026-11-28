@@ -22,13 +22,16 @@ const HEART_LINE =
 const HEART_BACK_LINE =
   'M213.86,61.63 C204.32,53.15 191.76,48 178,48 C158,48 139,58 128,76 C117,58 98,48 78,48 C48.18,48 24,72.18 24,102 ' +
   'C24,134.94 50.52,164.87 77.09,186.81';
+// Etwas größer gezeichnet statt in der Leiste vergrößert (Daria, 2026-11-28: „The different stroke indicates the
+// setting is not completely working“): So bleibt der Strich wie bei allen Phosphor-Icons bei 16 von 256.
+const HEART_SCALE = 0.784;
 const doubleHeartLine: LineSvg = (c) => {
-  const width = 16 / 0.7;
+  const width = 16 / HEART_SCALE;
   const line = `fill="none" stroke="${c}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"`;
   return (
     `<svg width="24" height="24" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">` +
-    `<path d="${HEART_BACK_LINE}" transform="translate(4 18) scale(0.7)" ${line}/>` +
-    `<path d="${HEART_LINE}" transform="translate(72 58) scale(0.7)" ${line}/></svg>`
+    `<path d="${HEART_BACK_LINE}" transform="translate(-10.88 4.32) scale(${HEART_SCALE})" ${line}/>` +
+    `<path d="${HEART_LINE}" transform="translate(65.28 49.12) scale(${HEART_SCALE})" ${line}/></svg>`
   );
 };
 

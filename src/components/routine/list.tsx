@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
-import { memo, useEffect, useMemo, useRef, type ReactElement } from 'react';
+import { memo, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { eventDate, type CalendarEvent } from '../../data/calendar';
 import { daySummary } from '../../data/daySummary';
 import { useCardMotion } from '../../data/features';
 import { allDoneLine, dayName } from '../../data/katerRoutine';
-import { addDays, capitalize, kindOf, localDate, type Reminder, type ReminderEnd } from '../../data/reminders';
+import { addDays, capitalize, kindOf, loadRoutineDays, localDate, type Reminder, type ReminderEnd } from '../../data/reminders';
 import { localeTag, t } from '../../data/texts';
 import { eventOver, isUrgent, restingOf, sortAgenda, sortByUrgency } from '../../data/urgency';
 import { RoutineCalendarStages } from './calendar';
@@ -126,6 +126,25 @@ export const RoutineList = memo(function RoutineList({
   const router = useRouter();
   const accent = useAccentColor();
   const isToday = date === today;
+  const isPast = date < today;
+  // Vergangener Tag: was geschafft wurde und was ausfiel, wie im Kalender (Daria, 2026-11-28: „If nothing is scheduled
+  // why is the circle yellow“). Gelb im Kalender heißt geschafft; der Kater sagt jetzt auch, was.
+  const [past, setPast] = useState<{ day: string; done: string[]; missed: string[] } | null>(null);
+  useEffect(() => {
+    if (!isPast) return;
+    let live = true;
+    const [y, m, d] = date.split('-').map(Number);
+    const at = new Date(y, m - 1, d);
+    loadRoutineDays(at, at, now).then(
+      (days) => live && setPast({ day: date, done: (days.doneBy.get(date) ?? []).map(capitalize), missed: (days.missedBy.get(date) ?? []).map(capitalize) }),
+      () => live && setPast({ day: date, done: [], missed: [] }),
+    );
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date, isPast]);
+  const pastOfDay = isPast && past?.day === date ? past : undefined;
 
   const taskCard = (r: Reminder) => (
     <TaskCard key={`r:${r.id}`} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} onSkip={onSkip && (() => onSkip(r))} onUndoSkip={onUndoSkip && (() => onUndoSkip(r))} />
@@ -152,12 +171,14 @@ export const RoutineList = memo(function RoutineList({
       ...doneAgenda.map(agendaCard),
     );
     // Pille oben (Daria, 2026-11-28): „Du hast Dir vorgenommen: … Du hast heute außerdem ganze 3 Termine. WTF.“
-    summary = daySummary(
+    // Vergangener Tag: erst sprechen, wenn geladen ist, was geschafft wurde
+    if (!isPast || pastOfDay) summary = daySummary(
       {
         day: dayName(date, now),
         today: isToday,
         tasks: d.tasks.filter((r) => !restingOf(r)).map((r) => capitalize(r.want)),
         dates: openAgenda.length + d.optional.filter((r) => !restingOf(r)).length + d.saved.filter((e) => !e.cancelled).length,
+        past: pastOfDay,
       },
       t,
     );
@@ -194,7 +215,7 @@ export const RoutineList = memo(function RoutineList({
           {cards.length ? (
             <DayStack key={date} cards={cards} enter={enter} />
           ) : (
-            <Text style={styles.dayBar}>{t('Noch nichts an diesem Tag.')}</Text>
+            <Text style={styles.dayBar}>{t(isPast ? 'Keine Karten mehr für diesen Tag.' : 'Noch nichts an diesem Tag.')}</Text>
           )}
         </View>
       ) : null}
