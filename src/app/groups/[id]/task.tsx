@@ -12,6 +12,9 @@ import { useStore } from '../../../data/store';
 import { useGoBack } from '../../../lib/goBack';
 import { WaitForData } from '../../../components/WaitForData';
 
+// Zurück führt hier dorthin, wo das Formular geöffnet wurde (meist die Gruppe), daher ohne Ziel im Knopf
+const LEAVE = 'Nichts posten und zurück';
+
 /**
  * Route `groups/[id]/task`: Gruppenaufgabe mit 1 bis 10 Edensteinen. Foto optional, Ort nur in öffentlichen Gruppen.
  * Der Schalter oben wechselt zur Me-Challenge oder zum Bild in dieser Gruppe (Daria, 27.10.2026), wie im Erstellen-Blatt über dem Feed.
@@ -46,9 +49,9 @@ function NewGroupTaskForm() {
   const shared = useComposeContent({ photo: original?.image, title: original?.title, text: original?.text });
   const participation = draft?.maxParticipants ? { max: draft.maxParticipants, mode: draft.joinMode ?? 'open' } : undefined;
   // Entwurf gespeichert: zurück, woher man kam
-  const task = useGroupTaskForm(id, { edensteine: original?.edensteine, participation }, (taskId) => router.replace(`/challenge/${taskId}`), shared, goBack, draft);
-  const photo = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared, goBack, draft);
-  const textPost = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared, goBack, draft?.pages ? draft : undefined, true);
+  const task = useGroupTaskForm(id, { edensteine: original?.edensteine, participation }, (taskId) => router.replace(`/challenge/${taskId}`), shared, goBack, draft, LEAVE);
+  const photo = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared, goBack, draft, false, LEAVE);
+  const textPost = useGroupPhotoForm(id, (postId) => router.replace(`/challenge/${postId}`), shared, goBack, draft?.pages ? draft : undefined, true, LEAVE);
   const ba = useBeforeAfterStartForm(id, (baId) => router.replace({ pathname: '/before-after/[id]', params: { id: baId } }), shared);
   const form = type === 'before_after' ? ba : type === 'photo' ? photo : type === 'text' ? textPost : task;
   return (

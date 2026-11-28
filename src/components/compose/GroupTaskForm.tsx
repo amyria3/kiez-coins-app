@@ -7,7 +7,7 @@ import { color, text } from '../../theme/tokens';
 import { Button } from '../Button';
 import { FieldGroup } from '../Content';
 import { Chip, ChipGroup, PhotoPicker } from '../Form';
-import { explain, useNudge } from '../Nudge';
+import { explain, nothingToSave, useNudge } from '../Nudge';
 import { Text } from '../T';
 import { useComposeContent, type ComposeContent } from './compose';
 import { TagTextField } from './BeforeAfterForm';
@@ -44,6 +44,8 @@ export function useGroupTaskForm(
   shared: ComposeContent | undefined,
   onSaved: () => void,
   draft?: Challenge,
+  /** Knopf im Dialog „Noch nichts zu speichern“, je nachdem, wohin onSaved führt */
+  leaveLabel?: string,
 ): {
   fields: ReactNode;
   button: ReactNode;
@@ -149,7 +151,7 @@ export function useGroupTaskForm(
               : titleField.nudge('Gib der We-Challenge einen Titel.')
         }
       />
-      <GroupDraftButton busy={busy === 'save'} disabled={!!busy || !group || !hasContent} onPress={save} />
+      <GroupDraftButton busy={busy === 'save'} disabled={!!busy || !group || !hasContent} onPress={save} onLeave={onSaved} leaveLabel={leaveLabel} />
     </>
   );
 
@@ -157,7 +159,7 @@ export function useGroupTaskForm(
 }
 
 /** „Als Entwurf speichern“ in Gruppen, wie im Kiez (PublicComposeForm) */
-export function GroupDraftButton({ busy, disabled, onPress }: { busy: boolean; disabled: boolean; onPress: () => void }) {
+export function GroupDraftButton({ busy, disabled, onPress, onLeave, leaveLabel }: { busy: boolean; disabled: boolean; onPress: () => void; onLeave: () => void; leaveLabel?: string }) {
   return (
     <Button
       busy={busy}
@@ -165,7 +167,7 @@ export function GroupDraftButton({ busy, disabled, onPress }: { busy: boolean; d
       variant="ghost"
       onPress={onPress}
       disabled={disabled}
-      whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
+      whyDisabled={() => !busy && nothingToSave('Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.', onLeave, leaveLabel)}
     />
   );
 }
