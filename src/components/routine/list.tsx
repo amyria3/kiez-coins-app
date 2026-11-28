@@ -10,9 +10,9 @@ import { localeTag, t } from '../../data/texts';
 import { eventOver, isUrgent, restingOf, sortAgenda, sortByUrgency } from '../../data/urgency';
 import { RoutineCalendarStages } from './calendar';
 import { CalendarCard, EventCard, SavedCard, TaskCard } from './cards';
-import { OLIVE, POWDER } from './constants';
+import { MUSTARD, OLIVE, POWDER, SHOWCASE } from './constants';
 import { Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
-import { DayHead, DayStack } from './stack';
+import { DayHead, DayStack, SortButton } from './stack';
 import { stackStyles, styles } from './styles';
 import { setKaterLine, setRoutineDay, useRoutineDay } from '../../data/routineView';
 import { Text } from '../T';
@@ -149,6 +149,9 @@ export const RoutineList = memo(function RoutineList({
   );
   // Reihenfolge im Stapel: offene Termine nach Uhrzeit, offene Aufgaben, Vorgemerktes, zuletzt Erledigtes
   const cards: ReactElement[] = [];
+  // Nach Typ (Daria, 2026-11-28: „Termine auf dem einen Stapel, Erinnerungen am anderen, gespeicherte Ereignisse
+  // woanders“): dieselben Karten in drei Stapeln untereinander
+  const groups: { key: string; name: string; dot: string; cards: ReactElement[] }[] = [];
   let summary = '';
   if (cardsOfDay) {
     const d = cardsOfDay;
@@ -164,6 +167,11 @@ export const RoutineList = memo(function RoutineList({
       ...d.saved.map((e) => <SavedCard key={`s:${e.id}`} event={e} onChanged={onChanged} />),
       ...d.tasks.filter(restingOf).map(taskCard),
       ...doneAgenda.map(agendaCard),
+    );
+    groups.push(
+      { key: 'termine', name: 'Termine', dot: OLIVE, cards: [...openAgenda.map(agendaCard), ...d.optional.map((r) => eventCard(r, POWDER)), ...doneAgenda.map(agendaCard)] },
+      { key: 'erinnerungen', name: 'Erinnerungen', dot: MUSTARD, cards: [...d.tasks.filter((r) => !restingOf(r)).map(taskCard), ...d.tasks.filter(restingOf).map(taskCard)] },
+      { key: 'gespeichert', name: 'Gespeichert', dot: SHOWCASE, cards: d.saved.map((e) => <SavedCard key={`s:${e.id}`} event={e} onChanged={onChanged} />) },
     );
     // Pille oben (Daria, 2026-11-28): „Du hast Dir vorgenommen: … Du hast heute außerdem ganze 3 Termine. WTF.“
     // Vergangener Tag: erst sprechen, wenn geladen ist, was geschafft wurde
@@ -184,6 +192,11 @@ export const RoutineList = memo(function RoutineList({
   useEffect(() => {
     setKaterLine(katerText);
   }, [katerText]);
+  const [byType, setByType] = useState(false);
+  const shownGroups = groups.filter((g) => g.cards.length);
+  // Der Knopf lohnt sich erst, wenn mehr als eine Art Karten am Tag liegt
+  const canSort = shownGroups.length > 1;
+  const split = byType && canSort;
   const dayLabel = isToday || date === localDate(addDays(1, now)) ? `${dayName(date, now)}, ${shortDate(date)}` : dayName(date, now);
 
   return (
@@ -194,7 +207,21 @@ export const RoutineList = memo(function RoutineList({
         <View style={stackStyles.dayWrap}>
           <DayHead label={dayLabel} index={index} count={cardDays.length} onDay={(i) => setRoutineDay(cardDays[i][0] === today ? null : cardDays[i][0])} />
           {/* „+ Erinnerung für heute“ über dem Stapel raus (Daria, 2026-11-28: „Raus“), neu anlegen über das Plus in der Leiste */}
-          {cards.length ? (
+          {canSort ? <SortButton on={split} onPress={() => setByType(!split)} /> : null}
+          {cards.length && split ? (
+            shownGroups.map((g) => (
+              <View key={g.key} style={stackStyles.group}>
+                <View style={stackStyles.groupHead}>
+                  <View style={[stackStyles.groupDot, { backgroundColor: g.dot }]} />
+                  <Text style={stackStyles.groupName}>{t(g.name)}</Text>
+                  <Text noTranslate style={stackStyles.count}>
+                    {g.cards.length}
+                  </Text>
+                </View>
+                <DayStack key={`${date}-${g.key}`} cards={g.cards} enter={enter} />
+              </View>
+            ))
+          ) : cards.length ? (
             <DayStack key={date} cards={cards} enter={enter} />
           ) : (
             <Text style={styles.dayBar}>{t(isPast ? 'Keine Karten mehr für diesen Tag.' : 'Noch nichts an diesem Tag.')}</Text>

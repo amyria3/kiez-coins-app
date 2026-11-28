@@ -197,6 +197,14 @@ export const stackStyles = StyleSheet.create({
   wrap: { gap: space[8] },
   // Tageszeile mit Punkten und Stapel: etwas mehr Luft (Daria, 2026-11-28: „Slightly more space would be nice“)
   dayWrap: { gap: space[16] },
+  // Nach Typ: Überschrift mit Farbpunkt und Anzahl über jedem Stapel (Daria, 2026-11-28)
+  group: { gap: space[8], marginBottom: space[8] },
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  groupDot: { width: 10, height: 10, borderRadius: 5 },
+  groupName: { ...text.label, color: color.text.primary },
+  // Schräger Knopf am rechten Rand, schwirrt leicht (Daria, 2026-11-28: „secondary Button, der leicht schräg im Bild
+  // seitlich schwirrt“)
+  sort: { alignSelf: 'flex-end', marginTop: -space[8], marginBottom: -space[4] },
   // Platz für Neigung und Bogen, ohne dass etwas abgeschnitten wird
   stack: { position: 'relative', overflow: 'visible' },
   // Kräftiger Schatten unter jeder Karte, auch aufgefächert (Daria, 2026-11-28: „Mehr Schatten“). Auf hellem Grund
