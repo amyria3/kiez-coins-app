@@ -53,6 +53,8 @@ export function useWideWeb() {
 export const DESKTOP_FROM = 900;
 export const DESKTOP_WIDE_FROM = 1200;
 export const DESKTOP_CONTENT_WIDTH = 620;
+/** Rechte Spalte der Desktop-Fassung, ab `DESKTOP_WIDE_FROM` */
+export const DESKTOP_ASIDE_WIDTH = 300;
 /** Muss zu `max-width` von `#root` in `public/index.html` passen: ab hier hat die App die volle Fensterbreite */
 const isDesktopWidth = (width: number) => Platform.OS === 'web' && width >= DESKTOP_FROM;
 

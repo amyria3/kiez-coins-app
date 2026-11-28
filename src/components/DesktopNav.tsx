@@ -1,18 +1,19 @@
 import { useCallback, useSyncExternalStore, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, usePathname, useRouter } from 'expo-router';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, SvgXml } from 'react-native-svg';
 
 import { color, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
-import { isMono, look } from '../theme/look';
-import { DESKTOP_CONTENT_WIDTH, useDesktop } from '../theme/layout';
+import { isLight, isMono, look } from '../theme/look';
+import { DESKTOP_ASIDE_WIDTH, DESKTOP_CONTENT_WIDTH, useDesktop } from '../theme/layout';
 import { t } from '../data/texts';
 import { useStore } from '../data/store';
 import { useFriendRequests, useUnreadMessages } from '../data/chat';
 import { useRoutineEnabled } from '../data/routine';
 import { countButton } from '../data/remote';
 import { Icon, type IconName } from './icons/Icon';
-import { WORDMARK_BOTTOM, WORDMARK_LEFT, WORDMARK_LETTERS, WORDMARK_RIGHT, WORDMARK_TOP } from './icons/wordmarkLetters';
+import { katerRingOnlySvg } from './icons/katerAvatarSvg';
+import { BILDMARKE_SVG, WORDMARK_BOTTOM, WORDMARK_LEFT, WORDMARK_LETTERS, WORDMARK_RIGHT, WORDMARK_TOP } from './icons/wordmarkLetters';
 import { Text } from './T';
 import type { TabKey } from './TabBar';
 
@@ -55,6 +56,24 @@ export function useDesktopNavState(state: DesktopNavState, enabled: boolean) {
   );
 }
 
+/** Rechte Spalte: Die Seite, die vorn ist, legt dort ihren Inhalt ab (DesktopAside.web.tsx) */
+let asideHost: HTMLElement | null = null;
+const asideListeners = new Set<() => void>();
+const subscribeAside = (l: () => void) => {
+  asideListeners.add(l);
+  return () => asideListeners.delete(l);
+};
+const readAside = () => asideHost;
+const setAsideHost = (el: unknown) => {
+  const next = (el as HTMLElement | null) ?? null;
+  if (next === asideHost) return;
+  asideHost = next;
+  asideListeners.forEach((l) => l());
+};
+export function useAsideHost(): HTMLElement | null {
+  return useSyncExternalStore(subscribeAside, readAside, () => null);
+}
+
 /** Rahmen der App: auf dem Desktop Seitenleiste links und Inhalt in Lesebreite, sonst nur der Inhalt */
 export function DesktopFrame({ children }: { children: ReactNode }) {
   const { desktop, wideNav } = useDesktop();
@@ -68,6 +87,8 @@ export function DesktopFrame({ children }: { children: ReactNode }) {
       {nav ? <Sidebar wide={wideNav} /> : null}
       <View style={styles.stage}>
         <View style={styles.column}>{children}</View>
+        {/* Rechte Spalte ab 1200 px, auf jeder Seite reserviert, damit der Inhalt beim Seitenwechsel nicht springt */}
+        {nav && wideNav ? <View ref={setAsideHost} style={styles.aside} /> : null}
       </View>
     </View>
   );
@@ -148,6 +169,31 @@ function Sidebar({ wide }: { wide: boolean }) {
         onPress={toChat}
       />
       <NavItem wide={wide} icon="burger" label={t('Menü')} role={color.nav.menu} selected={active === 'menu'} onPress={toMenu} />
+      {/* Kater unten in der Leiste statt oben über dem Feed: führt zu „Was Du so machst“ (Daria, 2026-11-28) */}
+      <Pressable
+        accessibilityRole="tab"
+        accessibilityLabel={t('Was Du so machst')}
+        accessibilityState={{ selected: active === 'reise' }}
+        onPress={() => (active === 'reise' ? undefined : router.push('/me'))}
+        style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+          styles.item,
+          styles.me,
+          wide ? styles.itemWide : styles.itemRail,
+          hovered && active !== 'reise' && styles.itemHover,
+          active === 'reise' && [styles.itemSelected, { backgroundColor: color.nav.selectedFill ?? undefined }],
+          pressed && styles.pressed,
+        ]}
+      >
+        <View style={styles.kater}>
+          <SvgXml xml={BILDMARKE_SVG} width={KATER} height={KATER} />
+          {isLight ? (
+            <View style={StyleSheet.absoluteFill} pointerEvents="none">
+              <SvgXml xml={katerRingOnlySvg()} width={KATER} height={KATER} />
+            </View>
+          ) : null}
+        </View>
+        {wide ? <Text style={[styles.label, { color: color.text.primary }]}>{t('Was Du so machst')}</Text> : null}
+      </Pressable>
     </View>
   );
 }
@@ -228,11 +274,14 @@ const SIDE_WIDE = 232;
 const SIDE_RAIL = 88;
 /** Breite des Icon-Felds in der Seitenleiste: Platz für das breiteste Kiez-Icon */
 const ICON_BOX = 40;
+/** Kater unten in der Leiste */
+const KATER = 40;
 
 const styles = StyleSheet.create({
   frame: { flex: 1, flexDirection: 'row', backgroundColor: color.bg.screen },
-  stage: { flex: 1, alignItems: 'center' },
-  column: { flex: 1, width: '100%', maxWidth: DESKTOP_CONTENT_WIDTH },
+  stage: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
+  column: { flex: 1, maxWidth: DESKTOP_CONTENT_WIDTH },
+  aside: { width: DESKTOP_ASIDE_WIDTH, marginLeft: space[32], paddingTop: space[24], paddingRight: space[16] },
   side: {
     borderRightWidth: stroke.thin,
     borderRightColor: color.line.hairline,
@@ -265,6 +314,8 @@ const styles = StyleSheet.create({
   subLabel: text.label,
   railLabel: { ...text.caption, textAlign: 'center' },
   pressed: { opacity: 0.6 },
+  me: { marginTop: 'auto' },
+  kater: { width: KATER, height: KATER },
   iconBox: { width: ICON_BOX, alignItems: 'center', justifyContent: 'center' },
   dot: {
     position: 'absolute',

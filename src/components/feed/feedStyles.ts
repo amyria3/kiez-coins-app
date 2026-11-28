@@ -9,6 +9,8 @@ export const styles = StyleSheet.create({
   loading: { alignItems: 'center', paddingVertical: space[48] },
   screen: { flex: 1, backgroundColor: color.bg.screen },
   flex: { flex: 1 },
+  // Desktop: Umschalter schmaler als die Lesebreite, links bündig (Daria, 2026-11-28)
+  desktopSwitch: { flexGrow: 0, flexBasis: 'auto', width: '100%', maxWidth: 460 },
   clip: { overflow: 'hidden' },
   // Etwas mehr Abstand zwischen den Posts (Daria, 2026-11-09)
   list: { gap: space[32] },

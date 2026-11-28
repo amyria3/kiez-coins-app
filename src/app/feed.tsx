@@ -32,7 +32,10 @@ import { takeComposeDone } from '../components/compose/compose';
 import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
-import { useAppDimensions } from '../theme/layout';
+import { useAppDimensions, useDesktop } from '../theme/layout';
+import { DesktopAside } from '../components/DesktopAside';
+import { FeedAside } from '../components/FeedAside';
+import { useFeedEvents, useOwnToday, type FeedScope } from '../data/feedSummary';
 import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, Segments, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar } from '../components/GroupBar';
@@ -976,6 +979,40 @@ export default function FeedScreen() {
     }
   };
 
+  // Desktop (Daria, 2026-11-28): rechte Spalte mit der Zusammenfassung zum gewählten Feed, ab 1200 px
+  const { desktop, wideNav } = useDesktop();
+  const asideOn = wideNav && !composing && !routineActive && !searching;
+  const summaryScope = useMemo<FeedScope | null>(
+    () =>
+      tab === 'nearby'
+        ? { kind: 'kiez', kiez: myKiez }
+        : tab === 'everywhere'
+          ? { kind: 'everywhere' }
+          : tab === 'groups' && groupId
+            ? { kind: 'group', groupId }
+            : null,
+    [tab, myKiez, groupId],
+  );
+  const summaryEvents = useFeedEvents(summaryScope, asideOn);
+  const ownToday = useOwnToday(asideOn);
+  const summaryOpen = useMemo(
+    () =>
+      posts
+        .filter((c) => c.status === 'open' && (c.type === 'individual' || c.type === 'wave'))
+        .sort((a, b) => (a.deadline || '9').localeCompare(b.deadline || '9')),
+    [posts],
+  );
+  const summaryTitle =
+    tab === 'nearby'
+      ? kiezName
+        ? t('Im Kiez {kiez}', { kiez: kiezName })
+        : t('In Deinem Kiez')
+      : tab === 'groups'
+        ? (groups.find((g) => g.id === groupId)?.name ?? t('Gruppen'))
+        : tab === 'private'
+          ? t('Me & Myself')
+          : t('Überall');
+
   // Kopf: Höhe und Deckkraft gehen auf 0. Segmente: rechts Platz für die Kamera, sobald der Kopf weg ist.
   const headerStyle = headerHeight
     ? {
@@ -1064,7 +1101,8 @@ export default function FeedScreen() {
       <View style={[styles.noBrowserPan, styles.headerLayer]} {...switchPan.panHandlers}>
       {bigSwitchShown && !searching ? (
       <Animated.View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }]}>
-        <View style={styles.flex}>
+        {/* Desktop: Umschalter nur so breit, wie die Schrift es braucht (Daria, 2026-11-28: „viel zu breite Switch bei kleiner Schrift“) */}
+        <View style={[styles.flex, desktop && styles.desktopSwitch]}>
         <TabsNavigation
           selectedKey={switchingTo ?? tab}
           onChange={(key) => {
@@ -1110,7 +1148,7 @@ export default function FeedScreen() {
       {meActive && meBoth ? (
         // Kein zusätzlicher Abstand zwischen den beiden Umschaltern (Daria, 2026-11-14)
         <View style={[styles.tabsRow, { paddingRight: tabsPaddingRight }, bigSwitchShown && !searching && styles.tabsRowJoined]}>
-          <View style={styles.flex}>
+          <View style={[styles.flex, desktop && styles.desktopSwitch]}>
             <PrivateSignalProvider value>
             <Segments
               // Gewählt immer gelb, auch „My Structure“ (Daria, 2026-11-12)
@@ -1233,6 +1271,19 @@ export default function FeedScreen() {
         hidePlus={routineNewShown}
       /></PageSlideProvider>}
       <SurveyOverlay visible={surveyVisible} onClose={closeSurvey} />
+      {asideOn ? (
+        <DesktopAside>
+          <FeedAside
+            title={summaryTitle}
+            events={summaryScope ? summaryEvents : undefined}
+            open={summaryOpen}
+            own={ownToday}
+            onEvent={(e) => (mode === 'live' ? router.push(`/schaufenster/${e.showcaseId}`) : undefined)}
+            onChallenge={openChallenge}
+            onOwn={openRoutine}
+          />
+        </DesktopAside>
+      ) : null}
     </View>
   );
 }
