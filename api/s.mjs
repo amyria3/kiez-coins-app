@@ -546,7 +546,33 @@ ${
   .geteilt .sf-seite .sf-osm { margin-top: 12px; }
   .geteilt .sf-seite h2.sf-abschnitt { margin-top: 32px; border-top: 0; padding-top: 0; }
   .geteilt .sf-seite .sf-vk { margin-bottom: 0; max-width: none; }
-  .geteilt .sf-haupt > h2.sf-abschnitt:first-child, .geteilt .sf-haupt > .sf-klappe:first-child h2.sf-abschnitt { margin-top: 32px; }
+  .geteilt .sf-haupt > h2.sf-abschnitt:first-child, .geteilt .sf-haupt > .sf-klappe:first-child h2.sf-abschnitt ,
+    .geteilt .sf-haupt > .sf-nur-breit:first-child h2.sf-abschnitt { margin-top: 32px; }
+  /* Nachbesserung nach Darias Blick auf die Live-Seite (2026-11-28): Titelbild „zu groß“, Porträt „seltsam angeordnet“,
+     Services zuzuklappen „unnötig“, Postkarte zu groß mit „grauer Rand richtig dumm“. Titelbild fest 220 px hoch.
+     Porträt 112 px links halb im Bild, Name daneben, Kiez darunter, ohne Ausschnitt im Bild. Posts zu zweit
+     nebeneinander, ohne Rand, Herz oben rechts. Keine grauen Ränder an Karte und Mitmach-Kacheln. */
+  .geteilt .sf-cover { aspect-ratio: auto; height: 220px; }
+  .geteilt .sf-cover.sf-mit-logo { -webkit-mask: none; mask: none; }
+  .geteilt .sf-cover.sf-mit-logo + .sf-wer { flex-direction: row; align-items: flex-end; gap: 24px; margin-top: -40px; padding: 0 0 0 24px; }
+  .geteilt .sf-cover.sf-mit-logo + .sf-wer .sf-logo { width: 112px; height: 112px; align-self: flex-end; box-shadow: 0 0 0 6px var(--bg); }
+  .geteilt .sf-cover.sf-mit-logo + .sf-wer h1 { margin-top: 0; align-self: flex-end; }
+  .geteilt .sf-cover.sf-mit-logo + .sf-wer + p.wer { margin: 8px 0 48px 160px; }
+  .geteilt .sf-liste { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .geteilt .sf-karte { border: 0; border-radius: 12px; }
+  .geteilt .sf-inhalt { position: relative; padding: 20px; }
+  .geteilt .sf-inhalt h2 { font-size: 19px; padding-right: 32px; }
+  .geteilt .sf-herz { position: absolute; top: 14px; right: 16px; margin: 0; }
+  .geteilt .sf-osm { box-shadow: none; }
+  body .geteilt .sf-mit-kachel { border: 0; }
+  /* Rechte Spalte ohne Linie oben, beginnt auf Höhe der Beschreibung (Claude-Review, von Daria bestätigt 2026-11-28) */
+  .geteilt .sf-seite .sf-fakten { border-top: 0; }
+  .geteilt .sf-seite .sf-fakt:first-child { padding-top: 4px; }
+  /* Visitenkarte rechts: das Bild ist der Link, darunter ein Textlink statt eines zweiten schwarzen Knopfs neben „Folgen“
+     (Claude-Review, von Daria bestätigt 2026-11-28) */
+  .geteilt .sf-seite .sf-vk .sf-vk-bild { margin-bottom: 12px; }
+  .geteilt .sf-seite .sf-vk a.sf-vk-haupt { display: inline; min-height: 0; padding: 0; border-radius: 0; background: none; color: var(--text);
+    font: 500 14px/20px Inter, sans-serif; text-decoration: underline; text-underline-offset: 3px; }
 }
 /* Platzhalter (Daria, 2026-11-11) */
 .geteilt .sf-verlauf { background: linear-gradient(135deg, #8F90FA 0%, #FFB2E5 55%, #FFAD7E 100%); }
@@ -648,7 +674,9 @@ function inhalt(s, via, team = false) {
     !s.services?.trim()
       ? ''
       : s.services_collapsed
-        ? `<details class="sf-klappe"><summary><h2 class="sf-abschnitt">Services</h2></summary><div class="sf-services">${richHtml(s.services)}</div></details>`
+        ? // Zugeklappt nur am Handy. Am Desktop ist Platz, dort immer offen (Daria, 2026-11-28: „unnötig, zu verbergen“)
+          `<div class="sf-nur-schmal"><details class="sf-klappe"><summary><h2 class="sf-abschnitt">Services</h2></summary><div class="sf-services">${richHtml(s.services)}</div></details></div>` +
+          `<div class="sf-nur-breit"><h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div></div>`
         : `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>`
   }
   ${eintraege ? `<h2 class="sf-abschnitt">Neu im Schaufenster</h2><div class="sf-liste">${eintraege}</div>` : ohneEintraege}
