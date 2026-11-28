@@ -158,6 +158,23 @@ export type RoutineDays = {
   /** Je Tag die Namen der ausgesetzten Erinnerungen (Daria, 2026-11-27); sie zählen nicht als verpasst */
   skippedBy: Map<string, string[]>;
 };
+/**
+ * Erledigte und ausgesetzte Tage einer Aufgabe in dieser Woche, für die ausgeklappte Karte (Daria, 2026-11-28).
+ * Ohne Netz bleiben beide leer, die Karte zeigt dann nur heute.
+ */
+export async function loadReminderWeek(id: string, now = new Date()): Promise<{ done: Set<string>; skipped: Set<string> }> {
+  const from = weekStart(now);
+  const to = addDays(7, from);
+  const [doneRes, skipRes] = await Promise.all([
+    supabase.from('reminder_done').select('done_at').eq('reminder_id', id).gte('done_at', from.toISOString()).lt('done_at', to.toISOString()),
+    supabase.from('reminder_skipped').select('day').eq('reminder_id', id).gte('day', localDate(from)).lt('day', localDate(to)),
+  ]);
+  return {
+    done: new Set(((doneRes.data ?? []) as { done_at: string }[]).map((d) => localDate(new Date(d.done_at)))),
+    skipped: new Set(((skipRes.data ?? []) as { day: string }[]).map((d) => d.day)),
+  };
+}
+
 export async function loadRoutineDays(from: Date, to: Date, now = new Date()): Promise<RoutineDays> {
   const empty: RoutineDays = { done: new Set(), missed: new Set(), doneBy: new Map(), missedBy: new Map(), givenUpBy: new Map(), cancelledBy: new Map(), calledOffBy: new Map(), skippedBy: new Map() };
   const { data, error } = await supabase

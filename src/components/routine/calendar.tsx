@@ -5,7 +5,7 @@ import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
 import { eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { weekdayShort } from '../../data/katerRoutine';
 import { addDays, capitalize, isoWeekday, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../../data/reminders';
-import { CALENDAR_TOP, setCalendarLevel, setCalendarMonth, setFocusCard, setRoutineDay, useCalendarLevel, useCalendarMonth, useKaterLine, useRoutineDay, type CalendarLevel } from '../../data/routineView';
+import { CALENDAR_TOP, setCalendarLevel, setCalendarMonth, setFocusCard, setRoutineDay, useCalendarLevel, useCalendarMonth, useExpandedCard, useKaterLine, useRoutineDay, type CalendarLevel } from '../../data/routineView';
 import { localeTag, t } from '../../data/texts';
 import { color } from '../../theme/tokens';
 import { KaterCard } from '../Content';
@@ -479,11 +479,13 @@ const LEVEL_NAMES = ['Kalender zu', 'Kater', 'Woche', 'Kurze Liste', 'Monat'];
 export function RoutineCalendarStages({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
   const level = useCalendarLevel();
   const katerLine = useKaterLine();
+  // Ist eine Karte ausgeklappt, spricht der Kater dort (Daria, 2026-11-28)
+  const cardOpen = !!useExpandedCard();
   return (
     <View>
       <GrowBox>
         {/* Reihenfolge (Daria, 2026-11-28): zu, Kater, Woche, kurze Liste, Monat. Der Kater bleibt über dem Kalender. */}
-        {level >= 1 && katerLine ? (
+        {level >= 1 && katerLine && !cardOpen ? (
           <View style={level >= 2 && styles.stageKater}>
             <KaterCard>{katerLine}</KaterCard>
           </View>

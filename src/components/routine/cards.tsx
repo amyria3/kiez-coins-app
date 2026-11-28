@@ -5,8 +5,10 @@ import Svg, { Path } from 'react-native-svg';
 import { calCancelUrl, canCancel, minutesUntil, shortNoticeKind } from '../../data/calBooking';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { hideEvent } from '../../data/hiddenEvents';
-import { dayName, goalText, whenText } from '../../data/katerRoutine';
-import { canSkip, capitalize, goalOf, outOfReachOf, plannedGoalOf, type Reminder } from '../../data/reminders';
+import { dayName, goalText, katerLine, weekdayShort, whenText } from '../../data/katerRoutine';
+import { canSkip, capitalize, goalOf, loadReminderWeek, outOfReachOf, plannedGoalOf, type Reminder } from '../../data/reminders';
+import { weekBreakdown, type WeekDayState } from '../../data/reminderDates';
+import { getExpandedCard, setExpandedCard, useExpandedCard } from '../../data/routineView';
 import { asSingleEvent, eventWhen, saveEvent } from '../../data/showcase';
 import { t, useTexts } from '../../data/texts';
 import { color } from '../../theme/tokens';
@@ -14,6 +16,7 @@ import { handShapePath } from '../handShape';
 import { Icon, type IconName } from '../icons/Icon';
 import { ClampText, FullCard } from '../ClampText';
 import { ReminderExtrasRow } from '../ReminderExtras';
+import { KaterCircle } from '../Content';
 import { ManageButton } from '../ShowcaseManage';
 import { Text } from '../T';
 import { DRAG_AT, INK, INK_SOFT, LIFT_MS, MUSTARD, OLIVE, SHOWCASE, UP_FACTOR, UP_ROOM } from './constants';
@@ -144,6 +147,7 @@ function Card({
   onDragUp,
   leftLabel = 'Abbrechen',
   leftTone = 'end',
+  open,
 }: {
   bg: string;
   head: ReactNode;
@@ -162,6 +166,8 @@ function Card({
   /** Was nach links ziehen bedeutet: „Abbrechen“, „Absagen“ oder „Löschen“ (Daria, 2026-11-13) */
   leftLabel?: string;
   leftTone?: 'end' | 'delete';
+  /** Ausklappbare Karte (Daria, 2026-11-28): Tippen klappt auf und zu, aufgeklappt steht der Text ganz da */
+  open?: boolean;
 }) {
   const motion = useContext(Motion);
   const drag = useLiftDrag(motion ? { right: onDragRight, left: onDragLeft, up: onDragUp } : {});
@@ -208,16 +214,17 @@ function Card({
       return next;
     });
   }, []);
-  const fullCard = useMemo(() => ({ full, report }), [full, report]);
-  const canGrow = cuts.size > 0;
-  const tap = full ? () => setFull(false) : canGrow ? () => setFull(true) : onPress;
+  const expandable = open !== undefined;
+  const fullCard = useMemo(() => ({ full: full || !!open, report }), [full, open, report]);
+  const canGrow = cuts.size > 0 && !expandable;
+  const tap = expandable ? onPress : full ? () => setFull(false) : canGrow ? () => setFull(true) : onPress;
   const card = (
     <Pressable
       onPress={drag.press(tap)}
       onPressIn={drag.pressIn}
       onPressOut={drag.pressOut}
       accessibilityHint={[
-        full ? t('Tippen kürzt die Karte wieder') : canGrow ? t('Tippen zeigt die ganze Karte') : onPress ? t(pressHint ?? 'Tippen öffnet das Menü') : '',
+        expandable ? t(open ? 'Tippen klappt die Karte zu' : 'Tippen klappt die Karte auf') : full ? t('Tippen kürzt die Karte wieder') : canGrow ? t('Tippen zeigt die ganze Karte') : onPress ? t(pressHint ?? 'Tippen öffnet das Menü') : '',
         drag.on
           ? t('Halten und ziehen: {moves}', {
               moves: [drag.on && onDragRight && t('rechts erledigt'), drag.on && onDragLeft && t('links {what}', { what: t(leftLabel).toLowerCase() }), drag.on && onDragUp && t('oben später')]
@@ -228,6 +235,7 @@ function Card({
       ]
         .filter(Boolean)
         .join('. ')}
+      accessibilityState={expandable ? { expanded: !!open } : undefined}
       style={[styles.card, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
       {/* Kater nicht mehr auf der Karte, er spricht über dem Stapel (Daria, 2026-11-28: „Wir nehmen den Kater erstmal
@@ -360,7 +368,8 @@ export function TaskCard({
   const goal = goalOf(r);
   const planned = plannedGoalOf(r);
   const done = Math.min(r.doneThisWeek, goal);
-  // Ausgegraut am Ende: ausgesetzt oder diese Woche nicht mehr zu schaffen (Daria, 2026-11-27)
+  // Ausgegraut: ausgesetzt oder diese Woche nicht mehr zu schaffen (Daria, 2026-11-27). Sie stehen links, die Tage,
+  // die noch vor einem liegen, rechts (Daria, 2026-11-28): grau, erledigt, offen.
   const greyed = Math.min(planned - done, planned - goal + outOfReachOf(r));
   const resting = r.doneToday || !!r.skippedToday || r.doneThisWeek >= goal;
   // „Aussetzen“ steht als Knopf statt „Aufgeben“ (Daria, 2026-11-27); Aufgeben wandert dann ins Menü
@@ -373,7 +382,7 @@ export function TaskCard({
         <Text style={styles.sub}>{label}</Text>
         <View style={styles.bar} accessible accessibilityLabel={label}>
           {Array.from({ length: planned }, (_, i) => (
-            <Segment key={i} state={i < done ? 'done' : i >= planned - greyed ? 'greyed' : 'open'} />
+            <Segment key={i} state={i < greyed ? 'greyed' : i < greyed + done ? 'done' : 'open'} />
           ))}
         </View>
       </>
@@ -391,10 +400,12 @@ export function TaskCard({
     end: finished ? undefined : { label: 'Das hier abbrechen', run: onCancel },
     remove: resting ? onDelete : undefined,
   });
+  const open = useExpanded(r.id);
   return (
     <Card
       bg={MUSTARD}
-      onPress={() => menu.current?.()}
+      onPress={() => setExpandedCard(open ? null : r.id)}
+      open={open}
       tiltKey={r.id}
       urgent={urgent}
       onDragRight={resting ? undefined : onDone}
@@ -409,6 +420,7 @@ export function TaskCard({
         </>
       }
     >
+      {open ? <TaskDetail r={r} /> : null}
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
       {/* Erledigt, Aussetzen bzw. Aufgeben und im Menü „Das hier abbrechen“ (Daria, 2026-11-13, Aussetzen 2026-11-27).
           Buttons mit festem Abstand beieinander, nur „•••“ rechts (Daria, 2026-11-13) */}
@@ -474,10 +486,12 @@ export function EventCard({
     remove: r.doneToday ? onDelete : undefined,
   });
   const more = <ManageButton dots={INK} style={styles.more} label="Mehr zu diesem Termin" openRef={menu} items={items} />;
+  const open = useExpanded(r.id);
   return (
     <Card
       bg={bg}
-      onPress={() => menu.current?.()}
+      onPress={() => setExpandedCard(open ? null : r.id)}
+      open={open}
       tiltKey={r.id}
       urgent={urgent}
       onDragRight={r.doneToday ? undefined : onDone}
@@ -488,6 +502,7 @@ export function EventCard({
       onDragUp={r.doneToday ? undefined : onLater}
       head={<CardHead meta={whenText(r)} title={capitalize(r.want)} />}>
       <ReminderExtrasRow place={r.place} phone={r.phone} link={r.link} ink={INK} />
+      {open ? <EventDetail r={r} onEdit={onEdit} /> : null}
       {r.doneToday ? (
         <View style={styles.actions}>
           <DoneState label="Erledigt" onUndo={onUndo} />
@@ -502,6 +517,107 @@ export function EventCard({
         </View>
       )}
     </Card>
+  );
+}
+
+/** Ist diese Karte ausgeklappt? Verschwindet sie (erledigt, anderer Tag), klappt sie mit zu. */
+function useExpanded(key: string): boolean {
+  const open = useExpandedCard() === key;
+  useEffect(
+    () => () => {
+      // Nur zuklappen, wenn nicht inzwischen eine andere Karte offen ist
+      if (getExpandedCard() === key) setExpandedCard(null);
+    },
+    [key],
+  );
+  return open;
+}
+
+/**
+ * Ausgeklappte Aufgabe (Daria, 2026-11-28): Der Kater spricht auf der Karte statt über dem Kalender, darunter die Woche
+ * Tag für Tag und was sich daraus ergibt.
+ */
+function TaskDetail({ r }: { r: Reminder }) {
+  const [week, setWeek] = useState<{ done: Set<string>; skipped: Set<string> } | null>(null);
+  useEffect(() => {
+    if (r.onDate) return;
+    let live = true;
+    loadReminderWeek(r.id).then((w) => live && setWeek(w), () => {});
+    return () => {
+      live = false;
+    };
+  }, [r.id, r.onDate, r.doneThisWeek, r.skippedThisWeek]);
+  const days = r.onDate ? [] : weekBreakdown(r, week?.done ?? new Set(), week?.skipped ?? new Set());
+  const count = (s: WeekDayState) => days.filter((d) => d.state === s).length;
+  const goal = goalOf(r);
+  const done = Math.min(r.doneThisWeek, goal);
+  const out = outOfReachOf(r);
+  const open = Math.max(0, goal - done - out);
+  const parts = [
+    done && t('{n} erledigt', { n: done }),
+    count('skipped') && t('{n} ausgesetzt', { n: count('skipped') }),
+    r.weekdays?.length && count('missed') ? t('{n} verpasst', { n: count('missed') }) : 0,
+    // Bei festen Tagen sind die verpassten Tage genau das, was nicht mehr zu schaffen ist: nur einmal nennen
+    !r.weekdays?.length && out ? t('{n} nicht mehr zu schaffen', { n: out }) : 0,
+    open && t('{n} noch offen', { n: open }),
+  ].filter(Boolean);
+  return (
+    <View style={styles.detail}>
+      <View style={styles.detailKater}>
+        <KaterCircle size={40} />
+        <Text style={styles.detailKaterText}>{katerLine(r)}</Text>
+      </View>
+      {days.length ? (
+        <>
+          <View style={styles.week} accessible accessibilityLabel={parts.join(', ')}>
+            {days.map((d) => (
+              <View key={d.day} style={styles.weekDay}>
+                <Text noTranslate style={styles.weekLabel}>
+                  {weekdayShort(d.weekday)}
+                </Text>
+                <WeekDot state={d.state} />
+              </View>
+            ))}
+          </View>
+          {parts.length ? <Text style={styles.sub}>{parts.join(' · ')}</Text> : null}
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+/** Ein Tag der Woche: erledigt gefüllt mit Haken, ausgesetzt grau mit Strich, verpasst grau mit Kreuz, heute dick umrandet */
+function WeekDot({ state }: { state: WeekDayState }) {
+  const icon: IconName | null = state === 'done' ? 'check' : state === 'missed' ? 'close' : null;
+  return (
+    <View
+      style={[
+        styles.weekDot,
+        state === 'done' && styles.weekDotDone,
+        (state === 'skipped' || state === 'missed') && styles.weekDotGrey,
+        state === 'today' && styles.weekDotToday,
+        state === 'free' && styles.weekDotFree,
+      ]}
+    >
+      {icon ? <Icon name={icon} size={12} color={state === 'done' ? MUSTARD : INK_SOFT} /> : null}
+      {state === 'skipped' ? <View style={styles.weekSkip} /> : null}
+    </View>
+  );
+}
+
+/**
+ * Ausgeklappter Termin (Daria, 2026-11-28: „Klicke ich auf einen Termin, möchte ich Details sehen und eventuell Details
+ * hinzufügen“): Beschreibung und ein Knopf, der sie ergänzt. Ort, Telefon und Link stehen schon auf der Karte.
+ */
+function EventDetail({ r, onEdit }: { r: Reminder; onEdit: () => void }) {
+  const has = !!(r.description || r.place || r.phone || r.link);
+  return (
+    <View style={styles.detail}>
+      {r.description ? <Text noTranslate style={styles.detailText}>{r.description}</Text> : null}
+      <View style={styles.actions}>
+        <HandButton label={has ? 'Details bearbeiten' : 'Details hinzufügen'} icon={has ? undefined : 'plus'} onPress={onEdit} />
+      </View>
+    </View>
   );
 }
 

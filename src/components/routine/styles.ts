@@ -59,6 +59,20 @@ export const styles = StyleSheet.create({
   segment: { flex: 1, flexBasis: 0, height: 4, borderRadius: 2, borderWidth: 1, borderColor: INK, overflow: 'hidden' },
   segmentFill: { height: '100%', backgroundColor: INK },
   segmentGreyed: { borderWidth: 0, backgroundColor: INK_TRACK },
+  // Ausgeklappte Karte (Daria, 2026-11-28): Kater auf der Karte und die Woche Tag für Tag
+  detail: { gap: space[8], marginTop: space[4] },
+  detailKater: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
+  detailKaterText: { ...text.bodySm, color: INK, flex: 1 },
+  detailText: { ...text.bodySm, color: INK },
+  week: { flexDirection: 'row', justifyContent: 'space-between' },
+  weekDay: { alignItems: 'center', gap: space[4], flex: 1 },
+  weekLabel: { ...text.small, color: INK_SOFT },
+  weekDot: { width: 26, height: 26, borderRadius: 13, borderWidth: 1.2, borderColor: INK, alignItems: 'center', justifyContent: 'center' },
+  weekDotDone: { backgroundColor: INK },
+  weekDotGrey: { borderWidth: 0, backgroundColor: INK_TRACK },
+  weekDotToday: { borderWidth: 2.5 },
+  weekDotFree: { borderColor: INK_TRACK },
+  weekSkip: { width: 10, height: 1.5, borderRadius: 1, backgroundColor: INK_SOFT },
   // Buttons mit festem Abstand beieinander; nur „•••“ rückt nach rechts (Daria, 2026-11-13)
   actions: {
     flexDirection: 'row',
