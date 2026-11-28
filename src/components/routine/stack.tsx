@@ -365,6 +365,7 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
                   key={key}
                   style={[
                     styles.slot,
+                    !handDrawn && pos > 0 && styles.slotBehind,
                     {
                       zIndex: z,
                       elevation: handDrawn ? z / 10 : 0,
@@ -400,7 +401,7 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
                   {/* Hintere Karten: Tippen fächert auf, aufgefächert holt Tippen die Karte nach vorn */}
                   {pos > 0 ? (
                     <Pressable
-                      style={styles.cover}
+                      style={[styles.cover, !handDrawn && styles.coverBehind]}
                       onPress={() => (open ? bringToFront(key, true) : setOpen(true))}
                       accessibilityRole="button"
                       accessibilityLabel={open ? t('Karte nach vorn holen') : t('Stapel auffächern')}
