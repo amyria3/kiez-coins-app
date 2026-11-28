@@ -8,6 +8,7 @@ import { Button } from '../../components/Button';
 import { Explanation, FieldGroup, Notice, QuestionHint } from '../../components/Content';
 import { SwitchRow, TextField } from '../../components/Form';
 import { NavigationBar } from '../../components/NavigationBar';
+import { NavList, NavRow } from '../../components/Rows';
 import { SubScreen } from '../../components/Screen';
 import { Text } from '../../components/T';
 import { BusinessCard } from '../../components/showcase/BusinessCard';
@@ -342,35 +343,24 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           ) : null}
           <FieldGroup heading label="Deine Seite">
             {/* Zwei Ansichten: in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in unter kiezcoins.de/s/….
-                Ansehen ist eine Handlung (Secondary-Button); der Pfeil zeigt, wohin es geht: `chevron-right` bleibt in der
+                Der Pfeil zeigt, wohin es geht: `chevron-right` bleibt in der
                 App, `external` öffnet den Browser (2026-11-23). Die Webseite gibt es nur öffentlich und online. */}
-            <View style={styles.list}>
+            {/* Liste mit Trennlinien wie „So sehen Dich andere“ auf der Kontoseite statt einzelner Knöpfe (Daria, 2026-11-28) */}
+            <NavList>
               {/* Nur Texte und Bilder; Einstellungen stehen unten (2026-11-23) */}
               {s.founder ? (
-                <Button
-                  label="Inhalte bearbeiten"
-                  variant="secondary"
-                  iconEnd="chevron-right"
-                  onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })}
-                />
+                <NavRow label="Inhalte bearbeiten" onPress={() => router.push({ pathname: '/schaufenster/[id]/bearbeiten', params: { id: s.id } })} />
               ) : null}
-              <Button
-                label="Schaufenster in der App"
-                variant="secondary"
-                iconEnd="chevron-right"
-                onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })}
-              />
-              <Button
+              <NavRow label="Schaufenster in der App" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: s.id } })} />
+              <NavRow
                 label="Schaufenster im Web"
-                variant="secondary"
                 iconEnd="external"
-                disabled={!canShare(s)}
-                whyDisabled={() => setWebHint(s.id)}
+                muted={!canShare(s)}
                 // Mit ?als=team: Die Seite zeigt dem Team einen Hinweis und blendet auf der Digitalen Visitenkarte aus, was nur
                 // für andere gedacht ist (Daria, 2026-11-23). Die Seite nimmt die Kennung gleich wieder aus der Adresse.
-                onPress={() => Linking.openURL(`${showcasePublicLink(s.slug)}?als=team`)}
+                onPress={() => (canShare(s) ? Linking.openURL(`${showcasePublicLink(s.slug)}?als=team`) : setWebHint(s.id))}
               />
-            </View>
+            </NavList>
             {webHint === s.id ? (
               <Notice
                 message={
@@ -402,12 +392,9 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
                   question="Wozu die Druckbare Visitenkarte?"
                   answer="Zum Ausdrucken und Verteilen: eine Karte aus Papier im Format 85 × 55 mm. Der QR-Code darauf öffnet Eure Digitale Visitenkarte."
                 />
-                <Button
-                  label="Druckbare Visitenkarte (PDF)"
-                  variant="secondary"
-                  iconEnd="chevron-right"
-                  onPress={() => router.push({ pathname: '/schaufenster/[id]/druck', params: { id: s.id } })}
-                />
+                <NavList>
+                  <NavRow label="Druckbare Visitenkarte (PDF)" onPress={() => router.push({ pathname: '/schaufenster/[id]/druck', params: { id: s.id } })} />
+                </NavList>
               </View>
             </FieldGroup>
           ) : null}
