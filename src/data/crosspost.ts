@@ -66,6 +66,12 @@ export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | '
 export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram', 'facebook', 'linkedin', 'telegram'];
 export const isLivePlatform = (p: CrosspostPlatform): p is LivePlatform => (LIVE_PLATFORMS as string[]).includes(p);
 
+/**
+ * Aus exklusiven Schaufenstern geht es nur hierhin (Daria, 2026-11-28): Telegram erreicht nur Chat, Kanäle und
+ * Gruppen, die der Betrieb selbst wählt. Die Edge Function prüft das noch einmal.
+ */
+export const EXCLUSIVE_PLATFORMS: LivePlatform[] = ['telegram'];
+
 /** Instagram und Facebook brauchen nur einen Zugangs-Token, kein zweites Feld */
 export const tokenOnly = (p: LivePlatform) => p === 'instagram' || p === 'facebook';
 

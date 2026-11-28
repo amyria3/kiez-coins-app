@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
@@ -12,8 +12,8 @@ import { Text } from '../../../components/T';
 import { Icon } from '../../../components/icons/Icon';
 import { addDays, localDate, parseDate, TIME } from '../../../data/reminders';
 import { CrosspostRow } from '../../../components/compose/CrosspostRow';
-import { crosspostEvent, loadCrosspostSelection, useCrosspostEnabled, type LivePlatform } from '../../../data/crosspost';
-import { createEvent } from '../../../data/showcase';
+import { crosspostEvent, EXCLUSIVE_PLATFORMS, loadCrosspostSelection, useCrosspostEnabled, type LivePlatform } from '../../../data/crosspost';
+import { createEvent, loadShowcase } from '../../../data/showcase';
 import { useStore } from '../../../data/store';
 import { t } from '../../../data/texts';
 import type { ImageSource } from '../../../data/types';
@@ -48,6 +48,11 @@ export default function NewShowcaseEvent() {
   // Weiterposten wie beim Post (Daria, 2026-11-18): abwählen gilt nur für diesen Termin
   const crosspost = useCrosspostEnabled();
   const [crosspostOff, setCrosspostOff] = useState<LivePlatform[]>([]);
+  // Exklusives Schaufenster: Weiterposten nur nach Telegram (Daria, 2026-11-28)
+  const [exclusive, setExclusive] = useState(false);
+  useEffect(() => {
+    loadShowcase(id, currentUserId).then((d) => setExclusive(d?.showcase.visibility === 'invite'));
+  }, [id, currentUserId]);
 
   const onDate = day === 'today' ? localDate() : day === 'tomorrow' ? localDate(addDays(1)) : parseDate(date);
   const fromOk = TIME.test(from.trim());
@@ -81,7 +86,12 @@ export default function NewShowcaseEvent() {
       // Läuft im Hintergrund; Fehler stehen in crosspost_event_posts und stören das Anlegen nicht
       if (crosspost) {
         loadCrosspostSelection()
-          .then((platforms) => crosspostEvent(eventId, platforms.filter((p) => !crosspostOff.includes(p))))
+          .then((platforms) =>
+            crosspostEvent(
+              eventId,
+              platforms.filter((p) => !crosspostOff.includes(p) && (!exclusive || EXCLUSIVE_PLATFORMS.includes(p))),
+            ),
+          )
           .catch(() => undefined);
       }
       goBack();
@@ -148,7 +158,7 @@ export default function NewShowcaseEvent() {
       </FieldGroup>
       <TextField label="Ort" value={location} onChangeText={setLocation} maxLength={160} placeholder="Hinterhof, Karl-Liebknecht-Str. 1" />
       <TextField label="Text" multiline value={body} onChangeText={setBody} maxLength={1000} />
-      <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} />
+      <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} exclusive={exclusive} />
       {failed ? <Notice variant="warning" message={failed} /> : null}
     </SubScreen>
   );

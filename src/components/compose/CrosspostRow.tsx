@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 
 import {
   CROSSPOST_PLATFORMS,
+  EXCLUSIVE_PLATFORMS,
   loadCrosspostAccounts,
   loadCrosspostSelection,
   useCrosspostEnabled,
@@ -20,16 +21,20 @@ import { Text } from '../T';
  * diesen Post, die Einstellung bleibt. Ist Weiterposten nirgends an, steht das hier mit Link zu den Funktionen
  * (Daria, 2026-11-15: „Ich sehe hier nicht, ob ich weiterposte“).
  * `off`: die Plattformen, die für diesen Post abgewählt sind.
+ * `exclusive`: Post oder Termin in einem exklusiven Schaufenster (Daria, 2026-11-28). Dann steht nur Telegram da,
+ * der Post geht mit Link in die App weiter.
  */
 export function CrosspostRow({
   off,
   onChange,
   caption = 'Dein Post erscheint auch hier. Abwählen gilt nur für diesen Post.',
+  exclusive = false,
 }: {
   off: LivePlatform[];
   onChange: (off: LivePlatform[]) => void;
   /** Me-Challenge: „Geht mit dem Nachher weiter …“ (Daria, 2026-11-16) */
   caption?: string;
+  exclusive?: boolean;
 }) {
   const router = useRouter();
   const enabled = useCrosspostEnabled();
@@ -43,7 +48,10 @@ export function CrosspostRow({
   }, [enabled]);
 
   const active = CROSSPOST_PLATFORMS.filter(
-    (p) => selected.includes(p.key as LivePlatform) && accounts.some((a) => a.platform === p.key),
+    (p) =>
+      selected.includes(p.key as LivePlatform) &&
+      accounts.some((a) => a.platform === p.key) &&
+      (!exclusive || EXCLUSIVE_PLATFORMS.includes(p.key as LivePlatform)),
   );
   if (!enabled) return null;
   if (!active.length) {
@@ -55,9 +63,11 @@ export function CrosspostRow({
       >
         <Text style={styles.title}>Weiterposten: aus</Text>
         <Text style={styles.caption}>
-          {accounts.length
-            ? 'Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.'
-            : 'Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram oder Facebook.'}
+          {exclusive
+            ? 'Aus exklusiven Schaufenstern geht es nur nach Telegram. Unter Dein Konto › Funktionen verbindest Du Telegram.'
+            : accounts.length
+              ? 'Keine Plattform ist eingeschaltet. Unter Dein Konto › Funktionen schaltest Du sie ein.'
+              : 'Unter Dein Konto › Funktionen verbindest Du BlueSky, Mastodon, Instagram, Facebook, LinkedIn oder Telegram.'}
         </Text>
       </Pressable>
     );
@@ -69,7 +79,9 @@ export function CrosspostRow({
     <View style={styles.card}>
       <View style={styles.head}>
         <Text style={styles.title}>Weiterposten</Text>
-        <Text style={styles.caption}>{caption}</Text>
+        <Text style={styles.caption}>
+          {exclusive ? 'Exklusives Schaufenster: nur Telegram, mit Link in die App. Den Post sehen dort nur Eingeladene.' : caption}
+        </Text>
       </View>
       {active.map((p) => {
         const key = p.key as LivePlatform;
