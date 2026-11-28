@@ -1454,5 +1454,6 @@
   "Links, hinten": "Посилання, на звороті",
   "Link {n} nach oben": "Перемістити посилання {n} вгору",
   "Link {n} nach unten": "Перемістити посилання {n} вниз",
-  "Link {n} verschieben": "Перемістити посилання {n}"
+  "Link {n} verschieben": "Перемістити посилання {n}",
+  "Service {n} verschieben": "Перемістити послугу {n}"
 }

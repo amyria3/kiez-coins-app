@@ -28,7 +28,8 @@ const web = Platform.OS === 'web';
  *
  * „Auf der Druckbaren Visitenkarte zeigen“ (Daria, 2026-11-23): Häkchen bei Services (vorne) und Links (hinten).
  * Vorausgewählt sind die ersten Einträge der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links kommt
- * aus „Inhalte bearbeiten“ und lässt sich hier am Griff mit drei Strichen nur für die Karte umsortieren (2026-11-28). Ist eine Seite voll, sind weitere Häkchen gesperrt, und eine Frage erklärt warum. Passt eine
+ * aus „Inhalte bearbeiten“; Links und Services lassen sich hier am Griff mit drei Strichen nur für die Karte
+ * umsortieren (2026-11-28). Ist eine Seite voll, sind weitere Häkchen gesperrt, und eine Frage erklärt warum. Passt eine
  * Auswahl trotzdem nicht ganz (lange Einträge brauchen zwei Zeilen), sagt der Bildschirm, was fehlt.
  */
 export default function PrintableBusinessCard() {
@@ -42,20 +43,26 @@ export default function PrintableBusinessCard() {
   // Auswahl je Eintrag; null, bis die erste Zeichnung zeigt, wie viel passt
   const [linkOn, setLinkOn] = useState<boolean[] | null>(null);
   const [serviceOn, setServiceOn] = useState<boolean[] | null>(null);
-  // Reihenfolge der Links nur für die Druckbare Visitenkarte (Daria, 2026-11-28: „Reihenfolge hier anpassen“). Anfangs wie
-  // unter „Inhalte bearbeiten“; die Seite und die Digitale Visitenkarte bleiben, wie sie sind. `linkOn` gilt je Link
-  // in der Reihenfolge aus „Inhalte bearbeiten“, `linkOrder` sagt, an welcher Stelle er auf der Karte steht.
+  // Reihenfolge der Links und Services nur für die Druckbare Visitenkarte (Daria, 2026-11-28: „Reihenfolge hier anpassen“,
+  // „auch Services sortieren“). Anfangs wie unter „Inhalte bearbeiten“; die Seite und die Digitale Visitenkarte bleiben,
+  // wie sie sind. `linkOn`/`serviceOn` gelten je Eintrag in der Reihenfolge aus „Inhalte bearbeiten“, `*Order` sagt, an
+  // welcher Stelle er auf der Karte steht.
   const [linkOrder, setLinkOrder] = useState<number[] | null>(null);
+  const [serviceOrder, setServiceOrder] = useState<number[] | null>(null);
   const links = useMemo(() => showcase?.links ?? [], [showcase]);
+  const services = useMemo(() => servicesPlain(showcase?.services), [showcase]);
   const order = linkOrder && linkOrder.length === links.length ? linkOrder : links.map((_, i) => i);
-  const moveLink = (from: number, to: number) => {
+  const sOrder = serviceOrder && serviceOrder.length === services.length ? serviceOrder : services.map((_, i) => i);
+  // Loslassen am Griff löst im Browser auch ein Antippen der Zeile aus; das soll das Häkchen nicht umschalten
+  const droppedAt = useRef(0);
+  const move = (list: number[], set: (v: number[]) => void) => (from: number, to: number) => {
+    droppedAt.current = Date.now();
     if (from === to) return;
-    const next = [...order];
+    const next = [...list];
     const [item] = next.splice(from, 1);
     next.splice(to, 0, item);
-    setLinkOrder(next);
+    set(next);
   };
-  const services = useMemo(() => servicesPlain(showcase?.services), [showcase]);
 
   useFocusEffect(
     useCallback(() => {
@@ -74,7 +81,7 @@ export default function PrintableBusinessCard() {
     let off = false;
     const chosen = linkOn && serviceOn;
     const data = chosen
-      ? { ...cardData(showcase), links: order.filter((i) => linkOn[i]).map((i) => links[i]), serviceLines: services.filter((_, i) => serviceOn[i]) }
+      ? { ...cardData(showcase), links: order.filter((i) => linkOn[i]).map((i) => links[i]), serviceLines: sOrder.filter((i) => serviceOn[i]).map((i) => services[i]) }
       : cardData(showcase);
     drawBusinessCard(data).then((s) => {
       if (off || !s) return;
@@ -90,8 +97,8 @@ export default function PrintableBusinessCard() {
     return () => {
       off = true;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- `order` ist aus linkOrder und links abgeleitet
-  }, [showcase, links, services, linkOn, serviceOn, linkOrder]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `order` und `sOrder` sind aus den Reihenfolgen abgeleitet
+  }, [showcase, links, services, linkOn, serviceOn, linkOrder, serviceOrder]);
 
   // Gewählt, aber nicht (ganz) auf der Karte
   const missingLinks = sides && linkOn ? linkOn.filter(Boolean).length - sides.fit.links : 0;
@@ -99,7 +106,8 @@ export default function PrintableBusinessCard() {
   // Voll: so viele Häkchen wie Zeilen frei sind; dann lassen sich nur noch Häkchen wegnehmen
   const linksFull = !!sides && !!linkOn && linkOn.filter(Boolean).length >= sides.fit.linkRoom;
   const servicesFull = !!sides && !!serviceOn && serviceOn.filter(Boolean).length >= sides.fit.serviceRoom;
-  const toggle = (list: boolean[] | null, set: (v: boolean[]) => void, i: number) => list && set(list.map((v, j) => (j === i ? !v : v)));
+  const toggle = (list: boolean[] | null, set: (v: boolean[]) => void, i: number) =>
+    list && Date.now() - droppedAt.current > 400 && set(list.map((v, j) => (j === i ? !v : v)));
 
   const title = 'Druckbare Visitenkarte';
   if (showcase === undefined) {
@@ -141,15 +149,24 @@ export default function PrintableBusinessCard() {
             {services.length ? (
               <View style={styles.choices}>
                 <Text style={styles.label}>{t('Services, vorne')}</Text>
-                {services.map((v, i) => (
-                  <CheckOption
-                    key={`s${i}`}
-                    label={v.replace(/^· /, '')}
-                    selected={serviceOn[i]}
-                    disabled={servicesFull && !serviceOn[i]}
-                    onPress={() => toggle(serviceOn, setServiceOn, i)}
-                  />
-                ))}
+                <SortableList
+                  count={sOrder.length}
+                  itemKey={(pos) => `s${sOrder[pos]}`}
+                  onMove={move(sOrder, setServiceOrder)}
+                  renderItem={(pos, handle) => {
+                    const i = sOrder[pos];
+                    return (
+                      <CheckOption
+                        label={services[i].replace(/^· /, '')}
+                        selected={serviceOn[i]}
+                        disabled={servicesFull && !serviceOn[i]}
+                        onPress={() => toggle(serviceOn, setServiceOn, i)}
+                        trailing={handle}
+                      />
+                    );
+                  }}
+                  handleLabel={(pos) => t('Service {n} verschieben', { n: pos + 1 })}
+                />
                 {servicesFull && serviceOn.some((on) => !on) ? (
                   <QuestionHint
                     question="Warum kann ich nicht mehr Services auswählen?"
@@ -163,8 +180,9 @@ export default function PrintableBusinessCard() {
                 <Text style={styles.label}>{t('Links, hinten')}</Text>
                 <SortableList
                   count={order.length}
-                  onMove={moveLink}
-                  renderItem={(pos) => {
+                  itemKey={(pos) => `l${order[pos]}`}
+                  onMove={move(order, setLinkOrder)}
+                  renderItem={(pos, handle) => {
                     const i = order[pos];
                     return (
                       <CheckOption
@@ -172,6 +190,7 @@ export default function PrintableBusinessCard() {
                         selected={linkOn[i]}
                         disabled={linksFull && !linkOn[i]}
                         onPress={() => toggle(linkOn, setLinkOn, i)}
+                        trailing={handle}
                       />
                     );
                   }}
@@ -213,17 +232,21 @@ export default function PrintableBusinessCard() {
 
 /**
  * Liste zum Umsortieren per Ziehen (Daria, 2026-11-28: „diese drei Striche, die anzeigen, dass man was schieben kann“).
- * Rechts an jeder Zeile ein Griff mit drei Strichen; die Zeile hängt am Finger oder an der Maus, die anderen rücken
+ * Rechts in jeder Zeile (im Rahmen der Auswahl) ein Griff mit drei Strichen; die Zeile hängt am Finger oder an der Maus, die anderen rücken
  * beiseite, beim Loslassen steht sie an der neuen Stelle. Alle Zeilen sind gleich hoch (CheckOption).
  */
 function SortableList({
   count,
+  itemKey,
   renderItem,
   onMove,
   handleLabel,
 }: {
   count: number;
-  renderItem: (pos: number) => ReactNode;
+  /** Fester Schlüssel je Eintrag, damit nach dem Umsortieren nichts an der falschen Zeile hängen bleibt */
+  itemKey: (pos: number) => string;
+  /** `handle`: der Griff, den die Zeile rechts in ihren Rahmen setzt */
+  renderItem: (pos: number, handle: ReactNode) => ReactNode;
   onMove: (from: number, to: number) => void;
   handleLabel: (pos: number) => string;
 }) {
@@ -242,21 +265,25 @@ function SortableList({
     <View style={styles.choices}>
       {Array.from({ length: count }, (_, pos) => (
         <View
-          key={pos}
+          key={itemKey(pos)}
           onLayout={pos === 0 ? (e) => (step.current = e.nativeEvent.layout.height + space[8]) : undefined}
           style={[styles.linkRow, { transform: [{ translateY: shift(pos) }] }, drag?.from === pos && styles.dragging]}
         >
-          <View style={styles.flex}>{renderItem(pos)}</View>
-          {count > 1 ? (
-            <DragHandle
-              label={handleLabel(pos)}
-              onDrag={(dy) => setDrag({ from: pos, dy })}
-              onDrop={(dy) => {
-                setDrag(null);
-                onMove(pos, target(pos, dy));
-              }}
-            />
-          ) : null}
+          <View style={styles.flex}>
+            {renderItem(
+              pos,
+              count > 1 ? (
+                <DragHandle
+                  label={handleLabel(pos)}
+                  onDrag={(dy) => setDrag({ from: pos, dy })}
+                  onDrop={(dy) => {
+                    setDrag(null);
+                    onMove(pos, target(pos, dy));
+                  }}
+                />
+              ) : null,
+            )}
+          </View>
         </View>
       ))}
     </View>
@@ -306,8 +333,9 @@ const styles = StyleSheet.create({
   card: { width: '100%', aspectRatio: CARD_W / CARD_H, borderRadius: radius.md, marginBottom: space[12] },
   buttons: { gap: space[12] },
   choices: { gap: space[8] },
-  linkRow: { flexDirection: 'row', alignItems: 'center', gap: space[4] },
+  linkRow: { flexDirection: 'row', alignItems: 'center' },
   flex: { flex: 1 },
   dragging: { zIndex: 1, opacity: 0.9 },
-  handle: { width: 40, height: 48, alignItems: 'center', justifyContent: 'center' },
+  // Bis an den Rand der Zeile, damit die Fläche zum Greifen groß bleibt
+  handle: { width: 40, height: 40, marginVertical: -space[8], marginRight: -space[8], alignItems: 'center', justifyContent: 'center' },
 });

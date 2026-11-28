@@ -1438,5 +1438,6 @@
   "Links, hinten": "Ссылки, на обороте",
   "Link {n} nach oben": "Переместить ссылку {n} вверх",
   "Link {n} nach unten": "Переместить ссылку {n} вниз",
-  "Link {n} verschieben": "Переместить ссылку {n}"
+  "Link {n} verschieben": "Переместить ссылку {n}",
+  "Service {n} verschieben": "Переместить услугу {n}"
 }

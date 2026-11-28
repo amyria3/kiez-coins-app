@@ -419,12 +419,15 @@ export function CheckOption({
   selected,
   onPress,
   disabled,
+  trailing,
 }: {
   label: string;
   selected: boolean;
   onPress: () => void;
   /** Ausgegraut, z. B. wenn auf der Druckbaren Visitenkarte kein Platz mehr ist (2026-11-23) */
   disabled?: boolean;
+  /** Rechts in der Zeile, z. B. der Griff zum Umsortieren (Daria, 2026-11-28: „in der rechteckigen Pille“) */
+  trailing?: ReactNode;
 }) {
   const accent = useAccentColor();
   const line = { borderColor: useSpaceText().secondary };
@@ -440,6 +443,7 @@ export function CheckOption({
         {selected ? <Icon name="check" size={14} color={color.bg.screen} /> : null}
       </View>
       <Text style={[text.body, styles.flex, { color: color.text.primary }]}>{label}</Text>
+      {trailing}
     </Pressable>
   );
 }

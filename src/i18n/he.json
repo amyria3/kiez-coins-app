@@ -1451,5 +1451,6 @@
   "Links, hinten": "קישורים, בגב הכרטיס",
   "Link {n} nach oben": "הזז את קישור {n} למעלה",
   "Link {n} nach unten": "הזז את קישור {n} למטה",
-  "Link {n} verschieben": "הזז את קישור {n}"
+  "Link {n} verschieben": "הזז את קישור {n}",
+  "Service {n} verschieben": "הזז את שירות {n}"
 }

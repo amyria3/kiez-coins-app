@@ -1452,5 +1452,6 @@
   "Links, hinten": "Liens, au verso",
   "Link {n} nach oben": "Monter le lien {n}",
   "Link {n} nach unten": "Descendre le lien {n}",
-  "Link {n} verschieben": "Déplacer le lien {n}"
+  "Link {n} verschieben": "Déplacer le lien {n}",
+  "Service {n} verschieben": "Déplacer le service {n}"
 }
