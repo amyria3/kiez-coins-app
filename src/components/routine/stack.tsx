@@ -544,9 +544,10 @@ export function SortButton({ on, onPress }: { on: boolean; onPress: () => void }
  * unten.
  */
 function SortGlyph({ up, ink }: { up: boolean; ink: string }) {
-  const d = up ? 'M2 4h3M2 8h5M2 12h8M12 13V3M9.5 5.5 12 3l2.5 2.5' : 'M2 4h8M2 8h5M2 12h3M12 3v10M9.5 10.5 12 13l2.5-2.5';
+  // Pfeil mit etwas Abstand zu den Strichen (Daria, 2026-11-28)
+  const d = up ? 'M2 4h3M2 8h5M2 12h8M15 13V3M12.5 5.5 15 3l2.5 2.5' : 'M2 4h8M2 8h5M2 12h3M15 3v10M12.5 10.5 15 13l2.5-2.5';
   return (
-    <Svg width={16} height={16} viewBox="0 0 16 16" fill="none">
+    <Svg width={19} height={16} viewBox="0 0 19 16" fill="none">
       <Path d={d} stroke={ink} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
