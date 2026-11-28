@@ -25,6 +25,7 @@ import { t } from '../data/texts';
 import { PhotoTextOverlay } from './PhotoText';
 import { PhotoFade } from './PhotoFade';
 import { SheetPager, isTextPost } from './TextSheets';
+import { GalleryFrame, useGalleryFramed } from './feed/GalleryFrame';
 
 const isWeb = Platform.OS === 'web';
 
@@ -67,6 +68,7 @@ function KiezPost({
 }: ChallengePostProps) {
   const share = useShareChallenge();
   const canShare = useCanShare();
+  const framed = useGalleryFramed();
   const isWave = challenge.type === 'wave';
   const completed = COMPLETED.has(challenge.status);
   const closed = challenge.status === 'closed';
@@ -242,6 +244,7 @@ function KiezPost({
 
   return (
     <View style={styles.post}>
+      <GalleryFrame>
       {textPages ? (
         // Post nur mit Text: Blätter zum Wischen, darunter der Name. Ort und Zeit erst nach dem ersten
         // Tippen, wie beim Foto; das zweite Tippen öffnet den Post (Daria, 2026-11-07)
@@ -296,7 +299,7 @@ function KiezPost({
           accessibilityHint={t('Tippe einmal, um den Namen anzuzeigen, oder zweimal oder lange, um den Post zu öffnen.')}
           accessibilityActions={[{ name: 'activate' }]}
           onAccessibilityAction={open}
-          style={({ pressed }) => [styles.card, !image && styles.cardNoPhoto, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.card, framed && styles.squareCard, !image && styles.cardNoPhoto, pressed && styles.pressed]}
         >
           {image ? <Image source={image} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
           {image && challenge.type === 'photo' ? <PhotoTextOverlay value={challenge.photoText} /> : null}
@@ -454,6 +457,7 @@ function KiezPost({
           {inCard ? actionsBar : null}
         </Pressable>
       )}
+      </GalleryFrame>
       {inCard ? null : actionsBar}
       {body ? (
         <Pressable onPress={onPress} style={[styles.textBlock, inCard && styles.textBelowCard]}>
@@ -498,13 +502,14 @@ function TextCard({
   square?: boolean;
 }) {
   const [w, setW] = useState(0);
+  const framed = useGalleryFramed();
   return (
     <View onLayout={(e) => setW(Math.floor(e.nativeEvent.layout.width))}>
       <Pressable
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={t('{title} öffnen', { title: title?.trim() || t('Text') })}
-        style={({ pressed }) => [square ? null : styles.textCard, pressed && styles.pressed]}
+        style={({ pressed }) => [square || framed ? null : styles.textCard, pressed && styles.pressed]}
       >
         {w ? <SheetPager pages={pages} title={title} width={w} fontKey={fontKey} /> : null}
       </Pressable>
@@ -519,6 +524,8 @@ const styles = StyleSheet.create({
   post: { paddingHorizontal: space[16] },
   // Blätter und Karten mit kleiner Rundung (Daria, 07.11.2026)
   textCard: { borderRadius: radius.post, overflow: 'hidden' },
+  // Im Galerie-Rahmen der Desktop-Wand sind die Bilder eckig
+  squareCard: { borderRadius: 0 },
   card: {
     height: 360,
     borderRadius: radius.post,
