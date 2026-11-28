@@ -157,6 +157,19 @@ export const styles = StyleSheet.create({
   },
   calNumDone: { color: INK, fontFamily: font.medium },
   calNumMissed: { color: color.text.secondary, opacity: 0.6 },
+  // Kalender in Stufen (Daria, 2026-11-28)
+  growBox: { overflow: 'hidden' },
+  growInner: { position: 'absolute', top: 0, left: 0, right: 0 },
+  short: { gap: space[6] },
+  shortRow: { backgroundColor: DAY, borderRadius: radius.md, paddingHorizontal: space[12], paddingVertical: 10 },
+  shortRowOn: { borderWidth: 1.5, borderColor: color.text.primary, paddingHorizontal: space[12] - 1.5, paddingVertical: 10 - 1.5 },
+  shortText: { marginTop: 0, color: color.text.primary },
+  // Pille zum Schieben: breite Fläche zum Greifen, im Browser ohne Textauswahl und ohne Scrollen
+  handle: { alignItems: 'center', gap: space[4], paddingTop: space[12], paddingBottom: space[8], userSelect: 'none', touchAction: 'none', cursor: 'grab' } as object,
+  handleBar: { width: 44, height: 5, borderRadius: 3, backgroundColor: color.text.secondary, opacity: 0.45 },
+  handleDots: { flexDirection: 'row', gap: space[4] },
+  handleDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: color.text.secondary, opacity: 0.35 },
+  handleDotOn: { opacity: 1, backgroundColor: color.text.primary },
 });
 
 /** Tagesstapel (Daria, 2026-11-28) */

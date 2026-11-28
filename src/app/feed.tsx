@@ -1,6 +1,6 @@
 import { RoutineNudge } from '../components/RoutineNudge';
-import { RoutineCalendarSlot, RoutineMonthPanel } from '../components/RoutineList';
-import { setCalendarMonth, setCalendarShown } from '../data/routineView';
+import { RoutineCalendarStages } from '../components/RoutineList';
+import { getCalendarLevel, setCalendarLevel, useRoutineData } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
@@ -55,10 +55,10 @@ import { forgetMove, MOVE_LINK, useMovedPosts } from '../data/movedPosts';
 import { Notice } from '../components/Content';
 import { color, motion, space } from '../theme/tokens';
 import { cardSwipe, resetCardSwipe } from '../lib/cardSwipe';
-import { isTouching, touchEnded, touchStarted, whenUntouched } from '../lib/touching';
+import { touchEnded, touchStarted, whenUntouched } from '../lib/touching';
 import { useIntroDone } from '../lib/intro';
 import { PageSlideProvider, slideNext, takeSlide, type SlideDir } from '../lib/pageSlide';
-import { TAB_OF_PARAM, matchesTab, touchPoint, STORIES, HEADER_HIDE_MS, SEARCH_FADE_MS, PULL_SEARCH, CALENDAR_MS, PULL_HEADER, COMPOSE_HEADER, TAB_ORDER, ME_TABS, SWIPE_DISTANCE, EMPTY_KINDS, FeedItem } from '../components/feed/feedConstants';
+import { TAB_OF_PARAM, matchesTab, touchPoint, STORIES, HEADER_HIDE_MS, SEARCH_FADE_MS, PULL_SEARCH, PULL_HEADER, COMPOSE_HEADER, TAB_ORDER, ME_TABS, SWIPE_DISTANCE, EMPTY_KINDS, FeedItem } from '../components/feed/feedConstants';
 import { styles } from '../components/feed/feedStyles';
 
 /** Beim Start schon entschieden, ob die Routine aufgeht; gilt einmal pro App-Start */
@@ -182,51 +182,12 @@ export default function FeedScreen() {
    * Kalender der Routine hinter den Umschaltern (Daria, 2026-11-14): Er kommt hervor, wenn man oben aufzieht oder über
    * den Umschaltern nach unten wischt, und geht beim Weiterscrollen oder Wischen nach oben wieder weg.
    */
-  const calendarAnim = useRef(new Animated.Value(0)).current;
-  const [calendarHeight, setCalendarHeight] = useState(0);
-  // Gemessen ohne Neurendern; die Höhe zählt nur beim Auf- und Zuklappen. Offen folgt die Fläche ihrem Inhalt, damit
-  // die Zeilen des Monats sie beim Herausfallen mitziehen (Daria, 2026-11-14).
-  const calendarMeasured = useRef(0);
-  const [calendarSettled, setCalendarSettled] = useState(false);
-  // Oberkante des Kalenders im Kopf: Dort beginnt das Blatt mit dem Monat
-  const [calendarTop, setCalendarTop] = useState(0);
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const calendarOpenRef = useRef(false);
-  const calendarOpenedAt = useRef(0);
-  /** Ein Schritt weiter auf: zu → Woche → Monat */
-  const calendarStep = () => {
-    if (!calendarOpenRef.current) showCalendar(true);
-    else setCalendarMonth(true);
-  };
-  /** Zuklappen in einem Schritt, auch aus dem Monat (Daria, 2026-11-14) */
-  const calendarBack = () => showCalendar(false);
-  const showCalendar = (show: boolean) => {
-    if (!show) setCalendarMonth(false);
-    if (calendarOpenRef.current === show) return;
-    calendarOpenRef.current = show;
-    if (show) calendarOpenedAt.current = Date.now();
-    setCalendarOpen(show);
-    setCalendarShown(show);
-    setCalendarHeight(calendarMeasured.current);
-    setCalendarSettled(false);
-    calendarAnim.stopAnimation();
-    Animated.timing(calendarAnim, {
-      toValue: show ? 1 : 0,
-      duration: CALENDAR_MS,
-      easing: Easing.bezier(0.4, 0, 0.2, 1),
-      useNativeDriver: false,
-    }).start(({ finished }) => {
-      if (finished && show) setCalendarSettled(true);
-    });
-  };
-  // Verlässt man den Feed, gilt der Kalender als zu, damit der Kater auf der eigenen Routine-Seite nicht fehlt
-  useEffect(
-    () => () => {
-      setCalendarShown(false);
-      setCalendarMonth(false);
-    },
-    [],
-  );
+  // Kalender als Teil der Seite in Stufen (Daria, 2026-11-28); Wischen über den Umschaltern und Ziehen oben gehen
+  // weiter eine Stufe auf bzw. ganz zu
+  const routineData = useRoutineData();
+  const calendarStep = () => setCalendarLevel(getCalendarLevel() + 1);
+  const calendarBack = () => setCalendarLevel(0);
+  const showCalendar = (show: boolean) => setCalendarLevel(show ? Math.max(1, getCalendarLevel()) : 0);
   const showCalendarRef = useRef(showCalendar);
   showCalendarRef.current = showCalendar;
   const calendarStepRef = useRef({ step: calendarStep, back: calendarBack });
@@ -636,8 +597,7 @@ export default function FeedScreen() {
   revealRef.current = () => {
     if (!routineActiveRef.current) return;
     setMeSwitchOpen(true);
-    showCalendar(true);
-    setCalendarMonth(true);
+    setCalendarLevel(3);
   };
   // Nur in „My Structure“ (Routine) verschwindet der große Umschalter. In „My Feed“ und allen anderen Feeds
   // (Gruppe, Kiez, Überall) bleibt er sichtbar (Entscheidung 12.11.2026, ersetzt die frühere Regel „nur in My Feed“).
@@ -1120,37 +1080,10 @@ export default function FeedScreen() {
           </View>
         </View>
       ) : null}
-      {routineActive && !composing ? (
-        <Animated.View
-          onLayout={(e) => {
-            const y = e.nativeEvent.layout.y;
-            setCalendarTop((t) => (t === y ? t : y));
-          }}
-          style={[
-            styles.clip,
-            calendarSettled
-              ? null
-              : {
-                  height: calendarAnim.interpolate({ inputRange: [0, 1], outputRange: [0, calendarHeight] }),
-                  opacity: calendarAnim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 0.2, 1] }),
-                },
-          ]}
-          pointerEvents={calendarOpen ? 'auto' : 'none'}
-        >
-          <View
-            style={styles.calendarSlot}
-            onLayout={(e) => {
-              calendarMeasured.current = e.nativeEvent.layout.height;
-            }}
-          >
-            <RoutineCalendarSlot />
-          </View>
-        </Animated.View>
-      ) : null}
-      {/* Der Monat legt sich als Blatt über die Liste, genau über die Woche (Daria, 2026-11-14) */}
-      {routineActive && !composing ? (
-        <View style={[styles.monthLayer, { top: calendarTop }]} pointerEvents="box-none">
-          <RoutineMonthPanel />
+      {/* Kalender als Teil der Seite, darunter die Pille zum Schieben (Daria, 2026-11-28) */}
+      {routineActive && !composing && routineData ? (
+        <View style={styles.calendarSlot}>
+          <RoutineCalendarStages list={routineData.list} events={routineData.events} saved={routineData.saved} />
         </View>
       ) : null}
       </View>
@@ -1178,10 +1111,6 @@ export default function FeedScreen() {
               onNewButtonShown={setRoutineNewShown}
               onScroll={(e) => {
                 const y = e.nativeEvent.contentOffset.y;
-                // Weiterscrollen schiebt den Kalender wieder hinter die Umschalter. Nur wenn der Finger die Liste schiebt
-                // und der Kalender schon ganz offen ist: Nachlaufen der Liste oder Verschieben durch das Aufklappen
-                // selbst schloss ihn sonst gleich wieder (Daria, 2026-11-14)
-                if (y > 8 && y > lastY.current && isTouching() && Date.now() - calendarOpenedAt.current > CALENDAR_MS) showCalendar(false);
                 lastY.current = y;
               }}
             />

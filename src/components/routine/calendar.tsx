@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Animated, Easing, PanResponder, Platform, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
@@ -6,74 +5,12 @@ import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
 import { eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { weekdayShort } from '../../data/katerRoutine';
 import { addDays, capitalize, isoWeekday, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../../data/reminders';
-import { setCalendarMonth, useCalendarMonth, useRoutineData } from '../../data/routineView';
+import { setCalendarLevel, setCalendarMonth, setRoutineDay, useCalendarLevel, useCalendarMonth, useRoutineDay, type CalendarLevel } from '../../data/routineView';
 import { localeTag, t } from '../../data/texts';
-import { useAccentColor } from '../../theme/signal';
-import { Icon } from '../icons/Icon';
 import { Text } from '../T';
 import { HATCH } from './constants';
 import { Saved } from './shared';
 import { styles } from './styles';
-
-export function RoutineCalendarSlot() {
-  const data = useRoutineData();
-  if (!data) return null;
-  // Im Feed bleibt hier immer die Woche; der Monat legt sich als Blatt darüber (RoutineMonthPanel)
-  return <RoutineCalendar list={data.list} events={data.events} saved={data.saved} variant="week" />;
-}
-
-/**
- * Monat als Blatt über der Liste (Daria, 2026-11-14): Die Liste bleibt stehen, nur das Blatt und die Tage bewegen sich.
- * Vorher schob der Monat beim Aufklappen in jedem Bild die ganze Seite weiter, das ruckelte auf dem iPhone.
- * Antippen außerhalb des Blatts klappt den Monat zu.
- */
-export function RoutineMonthPanel() {
-  const data = useRoutineData();
-  const open = useCalendarMonth();
-  const [mounted, setMounted] = useState(open);
-  const fade = useRef(new Animated.Value(open ? 1 : 0)).current;
-  // Das Blatt erscheint oft genau unter dem Finger, der es gerade aufgezogen hat. Das Loslassen darf es nicht gleich
-  // wieder schließen (Daria, 2026-11-14: „Animation begann und brach dann selbst ab“): Nur ein Tippen, das auf der
-  // Fläche begonnen hat, und frühestens kurz nach dem Öffnen zählt.
-  const openedAt = useRef(0);
-  const armed = useRef(false);
-  useEffect(() => {
-    if (open) {
-      setMounted(true);
-      openedAt.current = Date.now();
-      armed.current = false;
-    }
-    fade.stopAnimation();
-    Animated.timing(fade, {
-      toValue: open ? 1 : 0,
-      duration: open ? 240 : 220,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: Platform.OS !== 'web',
-    }).start(({ finished }) => {
-      if (finished && !open) setMounted(false);
-    });
-  }, [open, fade]);
-  if (!mounted || !data) return null;
-  return (
-    <>
-      <Pressable
-        style={styles.panelBackdrop}
-        onPressIn={() => {
-          armed.current = Date.now() - openedAt.current > 400;
-        }}
-        onPress={() => {
-          if (armed.current) setCalendarMonth(false);
-          armed.current = false;
-        }}
-        accessibilityRole="button"
-        accessibilityLabel={t('Monat zuklappen')}
-      />
-      <Animated.View style={[styles.panel, { opacity: fade }]}>
-        <RoutineCalendar list={data.list} events={data.events} saved={data.saved} variant="panel" />
-      </Animated.View>
-    </>
-  );
-}
 
 export function RoutineCalendar({
   list,
@@ -89,16 +26,16 @@ export function RoutineCalendar({
 }) {
   // Monat oder Woche, geteilt mit dem Feed: Dieselbe Bewegung wie beim Aufklappen zeigt den ganzen Monat (Daria, 2026-11-14)
   const open = useCalendarMonth();
-  const router = useRouter();
-  const accent = useAccentColor();
   // Kurz nach dem Erscheinen zählt kein Tippen: Das Loslassen des Fingers, der das Blatt aufgezogen hat, landet sonst
   // auf dem Monat und klappt ihn gleich wieder zu (Daria, 2026-11-14)
   const shownAt = useRef(Date.now());
   const settled = () => Date.now() - shownAt.current > 400;
   const monthMode = variant === 'panel' || (variant === 'inline' && open);
   const setOpen = setCalendarMonth;
-  // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war
-  const [picked, setPicked] = useState<string | null>(null);
+  // Gewählter Tag (Daria, 2026-11-12): darunter steht, was an dem Tag war. Geteilt mit dem Tagesstapel: Ein Tipp auf
+  // den Tag öffnet seinen Stapel (Daria, 2026-11-28)
+  const picked = useRoutineDay();
+  const setPicked = setRoutineDay;
   const [days, setDays] = useState<RoutineDays | null>(null);
   // Blättern (Daria, 2026-11-14): nach links wischen zeigt den nächsten Monat bzw. die nächste Woche, nach rechts den
   // vorigen. Wechsel zwischen Woche und Monat springt zurück zu heute.
@@ -131,7 +68,6 @@ export function RoutineCalendar({
   const go = useCallback(
     (dir: 1 | -1) => {
       setShift((n) => n + dir);
-      setPicked(null);
       slide.setValue(dir);
       Animated.timing(slide, { toValue: 0, duration: 260, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }).start();
     },
@@ -287,32 +223,8 @@ export function RoutineCalendar({
         </Text>
       ) : null}
       <DayBar day={shownDay} today={today} days={days} list={list} events={events} saved={saved} />
-      {/* Für den gewählten Tag gleich etwas planen (Daria, 2026-11-14: „Da fehlt der Button zum Erstellen“); nicht für
-          vergangene Tage */}
-      {shownDay >= today ? (
-        <Pressable
-          onPress={() => {
-            setCalendarMonth(false);
-            router.push({ pathname: '/routine/new', params: { tag: shownDay } });
-          }}
-          accessibilityRole="button"
-          hitSlop={8}
-          style={({ pressed }) => [styles.dayCreate, pressed && styles.pressed]}
-        >
-          <Icon name="plus" size={16} color={accent} />
-          <Text style={[styles.dayCreateText, { color: accent }]}>
-            {shownDay === today ? t('Erinnerung für heute') : t('Erinnerung am {day}', { day: dayLabel(shownDay) })}
-          </Text>
-        </Pressable>
-      ) : null}
     </View>
   );
-}
-
-/** „Fr. 27.11.“ für den Knopf unter dem Kalender */
-function dayLabel(day: string): string {
-  const [y, m, d] = day.split('-').map(Number);
-  return new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: 'numeric', month: 'numeric' }).format(new Date(y, m - 1, d));
 }
 
 const ROW_MS = 260;
@@ -486,6 +398,8 @@ function DayBar({
   list,
   events,
   saved,
+  lines = 2,
+  style,
 }: {
   day: string;
   today: string;
@@ -493,6 +407,8 @@ function DayBar({
   list: Reminder[];
   events: CalendarEvent[];
   saved: Saved[];
+  lines?: number;
+  style?: object;
 }) {
   const [y, m, d] = day.split('-').map(Number);
   const date = new Date(y, m - 1, d);
@@ -527,9 +443,126 @@ function DayBar({
   ].filter((n) => !timedNames.has(n.replace(/ [✓✗]$/, '')));
   const items = [...timed.map(([time, name]) => `${time} ${name}`), ...untimed, ...ended];
   return (
-    <Text noTranslate style={styles.dayBar} numberOfLines={2} accessibilityLiveRegion="polite">
+    <Text noTranslate style={[styles.dayBar, style]} numberOfLines={lines} accessibilityLiveRegion="polite">
       {items.length ? [label, ...items].join(' · ') : `${label} · ${t('nichts geplant')}`}
     </Text>
   );
 }
 
+
+/** Stufe, ab der ein Zug an der Pille eine Stufe weiter geht */
+const LEVEL_STEP = 56;
+const LEVEL_NAMES = ['Kalender zu', 'Kurze Liste', 'Woche', 'Monat'];
+
+/**
+ * Kalender als Teil der Seite (Daria, 2026-11-28): „Statt Overlay ist der Kalender ein Teil des Screens in vier
+ * States: komplett leer, Shortlist mit Events, nur Wochentage, komplett ausgeklappt. Zwischen der Karten-Ansicht und
+ * der Ansicht Kalender ist eine schmale Pille, die anzeigt, dass man da schieben kann.“ Die Höhe folgt dem Inhalt mit
+ * einer Feder, die Karten darunter rücken mit.
+ */
+export function RoutineCalendarStages({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
+  const level = useCalendarLevel();
+  return (
+    <View>
+      <GrowBox>
+        {level === 1 ? <ShortList list={list} events={events} saved={saved} /> : level >= 2 ? <RoutineCalendar list={list} events={events} saved={saved} variant="inline" /> : null}
+      </GrowBox>
+      <CalendarHandle level={level} />
+    </View>
+  );
+}
+
+/** Höhe folgt dem Inhalt mit einer Feder; der Inhalt misst sich frei, darunter rückt alles mit */
+function GrowBox({ children }: { children: ReactNode }) {
+  const height = useRef(new Animated.Value(0)).current;
+  const first = useRef(true);
+  const onLayout = (h: number) => {
+    if (first.current) {
+      first.current = false;
+      height.setValue(h);
+      return;
+    }
+    Animated.spring(height, { toValue: h, stiffness: 260, damping: 26, mass: 1, useNativeDriver: false }).start();
+  };
+  return (
+    <Animated.View style={[styles.growBox, { height }]}>
+      <View style={styles.growInner} onLayout={(e) => onLayout(e.nativeEvent.layout.height)}>
+        {children}
+      </View>
+    </Animated.View>
+  );
+}
+
+/** Heute, morgen, übermorgen je in einer Zeile; Tippen öffnet den Tag */
+function ShortList({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
+  const picked = useRoutineDay();
+  const now = new Date();
+  const today = localDate(now);
+  const days = [0, 1, 2].map((i) => localDate(addDays(i, now)));
+  return (
+    <View style={styles.short}>
+      {days.map((day) => {
+        const on = (picked ?? today) === day;
+        return (
+          <Pressable
+            key={day}
+            onPress={() => setRoutineDay(day === today ? null : day)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: on }}
+            style={({ pressed }) => [styles.shortRow, on && styles.shortRowOn, pressed && styles.pressed]}
+          >
+            <DayBar day={day} today={today} days={null} list={list} events={events} saved={saved} lines={1} style={styles.shortText} />
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+/**
+ * Schmale Pille unter dem Kalender: nach unten ziehen macht ihn größer, nach oben kleiner, je eine Stufe pro Stück.
+ * Tippen geht eine Stufe weiter, vom Monat zurück auf zu. Die Punkte zeigen die Stufe.
+ */
+function CalendarHandle({ level }: { level: CalendarLevel }) {
+  const start = useRef<{ level: number; moved: boolean }>({ level, moved: false });
+  const levelRef = useRef(level);
+  levelRef.current = level;
+  const pan = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponderCapture: (_e, g) => Math.abs(g.dy) > 6,
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderGrant: () => {
+          start.current = { level: levelRef.current, moved: false };
+        },
+        onPanResponderMove: (_e, g) => {
+          if (Math.abs(g.dy) > 6) start.current.moved = true;
+          setCalendarLevel(start.current.level + Math.round(g.dy / LEVEL_STEP));
+        },
+        onPanResponderRelease: () => {
+          if (!start.current.moved) setCalendarLevel(levelRef.current === 3 ? 0 : levelRef.current + 1);
+        },
+      }),
+    [],
+  );
+  return (
+    <View
+      style={styles.handle}
+      {...pan.panHandlers}
+      accessible
+      accessibilityRole="adjustable"
+      accessibilityLabel={t('Kalender: {level}', { level: t(LEVEL_NAMES[level]) })}
+      accessibilityHint={t('Ziehen oder tippen macht den Kalender größer oder kleiner')}
+      accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+      onAccessibilityAction={(e) => setCalendarLevel(level + (e.nativeEvent.actionName === 'increment' ? 1 : -1))}
+    >
+      <View style={styles.handleBar} />
+      <View style={styles.handleDots}>
+        {[0, 1, 2, 3].map((i) => (
+          <View key={i} style={[styles.handleDot, i === level && styles.handleDotOn]} />
+        ))}
+      </View>
+    </View>
+  );
+}

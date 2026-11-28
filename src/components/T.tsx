@@ -40,7 +40,13 @@ function withKarlaSpacing(style: TextProps['style']): TextProps['style'] {
  */
 const WRAP_WEB = { hyphens: 'auto', hyphenateLimitChars: '8 4 4', WebkitHyphenateLimitBefore: 4, WebkitHyphenateLimitAfter: 4, overflowWrap: 'break-word', textWrap: 'pretty' } as object;
 const WRAP_WEB_NAMES = { hyphens: 'manual', overflowWrap: 'break-word', textWrap: 'pretty' } as object;
-const wrapStyle = (noTranslate?: boolean) => (Platform.OS === 'web' ? (noTranslate ? WRAP_WEB_NAMES : WRAP_WEB) : null);
+/**
+ * Eine Zeile: ohne `textWrap`. Im Browser setzt `text-wrap: pretty` auch den Umbruch wieder an und hebt das `nowrap`
+ * von `numberOfLines={1}` auf, dann stand der Text doch auf mehreren Zeilen (2026-11-28, kurze Liste im Kalender).
+ */
+const ONE_LINE_WEB = { hyphens: 'manual', overflowWrap: 'break-word' } as object;
+const wrapStyle = (noTranslate?: boolean, oneLine?: boolean) =>
+  Platform.OS === 'web' ? (oneLine ? ONE_LINE_WEB : noTranslate ? WRAP_WEB_NAMES : WRAP_WEB) : null;
 
 /**
  * Schrift im Ton des Themes (Daria, 2026-11-24: „eine weniger rosa Farbe, … konsistent mit gelben Buttons“): Haupt- und
@@ -75,7 +81,7 @@ export const Text = forwardRef<RNText, Props>(function Text({ children, accessib
       ref={setRef}
       accessibilityLabel={accessibilityLabel ? t(accessibilityLabel) : accessibilityLabel}
       android_hyphenationFrequency={noTranslate ? 'none' : 'normal'}
-      style={[wrapStyle(noTranslate), toneColor(withKarlaSpacing(style), tone)]}
+      style={[wrapStyle(noTranslate, props.numberOfLines === 1), toneColor(withKarlaSpacing(style), tone)]}
       {...props}
     >
       {noTranslate ? children : translateChildren(children)}
