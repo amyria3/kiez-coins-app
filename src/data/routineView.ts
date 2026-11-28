@@ -143,3 +143,26 @@ const subscribeKater = (l: () => void) => {
 export function useKaterLine(): string {
   return useSyncExternalStore(subscribeKater, () => katerLine, () => katerLine);
 }
+
+/**
+ * Ausgeklappte Karte (Daria, 2026-11-28: „Wenn ich die Karte ausklappe: Katze oben ausgeblendet, dafür Katze auf der
+ * Karte und eine Aufdröselung des Fortschritts“). Höchstens eine zur Zeit; solange eine offen ist, schweigt der Kater
+ * über dem Kalender.
+ */
+let expandedCard: string | null = null;
+const expandedListeners = new Set<() => void>();
+export function setExpandedCard(key: string | null) {
+  if (expandedCard === key) return;
+  expandedCard = key;
+  expandedListeners.forEach((l) => l());
+}
+export const getExpandedCard = () => expandedCard;
+const subscribeExpanded = (l: () => void) => {
+  expandedListeners.add(l);
+  return () => {
+    expandedListeners.delete(l);
+  };
+};
+export function useExpandedCard(): string | null {
+  return useSyncExternalStore(subscribeExpanded, () => expandedCard, () => expandedCard);
+}

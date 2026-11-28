@@ -196,3 +196,33 @@ export function dateIssue(value: string, now = new Date()): 'past' | 'format' | 
 
 /** Noch unfertig getippt („2“, „2.“, „2.1“, „2.12.20“): beim Tippen noch keine Fehlermeldung */
 export const datePartial = (value: string) => /^\d{1,2}(?:[.,/](?:\d{1,2}(?:[.,/]\d{0,4})?)?)?$/.test(value.trim());
+
+/** Ein Tag der laufenden Woche auf der ausgeklappten Karte (Daria, 2026-11-28: „Aufdröselung des Fortschritts“) */
+export type WeekDayState = 'done' | 'skipped' | 'missed' | 'today' | 'coming' | 'free';
+
+/**
+ * Montag bis Sonntag dieser Woche für eine wiederkehrende Aufgabe: erledigt, ausgesetzt, verpasst (nur bei festen
+ * Tagen, x-mal pro Woche hat keinen Pflichttag), heute, kommt noch oder frei. `done` und `skipped` sind Tage als
+ * „JJJJ-MM-TT“.
+ */
+export function weekBreakdown(
+  r: Pick<Reminder, 'weekdays' | 'doneToday' | 'skippedToday'>,
+  done: ReadonlySet<string>,
+  skipped: ReadonlySet<string>,
+  now = new Date(),
+): { day: string; weekday: number; state: WeekDayState }[] {
+  const today = localDate(now);
+  const start = weekStart(now);
+  return Array.from({ length: 7 }, (_, i) => {
+    const day = localDate(addDays(i, start));
+    const weekday = i + 1;
+    const planned = !r.weekdays?.length || r.weekdays.includes(weekday);
+    let state: WeekDayState;
+    if (done.has(day) || (day === today && r.doneToday)) state = 'done';
+    else if (skipped.has(day) || (day === today && r.skippedToday)) state = 'skipped';
+    else if (!planned) state = 'free';
+    else if (day < today) state = r.weekdays?.length ? 'missed' : 'free';
+    else state = day === today ? 'today' : 'coming';
+    return { day, weekday, state };
+  });
+}

@@ -1,6 +1,5 @@
-import { useRouter } from 'expo-router';
 import { memo, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 import { eventDate, type CalendarEvent } from '../../data/calendar';
 import { daySummary } from '../../data/daySummary';
@@ -16,8 +15,6 @@ import { Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
 import { DayHead, DayStack } from './stack';
 import { stackStyles, styles } from './styles';
 import { setKaterLine, setRoutineDay, useRoutineDay } from '../../data/routineView';
-import { useAccentColor } from '../../theme/signal';
-import { Icon } from '../icons/Icon';
 import { Text } from '../T';
 
 type DayCards = { tasks: Reminder[]; fixed: Reminder[]; events: CalendarEvent[]; optional: Reminder[]; saved: Saved[] };
@@ -123,8 +120,6 @@ export const RoutineList = memo(function RoutineList({
   useEffect(() => {
     shownBefore.current = date;
   }, [date]);
-  const router = useRouter();
-  const accent = useAccentColor();
   const isToday = date === today;
   const isPast = date < today;
   // Vergangener Tag: was geschafft wurde und was ausfiel, wie im Kalender (Daria, 2026-11-28: „If nothing is scheduled
@@ -198,20 +193,7 @@ export const RoutineList = memo(function RoutineList({
       {cards.length || cardDays.length > 1 || pickedDay ? (
         <View style={stackStyles.wrap}>
           <DayHead label={dayLabel} index={index} count={cardDays.length} onDay={(i) => setRoutineDay(cardDays[i][0] === today ? null : cardDays[i][0])} />
-          {/* Für den Tag gleich etwas planen, nicht für vergangene Tage (Daria, 2026-11-14 und 2026-11-28) */}
-          {date >= today ? (
-            <Pressable
-              onPress={() => router.push({ pathname: '/routine/new', params: { tag: date } })}
-              accessibilityRole="button"
-              hitSlop={8}
-              style={({ pressed }) => [styles.dayCreate, pressed && styles.pressed]}
-            >
-              <Icon name="plus" size={16} color={accent} />
-              <Text style={[styles.dayCreateText, { color: accent }]}>
-                {isToday ? t('Erinnerung für heute') : t('Erinnerung am {day}', { day: shortDate(date) })}
-              </Text>
-            </Pressable>
-          ) : null}
+          {/* „+ Erinnerung für heute“ über dem Stapel raus (Daria, 2026-11-28: „Raus“), neu anlegen über das Plus in der Leiste */}
           {cards.length ? (
             <DayStack key={date} cards={cards} enter={enter} />
           ) : (

@@ -142,14 +142,20 @@ export function RoutineContent({
   const scrollRef = useRef<ScrollView>(null);
   const offset = useRef(0);
   const scrollToView = useCallback(
-    (view: View) => {
-      view.measureInWindow((_x, y) => {
-        rootRef.current?.measureInWindow((_rx, ry) => {
-          scrollRef.current?.scrollTo({ y: Math.max(0, offset.current + y - ry - topPad - STACK_HEAD_ROOM), animated: true });
+    (view: View, align: 'top' | 'bottom' = 'top') => {
+      view.measureInWindow((_x, y, _w, h) => {
+        rootRef.current?.measureInWindow((_rx, ry, _rw, rh) => {
+          if (align === 'top') {
+            scrollRef.current?.scrollTo({ y: Math.max(0, offset.current + y - ry - topPad - STACK_HEAD_ROOM), animated: true });
+            return;
+          }
+          // Unterkante über der Leiste: nur nach unten, steht sie schon frei, bleibt die Seite stehen
+          const below = y + h - (ry + rh - bottomPad + space[16]);
+          if (below > 0) scrollRef.current?.scrollTo({ y: offset.current + below, animated: true });
         });
       });
     },
-    [topPad],
+    [topPad, bottomPad],
   );
   const scrolled = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     offset.current = e.nativeEvent.contentOffset.y;
@@ -219,7 +225,7 @@ export function RoutineContent({
   );
 }
 
-/** Platz über dem Stapel, damit Tageskopf und „+ Erinnerung“ beim Springen zu sehen bleiben */
+/** Platz über dem Stapel, damit der Tageskopf beim Springen zu sehen bleiben */
 const STACK_HEAD_ROOM = 72;
 
 const styles = StyleSheet.create({

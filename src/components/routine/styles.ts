@@ -6,9 +6,6 @@ import { DAY, INK, INK_SOFT, INK_TRACK, MUSTARD } from './constants';
 
 export const styles = StyleSheet.create({
   calEnded: { ...text.bodySm, color: color.text.secondary, textAlign: 'right' },
-  // Plus bündig mit „Fr. 27.11.“ darüber (das Icon hat innen etwas Rand), Abstand wie zwischen Kalender und Tageszeile
-  dayCreate: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start', marginLeft: -3, marginTop: -space[2] },
-  dayCreateText: { ...text.label },
   dayBar: { ...text.bodySm, marginTop: space[4], color: color.text.secondary },
   group: { gap: space[12] },
   groupHead: {
@@ -36,6 +33,8 @@ export const styles = StyleSheet.create({
       : null),
   },
   cardBody: { gap: space[6] },
+  // Aufgeklappt unten nach den Knöpfen etwas mehr Luft (Daria, 2026-11-28: „mehr Gap … das beim Antippen“)
+  cardOpen: { paddingBottom: 22 },
   cardRest: { gap: space[6] },
   head: { gap: space[2] },
   meta: {
@@ -62,6 +61,22 @@ export const styles = StyleSheet.create({
   segment: { flex: 1, flexBasis: 0, height: 4, borderRadius: 2, borderWidth: 1, borderColor: INK, overflow: 'hidden' },
   segmentFill: { height: '100%', backgroundColor: INK },
   segmentGreyed: { borderWidth: 0, backgroundColor: INK_TRACK },
+  // Ausgeklappte Karte (Daria, 2026-11-28): Kater auf der Karte und die Woche Tag für Tag
+  // Spürbar Luft zwischen den Gruppen: Kopf mit Balken, Kater, Woche, Knöpfe (Daria, 2026-11-28: „mehr Gap“)
+  detail: { gap: space[16], marginTop: space[12], marginBottom: space[8] },
+  detailWeek: { gap: space[8] },
+  detailKater: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
+  detailKaterText: { ...text.bodySm, color: INK, flex: 1 },
+  detailText: { ...text.bodySm, color: INK },
+  week: { flexDirection: 'row', justifyContent: 'space-between' },
+  weekDay: { alignItems: 'center', gap: space[4], flex: 1 },
+  weekLabel: { ...text.small, color: INK_SOFT },
+  weekDot: { width: 26, height: 26, borderRadius: 13, borderWidth: 1.2, borderColor: INK, alignItems: 'center', justifyContent: 'center' },
+  weekDotDone: { backgroundColor: INK },
+  weekDotGrey: { borderWidth: 0, backgroundColor: INK_TRACK },
+  weekDotToday: { borderWidth: 2.5 },
+  weekDotFree: { borderColor: INK_TRACK },
+  weekSkip: { width: 10, height: 1.5, borderRadius: 1, backgroundColor: INK_SOFT },
   // Buttons mit festem Abstand beieinander; nur „•••“ rückt nach rechts (Daria, 2026-11-13)
   actions: {
     flexDirection: 'row',

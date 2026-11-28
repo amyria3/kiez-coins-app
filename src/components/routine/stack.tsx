@@ -152,13 +152,28 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
     [targets, stackH],
   );
 
+  // Aufgefächert darf der Stapel den ganzen Bildschirm füllen. Danach scrollt die Seite sanft nach unten, bis
+  // „Zusammenschieben“ zu sehen ist (Daria, 2026-11-28: „behutsam ganz nach unten gescrollt werden“).
+  const scrollTo = useContext(ScrollToView);
+  const foot = useRef<View>(null);
+  const footTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const revealFoot = useCallback(() => {
+    if (footTimer.current) clearTimeout(footTimer.current);
+    // Warten, bis die Karten fast liegen und die Seite lang genug ist
+    footTimer.current = setTimeout(() => foot.current && scrollTo?.(foot.current, 'bottom'), movingRef.current ? 380 : 30);
+  }, [scrollTo]);
+  useEffect(() => () => {
+    if (footTimer.current) clearTimeout(footTimer.current);
+  }, []);
+
   const setOpen = useCallback(
     (on: boolean) => {
       openRef.current = on ? 1 : 0;
       setOpenState(on);
       place(openRef.current, true);
+      if (on) revealFoot();
     },
-    [place],
+    [place, revealFoot],
   );
 
   // Neue Reihenfolge oder neue Maße: alles an seinen Platz
@@ -178,8 +193,13 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
     orderRef.current = next;
     setOrder(next);
   };
-  const bringToFront = (key: string) => {
+  /** `keepOpen`: aufgefächert bleibt der Stapel offen (Daria, 2026-11-28: „Karte nach oben holen, aber nicht komplett einklappen“) */
+  const bringToFront = (key: string, keepOpen = false) => {
     reorder([key, ...orderRef.current.filter((k) => k !== key)]);
+    if (keepOpen) {
+      revealFoot();
+      return;
+    }
     openRef.current = 0;
     setOpenState(false);
   };
@@ -281,7 +301,6 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
 
   // Tippen auf einen Termin in der kurzen Liste (Daria, 2026-11-28): Karte nach vorn holen und hinscrollen
   const focus = useFocusCard();
-  const scrollTo = useContext(ScrollToView);
   useEffect(() => {
     if (!focus || !incoming.includes(focus)) return;
     setFocusCard(null);
@@ -379,7 +398,7 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
                   {pos > 0 ? (
                     <Pressable
                       style={styles.cover}
-                      onPress={() => (open ? bringToFront(key) : setOpen(true))}
+                      onPress={() => (open ? bringToFront(key, true) : setOpen(true))}
                       accessibilityRole="button"
                       accessibilityLabel={open ? t('Karte nach vorn holen') : t('Stapel auffächern')}
                     />
@@ -391,7 +410,7 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
         </DragLock.Provider>
       </View>
       {n > 1 ? (
-        <View style={styles.foot}>
+        <View ref={foot} style={styles.foot}>
           <Pressable
             onPress={() => setOpen(!open)}
             accessibilityRole="button"
