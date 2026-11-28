@@ -66,7 +66,7 @@ export function bildBaum(s, { logo, kater }) {
           alignItems: "center",
           justifyContent: "center",
         },
-        { type: "img", props: { src: kater, width: 84, height: 75 } },
+        { type: "img", props: { src: kater, width: 84, height: 92 } },
       );
   return el(
     "div",
