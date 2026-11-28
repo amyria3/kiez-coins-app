@@ -1,6 +1,6 @@
 import { RoutineNudge } from '../components/RoutineNudge';
 import { RoutineCalendarStages } from '../components/RoutineList';
-import { CALENDAR_TOP, getCalendarLevel, setCalendarLevel, useRoutineData } from '../data/routineView';
+import { getCalendarLevel, setCalendarLevel, useCalendarLevel, useRoutineData } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
@@ -594,15 +594,23 @@ export default function FeedScreen() {
   }, [routineActive]);
   const routineActiveRef = useRef(routineActive);
   routineActiveRef.current = routineActive;
+  // Kalender offen: kein großer Umschalter darüber (Daria, 2026-11-28: „When calendar view is open I don't want the
+  // upper switch be visible too, it's just too much“). Ganz oben weiter ziehen holt den Umschalter, der Kalender
+  // klappt dafür bis auf den Kater zu.
+  const calendarLevel = useCalendarLevel();
+  const calendarOpen = routineActive && calendarLevel >= 2;
   revealRef.current = () => {
     if (!routineActiveRef.current) return;
     setMeSwitchOpen(true);
-    setCalendarLevel(CALENDAR_TOP);
+    setCalendarLevel(Math.min(getCalendarLevel(), 1));
   };
+  useEffect(() => {
+    if (calendarOpen) setMeSwitchOpen(false);
+  }, [calendarOpen]);
   // Nur in „My Structure“ (Routine) verschwindet der große Umschalter. In „My Feed“ und allen anderen Feeds
   // (Gruppe, Kiez, Überall) bleibt er sichtbar (Entscheidung 12.11.2026, ersetzt die frühere Regel „nur in My Feed“).
   // Ohne kleinen Umschalter (nur Routine, kein Privat) bleibt er, sonst gäbe es keinen sichtbaren Weg zurück.
-  const bigSwitchShown = !routineActive || !meBoth || meSwitchOpen;
+  const bigSwitchShown = !routineActive || !meBoth || (meSwitchOpen && !calendarOpen);
   const slideToTab = useRef((key: FeedTab, dir: 1 | -1) => {
     setSwitchingTo(key);
     setRoutineActive(false);
