@@ -13,8 +13,8 @@ import { Text } from '../T';
 const OPEN_KEY = 'schaufenster-statistik-offen';
 
 /**
- * „Statistik“ der Schaufenster-Verwaltung (Daria, 2026-11-23: unter „Posten“, eingeklappt, schöner als Sätze in einem
- * grauen Kasten). Vier Kacheln mit großer Zahl, Bezeichnung und einer Zeile Detail: Posts, neue Abonnent:innen, Aufrufe,
+ * „Statistik“ der Schaufenster-Verwaltung (Daria, 2026-11-23: eingeklappt, schöner als Sätze in einem grauen
+ * Kasten; seit 2026-11-28 unter der Digitalen Visitenkarte). Vier Kacheln mit großer Zahl, Bezeichnung und einer Zeile Detail: Posts, neue Abonnent:innen, Aufrufe,
  * Anfragen der Digitalen Visitenkarte (geöffnet, gespeichert, Kontakt erhalten). Posts zählen gesamt, die übrigen die letzten
  * 30 Tage, gleich auf jedem Gerät und für das ganze Team. Eingeklappt steht eine Zeile mit den wichtigsten Zahlen unter
  * der Überschrift. Ohne Migration 20261123000100 gibt es nur die Kachel zu den Posts.
