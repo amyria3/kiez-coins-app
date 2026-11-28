@@ -18,12 +18,18 @@ export function RoutineCalendar({
   events,
   saved,
   variant = 'inline',
+  dayBar = true,
 }: {
   list: Reminder[];
   events: CalendarEvent[];
   saved: Saved[];
   /** inline: Woche und Monat in der Liste (eigene Routine-Seite); week: nur Woche; panel: nur Monat, als Blatt */
   variant?: 'inline' | 'week' | 'panel';
+  /**
+   * Textzeile zum Tag darunter. In den Stufen ohne (Daria, 2026-11-28: „When I am opening it it should not jump“):
+   * Die Woche bleibt so niedriger als die kurze Liste danach, die Fläche wächst nur.
+   */
+  dayBar?: boolean;
 }) {
   // Monat oder Woche, geteilt mit dem Feed: Dieselbe Bewegung wie beim Aufklappen zeigt den ganzen Monat (Daria, 2026-11-14)
   const open = useCalendarMonth();
@@ -213,7 +219,8 @@ export function RoutineCalendar({
           );
         })}
       </Animated.View>
-      {givenUpCount || cancelledCount || calledOffCount ? (
+      {/* Ohne Textzeile auch in der Woche ohne Zählung, aus demselben Grund */}
+      {(dayBar || monthMode) && (givenUpCount || cancelledCount || calledOffCount) ? (
         <Text style={styles.calEnded}>
           {[
             givenUpCount || cancelledCount ? t('{givenUp} aufgegeben · {cancelled} abgebrochen', { givenUp: givenUpCount, cancelled: cancelledCount }) : '',
@@ -223,7 +230,7 @@ export function RoutineCalendar({
             .join(' · ')}
         </Text>
       ) : null}
-      <DayBar day={shownDay} today={today} days={days} list={list} events={events} saved={saved} />
+      {dayBar ? <DayBar day={shownDay} today={today} days={days} list={list} events={events} saved={saved} /> : null}
     </View>
   );
 }
@@ -469,7 +476,7 @@ export function RoutineCalendarStages({ list, events, saved }: { list: Reminder[
     <View>
       <GrowBox>
         {/* Reihenfolge (Daria, 2026-11-28): zu, Woche, kurze Liste, Monat */}
-        {level === 2 ? <ShortList list={list} events={events} saved={saved} /> : level !== 0 ? <RoutineCalendar list={list} events={events} saved={saved} variant="inline" /> : null}
+        {level === 2 ? <ShortList list={list} events={events} saved={saved} /> : level !== 0 ? <RoutineCalendar list={list} events={events} saved={saved} variant="inline" dayBar={false} /> : null}
       </GrowBox>
       <CalendarHandle level={level} />
     </View>
