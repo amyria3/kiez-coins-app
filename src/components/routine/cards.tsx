@@ -19,7 +19,7 @@ import { ReminderExtrasRow } from '../ReminderExtras';
 import { ManageButton } from '../ShowcaseManage';
 import { Text } from '../T';
 import { CARD_MAX, CARD_MIN, DRAG_AT, GUTTER, INK, INK_SOFT, LIFT_MS, MUSTARD, OLIVE, SHOWCASE, UP_FACTOR, UP_ROOM } from './constants';
-import { DragLock, Motion, PageLock, Saved, stickerOf, tiltOf, useReduceMotion } from './shared';
+import { DragLock, Motion, PageLock, Saved, tiltOf, useReduceMotion } from './shared';
 import { styles } from './styles';
 
 export function Group({
@@ -358,37 +358,46 @@ function Card({
   const fullCard = useMemo(() => ({ full, report }), [full, report]);
   const canGrow = cuts.size > 0;
   const tap = full ? () => setFull(false) : canGrow ? () => setFull(true) : onPress;
-  const sticker = stickerOf(tiltKey);
-  // Kater und Sticker liegen oben rechts über der Karte und schieben den Rest nicht nach unten (Daria, 2026-11-27:
-  // „Wieder viel Platz“). Titel und Zeit halten Abstand zur Breite des Katers, die Karte ist mindestens so hoch wie er.
-  const [side, setSide] = useState({ w: 90, h: 58 });
-  // Knöpfe und Fortschritt beginnen erst unter Kater und Sticker (Daria, 2026-11-28: „im anderen zu wenig“ Platz)
+  // Nur der Kater zählt für den Platz, die Stimmung schwebt darüber (Daria, 2026-11-28: „Wir nehmen die Pille
+  // ‚entspannt' etc. nicht in die Berechnung auf“). Titel und Zeit halten Abstand zum Kater, die Karte ist mindestens
+  // so hoch wie er, Knöpfe und Fortschritt beginnen erst darunter.
+  const [side, setSide] = useState({ w: 46, h: 46 });
   const [headH, setHeadH] = useState(0);
   const measureSide = (e: LayoutChangeEvent) => {
     const { width: w, height: h } = e.nativeEvent.layout;
     if (Math.abs(w - side.w) > 0.5 || Math.abs(h - side.h) > 0.5) setSide({ w, h });
   };
-  const chip = (
-    // Stimmung klebt schräg am Kater wie ein Sticker (Daria, 2026-11-12), nie über seinem Gesicht (2026-11-14)
-    // Rand in der Farbe der Karte, wie ein ausgeschnittener Sticker (Daria, 2026-11-28: „Gib der Pille … einen stroke“,
-    // „gelb auf gelben Karten, grün auf grünen“)
-    <View
-      style={[styles.chip, sticker.above ? styles.chipAbove : styles.chipBelow, { borderColor: bg, transform: [{ rotate: `${sticker.rotate}deg` }] }]}
-      pointerEvents="none"
-    >
-      <Text style={styles.chipText} numberOfLines={1}>
-        {mood}
-      </Text>
-    </View>
+  // Die Stimmung spricht der Kater als kleine Sprechblase über seinem Kopf, mit Rand in der Farbe der Karte. Sie
+  // taucht kurz nach der Karte auf (Daria, 2026-11-28: „formen sie wie die Sprechblase“, „taucht kurz nach dem
+  // Einblenden des Termins auf“). Mit „Bewegung reduzieren“ steht sie gleich da.
+  const pop = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (reduce) {
+      pop.setValue(1);
+      return;
+    }
+    const anim = Animated.sequence([Animated.delay(450), Animated.spring(pop, { toValue: 1, useNativeDriver: native, bounciness: 9, speed: 10 })]);
+    anim.start();
+    return () => anim.stop();
+  }, [pop, reduce, native]);
+  const popStyle = useMemo(
+    () => ({
+      opacity: pop.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 1, 1] }),
+      transform: [{ translateY: pop.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }, { scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
+    }),
+    [pop],
   );
   const kater = (
     // Ring in der Farbe des Grunds (Daria, 2026-11-12)
-    <View style={[styles.katerSide, { alignItems: sticker.avatar }]} onLayout={measureSide}>
-      {sticker.above ? chip : null}
+    <View style={styles.katerSide} onLayout={measureSide}>
       <View style={styles.katerRing}>
         <KaterCircle size={40} bg={bg} />
       </View>
-      {sticker.above ? null : chip}
+      <Animated.View style={[styles.chip, { borderColor: bg }, popStyle]} pointerEvents="none">
+        <Text style={styles.chipText} numberOfLines={1}>
+          {mood}
+        </Text>
+      </Animated.View>
     </View>
   );
   const card = (

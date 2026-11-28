@@ -42,20 +42,22 @@ export const styles = StyleSheet.create({
   cardBody: { gap: space[6] },
   cardRest: { gap: space[6] },
   head: { gap: space[2] },
-  // Platz für den Sticker, der links unter dem Kater herausragt
-  // Kater und Sticker als Spalte: Der Sticker hat eigenen Platz und liegt höchstens auf dem Ring
+  // Nur der Kater bestimmt den Platz; die Sprechblase mit der Stimmung liegt darüber (Daria, 2026-11-28)
   katerSide: { position: 'absolute', top: 0, right: 0 },
+  // Sprechblase wie die des Katers: rund, die Ecke zum Kater klein. Sitzt über seinem Kopf, ragt nach links und oben.
   chip: {
+    position: 'absolute',
+    bottom: '100%',
+    right: -6,
+    marginBottom: -10,
     backgroundColor: color.bg.screen,
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: space[4] - 2,
+    borderRadius: radius.md,
+    borderBottomRightRadius: space[4],
     borderWidth: 2,
+    paddingHorizontal: 9,
+    paddingVertical: space[2],
     zIndex: 1,
   },
-  // Sticker liegt tiefer auf dem Ring, so bleibt die Spalte aus Kater und Sticker niedrig (Daria, 2026-11-28)
-  chipBelow: { marginTop: -8 },
-  chipAbove: { marginBottom: -8 },
   chipText: {
     ...text.captionStrong,
     color: color.text.primary,
