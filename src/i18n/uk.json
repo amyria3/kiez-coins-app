@@ -1446,5 +1446,8 @@
   "Cal.com-Konto anlegen": "Створити акаунт Cal.com",
   "Freie Zeiten sehen und online buchen.": "Переглянути вільний час і записатися онлайн.",
   "{n} Termine: {list}": "{n, plural, one {# зустріч} few {# зустрічі} many {# зустрічей} other {# зустрічі}}: {list}",
-  "{n} Aufgaben ohne Uhrzeit": "{n, plural, one {# завдання} few {# завдання} many {# завдань} other {# завдання}} без часу"
+  "{n} Aufgaben ohne Uhrzeit": "{n, plural, one {# завдання} few {# завдання} many {# завдань} other {# завдання}} без часу",
+  "Weiter posten": "Продовжити публікацію",
+  "Nichts posten, zurück zum Feed": "Нічого не публікувати, назад до стрічки",
+  "Nichts posten und zurück": "Нічого не публікувати й повернутися"
 }

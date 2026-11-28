@@ -39,6 +39,8 @@ export function useGroupPhotoForm(
   draft?: Challenge,
   /** Post nur mit Text: Blätter statt Foto (Daria, 07.11.2026) */
   textOnly = false,
+  /** Knopf im Dialog „Noch nichts zu speichern“, je nachdem, wohin onSaved führt */
+  leaveLabel?: string,
 ): { fields: ReactNode; button: ReactNode } {
   const { groups, groupApi, saveDraft, publishDraft } = useStore();
   const group = groups.find((g) => g.id === groupId);
@@ -165,7 +167,7 @@ export function useGroupPhotoForm(
           busy ? undefined : explain('Gruppe nicht gefunden', 'Diese Gruppe gibt es nicht mehr, oder Du bist nicht mehr dabei.')
         }
       />
-      <GroupDraftButton busy={busy === 'save'} disabled={!!busy || !group || !hasContent} onPress={save} />
+      <GroupDraftButton busy={busy === 'save'} disabled={!!busy || !group || !hasContent} onPress={save} onLeave={onSaved} leaveLabel={leaveLabel} />
     </>
   );
 
