@@ -102,22 +102,11 @@ function MonoTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
   const keyboard = useKeyboardHeight();
   if (keyboard > 0) return null;
 
-  /** Ausgewählter Tab (Daria, 2026-11-27): Icon und Name auf einer zarten Tönung seiner Farbe, in Mono lila mit Rand */
+  /** Ausgewählter Tab (Daria, 2026-11-27): Icon und Name auf einer Tönung, die zum neuen Tab gleitet (SelectedGroup) */
   const selected = (role: string, children: ReactNode) => (
-    <View style={styles.group}>
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.tint,
-          { top: tintInset, bottom: tintInset, backgroundColor: color.nav.selectedGradient ? undefined : (color.nav.selectedFill ?? withAlpha(role, 0.16)) },
-          color.nav.selectedGradient ? styles.tintClip : null,
-          color.nav.selectedLine ? { borderWidth: stroke.primary, borderColor: color.nav.selectedLine } : null,
-        ]}
-      >
-        {color.nav.selectedGradient ? <TintGradient colors={color.nav.selectedGradient} /> : null}
-      </Animated.View>
+    <SelectedGroup role={role} inset={tintInset}>
       {children}
-    </View>
+    </SelectedGroup>
   );
   const label = (name: string, role: string) => <Text style={[styles.label, { color: role }]}>{name}</Text>;
   const tabIcon = (name: IconName, base: number, role: string, isSelected: boolean) => (
@@ -445,6 +434,69 @@ const ITEM_H_SMALL = 42;
 const ICON_SMALL = 0.88;
 /** Feder für das Plus; „Neue Erinnerung“ in der Routine blendet mit derselben Feder um (Daria, 2026-11-23) */
 export const NAV_SWAP_SPRING = { friction: 7, tension: 70 };
+/** Wo die Tab-Pille zuletzt lag (auf dem Bildschirm), damit die nächste von dort herübergleitet */
+let lastTint: { x: number; w: number } | null = null;
+function rememberTint(next: { x: number; w: number }) {
+  const from = lastTint;
+  lastTint = next;
+  return from;
+}
+
+/**
+ * Tönung des ausgewählten Tabs (Daria, 2026-11-27). Beim Wechsel gleitet sie vom vorigen Tab herüber und passt die
+ * Breite an, mit derselben Feder wie Plus und Kamera (Daria, 2026-11-28: „Die Animationen der Schaltung zwischen
+ * einzelnen Icons anpassen“, „prüfen und konsistent gestalten“). Auch über einen Seitenwechsel, die Lage ist gemerkt.
+ * Die Tönung liegt in der Gruppe und folgt so jeder Bewegung der Leiste; nur der Versatz zum alten Ort federt aus.
+ */
+function SelectedGroup({ role, inset, children }: { role: string; inset: Animated.AnimatedInterpolation<number>; children: ReactNode }) {
+  const node = useRef<View>(null);
+  const dx = useRef(new Animated.Value(0)).current;
+  const dw = useRef(new Animated.Value(0)).current;
+  const started = useRef(false);
+  const remember = () => node.current?.measureInWindow((x, _y, w) => w > 0 && rememberTint({ x, w }));
+  const onLayout = () => {
+    node.current?.measureInWindow((x, _y, w) => {
+      if (!w) return;
+      if (started.current) return rememberTint({ x, w });
+      started.current = true;
+      const from = rememberTint({ x, w });
+      if (!from || (Math.abs(from.x - x) < 1 && Math.abs(from.w - w) < 1)) return;
+      dx.setValue(from.x - x);
+      dw.setValue(from.w - w);
+      Animated.parallel([
+        Animated.spring(dx, { toValue: 0, ...NAV_SWAP_SPRING, useNativeDriver: false }),
+        Animated.spring(dw, { toValue: 0, ...NAV_SWAP_SPRING, useNativeDriver: false }),
+      ]).start(remember);
+    });
+  };
+  // Die Leiste ordnet sich nach einem Wechsel noch um (Knöpfe werden kleiner): danach die Lage noch einmal merken
+  useEffect(() => {
+    const timer = setTimeout(remember, 900);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <View ref={node} style={styles.group} onLayout={onLayout}>
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.tint,
+          {
+            top: inset,
+            bottom: inset,
+            left: dx,
+            right: Animated.multiply(Animated.add(dx, dw), -1),
+            backgroundColor: color.nav.selectedGradient ? undefined : (color.nav.selectedFill ?? withAlpha(role, 0.16)),
+          },
+          color.nav.selectedGradient ? styles.tintClip : null,
+          color.nav.selectedLine ? { borderWidth: stroke.primary, borderColor: color.nav.selectedLine } : null,
+        ]}
+      >
+        {color.nav.selectedGradient ? <TintGradient colors={color.nav.selectedGradient} /> : null}
+      </Animated.View>
+      {children}
+    </View>
+  );
+}
 /** Hauptaktion (Kamera im Feed, Plus in der Routine): breiter als die Nachbarn und volle Höhe */
 const PRIMARY_W = 64;
 /** Kiez: Plus so breit wie die Hauptaktion in Mono, Kamera im Feed als breitere lila Pille */
