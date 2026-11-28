@@ -14,7 +14,7 @@ import { SheetEditor, pagesText } from '../../../components/TextSheets';
 import { color, text } from '../../../theme/tokens';
 import { SubScreen } from '../../../components/Screen';
 import { hasContent, useDraft, useSaveDraft } from './_layout';
-import { explain } from '../../../components/Nudge';
+import { nothingToSave } from '../../../components/Nudge';
 import { useGoBack } from '../../../lib/goBack';
 
 /** Entwürfe aus „Deine Challenges“: Challenge oder Bild. Vorher-Nachher hat einen eigenen Ablauf. */
@@ -68,7 +68,7 @@ export default function CreateStep1() {
         variant="ghost"
         onPress={save}
         disabled={busy || !hasContent(draft)}
-        whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Schreib etwas auf das Blatt, dann lässt sich der Entwurf speichern.')}
+        whyDisabled={() => !busy && nothingToSave('Schreib etwas auf das Blatt, dann lässt sich der Entwurf speichern.', goBack, 'Nichts posten und zurück')}
       />
     </>
   );
@@ -105,7 +105,7 @@ export default function CreateStep1() {
             variant="ghost"
             onPress={save}
             disabled={busy || !hasContent(draft)}
-            whyDisabled={() => !busy && explain('Noch nichts zu speichern', 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.')}
+            whyDisabled={() => !busy && nothingToSave('Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.', goBack, 'Nichts posten und zurück')}
           />
         </>
       }
