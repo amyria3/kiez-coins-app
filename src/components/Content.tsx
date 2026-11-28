@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { Text } from './T';
 
 import { color, radius, space, stroke, text, withAlpha } from '../theme/tokens';
+import { isMono } from '../theme/look';
 import { isRtl, t as translate, useTexts } from '../data/texts';
 import { openLink } from '../lib/places';
 import { type CatMood } from './icons/Brand';
@@ -598,11 +599,20 @@ export function KaterCard({
   if (typeof children === 'string') children = tx(children);
   if (title) title = tx(title);
   const role = onPress ? ('button' as const) : undefined;
+  // Mono (Daria, 2026-11-28: „Same moving gradient for bubble and icon? Otherwise it's same color like calendar card“):
+  // Die Blase bekommt den Verlauf des Kater-Kreises und atmet im selben Takt mit ihm
+  const breath = useKaterBreath(isMono);
 
   return (
     <View style={styles.katerRow}>
-      <KaterCircle size={KATER_AVATAR} />
-      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={[styles.katerBubble, floating && styles.katerBubbleSolid]}>
+      <KaterCircle size={KATER_AVATAR} pulse={isMono ? breath : undefined} />
+      <Pressable accessibilityRole={role} accessibilityHint={accessibilityHint} onPress={onPress} disabled={!onPress} style={[styles.katerBubble, floating && styles.katerBubbleSolid, isMono && styles.katerBubbleGradient]}>
+        {isMono ? (
+          <>
+            <Image source={CIRCLE_BACKDROP} style={StyleSheet.absoluteFill} contentFit="fill" />
+            <Animated.View style={[StyleSheet.absoluteFill, styles.circleBackdrop, { opacity: breath }]} />
+          </>
+        ) : null}
         <View style={styles.speechTexts}>
           {title ? <Text style={styles.speechTitle}>{title}</Text> : null}
           <Text style={styles.katerText}>{children}</Text>
@@ -622,6 +632,45 @@ export function KaterCard({
   );
 }
 
+/** Tiefster Punkt eines Atemzugs: Deckkraft des Gelbs */
+const BREATH_LOW = 0.35;
+
+/**
+ * Atem des Kater-Kreises: Das Gelb wird langsam und unregelmäßig durchsichtiger, darunter scheint der Verlauf durch.
+ * Jeder Atemzug anders lang und anders tief, dazwischen kurze Ruhe. Mit „Bewegung reduzieren“ oder `active` false
+ * bleibt das Gelb voll.
+ */
+function useKaterBreath(active: boolean): Animated.Value {
+  const pulse = useRef(new Animated.Value(1)).current;
+  const [still, setStill] = useState<boolean | null>(null);
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled()
+      .catch(() => false)
+      .then(setStill);
+  }, []);
+  useEffect(() => {
+    if (!active || still !== false) return;
+    let aus = false;
+    let a: Animated.CompositeAnimation | null = null;
+    const breathe = () => {
+      if (aus) return;
+      a = Animated.sequence([
+        Animated.timing(pulse, { toValue: randomBetween(BREATH_LOW, 0.65), duration: randomBetween(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1, duration: randomBetween(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.delay(randomBetween(400, 2600)),
+      ]);
+      a.start(({ finished }) => finished && breathe());
+    };
+    breathe();
+    return () => {
+      aus = true;
+      a?.stop();
+      pulse.setValue(1);
+    };
+  }, [active, still, pulse]);
+  return pulse;
+}
+
 /**
  * Kater im Kreis: Darias Kater-Avatar (2026-11-11), lila Kater mit grünen Herzen in der Brille auf gelbem Kreis.
  * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Der gelbe Kreis pulsiert langsam und unregelmäßig,
@@ -635,10 +684,12 @@ const CIRCLE_SIZE = 64;
 /** Zufallszahl zwischen a und b */
 const randomBetween = (a: number, b: number) => a + Math.random() * (b - a);
 /** `bg`: feste Farbe statt Verlauf und Gelb, z. B. die Kartenfarbe in Routine (Daria, 2026-11-12) */
-export function KaterCircle({ size = CIRCLE_SIZE, bg }: { size?: number; bg?: string } = {}) {
+/** `pulse`: Atem von außen, z. B. damit Kreis und Blase im selben Takt atmen (KaterCard in Mono) */
+export function KaterCircle({ size = CIRCLE_SIZE, bg, pulse: shared }: { size?: number; bg?: string; pulse?: Animated.Value } = {}) {
   const [still, setStill] = useState<boolean | null>(null);
   const slideIn = useRef(new Animated.Value(0)).current;
-  const pulse = useRef(new Animated.Value(1)).current;
+  const own = useKaterBreath(!shared);
+  const pulse = shared ?? own;
   const hearts = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled()
@@ -656,27 +707,6 @@ export function KaterCircle({ size = CIRCLE_SIZE, bg }: { size?: number; bg?: st
     a.start();
     return () => a.stop();
   }, [still, slideIn]);
-  // Gelber Kreis atmet: jeder Atemzug anders lang und anders tief, dazwischen kurze Ruhe
-  useEffect(() => {
-    if (still !== false) return;
-    let aus = false;
-    let a: Animated.CompositeAnimation | null = null;
-    const breathe = () => {
-      if (aus) return;
-      a = Animated.sequence([
-        Animated.timing(pulse, { toValue: randomBetween(0.35, 0.65), duration: randomBetween(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1, duration: randomBetween(2400, 4200), easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.delay(randomBetween(400, 2600)),
-      ]);
-      a.start(({ finished }) => finished && breathe());
-    };
-    breathe();
-    return () => {
-      aus = true;
-      a?.stop();
-      pulse.setValue(1);
-    };
-  }, [still, pulse]);
   // Herzen: nach einer Weile sanft einblenden, kurz stehen lassen, wieder ausblenden, dann länger Pause
   useEffect(() => {
     if (still === null) return;
@@ -928,6 +958,7 @@ const styles = StyleSheet.create({
   },
   // Größer als der Fließtext, der Kater spricht laut (Daria, 2026-11-11)
   katerBubbleSolid: { backgroundColor: KATER_BUBBLE_SOLID },
+  katerBubbleGradient: { overflow: 'hidden' },
   katerText: { ...text.readingLarge, color: color.kater.bubbleText ?? color.text.primary, flexShrink: 1 },
   // Kreuz ragt in den Innenabstand, damit die Blase nicht höher wird als der Text
   katerClose: { marginVertical: -10, marginRight: -10, marginLeft: space[4] },
