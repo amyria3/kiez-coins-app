@@ -185,6 +185,8 @@ const kiezColor = {
     bubble: palette.graphite,
     /** Fläche des ausgewählten Tabs in Mono. Ohne Wert: seine Farbe mit 16 % Deckkraft (TabBar) */
     selectedFill: undefined as string | undefined,
+    /** Verlauf statt Fläche unter dem ausgewählten Tab, von links nach rechts */
+    selectedGradient: undefined as readonly [string, string] | undefined,
     /** Rand des ausgewählten Tabs, nur in Mono */
     selectedLine: undefined as string | undefined,
     /** Kalender = Me & Myself, dieselbe Grundfarbe wie accent.private */
@@ -579,6 +581,8 @@ const monoOverrides = {
     icon: mono.inkSoft,
     /** Ausgewählter Tab: zart lila wie die Aufgaben, schwarz umrandet (Daria, 2026-11-27) */
     selectedFill: mono.lila,
+    // Grün-gelber Verlauf aus dem Grund des Katers (Daria, 2026-11-28: „grün-gelb Verlauf aus dem Icon hinterlegen“)
+    selectedGradient: ['#C3E5A0', '#F8EE9C'] as const,
     selectedLine: mono.ink,
     calendar: mono.ink,
     feed: mono.ink,
