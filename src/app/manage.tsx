@@ -479,7 +479,7 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
             {c.veryPrivate ? <VeryPrivateBadge /> : <LinkOnBadge />}
           </View>
           {state.hint ? (
-            <Text style={styles.caption} numberOfLines={1}>
+            <Text style={[styles.caption, styles.hint]} numberOfLines={1}>
               {state.hint}
             </Text>
           ) : null}
@@ -796,7 +796,9 @@ const styles = StyleSheet.create({
   // Rundung wie die Posts im Feed
   thumb: { width: 72, height: 72, borderRadius: radius.post },
   title: { ...text.cardTitle, color: color.text.primary },
-  badges: { flexDirection: 'row', alignItems: 'center', gap: space[8], marginTop: space[8] },
+  // Mehr Luft zwischen Titel, Badges und Zeit (Daria, 2026-11-28: „Viel zu wenig Raum“)
+  badges: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space[8], marginTop: space[12] },
+  hint: { marginTop: space[8] },
   body: { ...text.body, color: color.text.secondary },
   statsGrid: { gap: space[4] },
   stats: { flexDirection: 'row', alignItems: 'stretch' },

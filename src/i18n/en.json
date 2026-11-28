@@ -1956,5 +1956,7 @@
   "Link {n} nach oben": "Move link {n} up",
   "Link {n} nach unten": "Move link {n} down",
   "Link {n} verschieben": "Move link {n}",
-  "Service {n} verschieben": "Move service {n}"
+  "Service {n} verschieben": "Move service {n}",
+  "So sehen Dich andere": "How others see you",
+  "Mein Profil": "My profile"
 }

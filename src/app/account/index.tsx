@@ -3,8 +3,7 @@ import { Animated, Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
 
-import { Button } from '../../components/Button';
-import { FieldGroup } from '../../components/Content';
+import { FieldGroup, KaterCard } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
 
@@ -14,6 +13,7 @@ import { SubScreen } from '../../components/Screen';
 import { TabBar } from '../../components/TabBar';
 import { SurveyOverlay } from '../../components/SurveyOverlay';
 import { salutation } from '../../data/format';
+import { katerSaying } from '../../data/kater';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
@@ -40,6 +40,8 @@ export default function Account() {
   // „Moderation“ nur für Personen in der Tabelle `moderators`
   const [moderator, setModerator] = useState(false);
   const [survey, setSurvey] = useState(false);
+  // Ein Spruch je Besuch der Seite
+  const [catSaying] = useState(() => katerSaying('sprueche')?.text);
   // Offene Freundschaftsanfragen als Zahl an der Zeile
   const [friendRequests, setFriendRequests] = useState(0);
   useEffect(() => {
@@ -131,40 +133,33 @@ export default function Account() {
         details={[salutation(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      {/* Ansehen als Knöpfe untereinander, gleich dargestellt (Daria, 2026-11-28: „Wäre doch logisch, das unter
-          ‚Meine Digitale …' zu platzieren und auch meinen Account über einen genauso dargestellten Button zu zeigen“).
-          Das eigene Profil so, wie andere es sehen; das Schaufenster wie unter schaufenster/index. */}
-      <View style={styles.views}>
-        <Button
-          label="Mein Profil zeigen"
-          variant="secondary"
-          iconEnd="chevron-right"
-          onPress={() => router.push({ pathname: '/user/[id]', params: { id: me.id } })}
-        />
-        {cardShowcase ? (
-          <>
-            <Button
-              label="Meine Digitale Visitenkarte zeigen"
-              variant="secondary"
-              iconEnd="chevron-right"
+      {/* Kiez: Der Kater spricht oben wie in „Was Du so machst“, ein Tipp führt zu seinen Sprüchen (Daria, 2026-11-28).
+          Mono behält die Zeile „Auf eine Frotzerei“ weiter unten. */}
+      {!oneGroup && catSaying ? <KaterCard onPress={() => router.push('/cat')}>{catSaying}</KaterCard> : null}
+      {/* Ansehen als ruhige Liste statt vier umrandeter Knöpfe (Daria, 2026-11-28). Das eigene Profil so, wie andere
+          es sehen; das Schaufenster wie unter schaufenster/index. */}
+      <FieldGroup heading label="So sehen Dich andere">
+        <NavList>
+          <NavRow label="Mein Profil" onPress={() => router.push({ pathname: '/user/[id]', params: { id: me.id } })} />
+          {cardShowcase ? (
+            <NavRow
+              label="Digitale Visitenkarte"
               onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: cardShowcase.id } })}
             />
-            <Button
-              label="Schaufenster in der App"
-              variant="secondary"
-              iconEnd="chevron-right"
-              onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: cardShowcase.id } })}
-            />
-            <Button
+          ) : null}
+          {cardShowcase ? (
+            <NavRow label="Schaufenster in der App" onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: cardShowcase.id } })} />
+          ) : null}
+          {cardShowcase ? (
+            <NavRow
               label="Schaufenster im Web"
-              variant="secondary"
               iconEnd="external"
               onPress={() => Linking.openURL(`${showcasePublicLink(cardShowcase.slug)}?als=team`)}
             />
-          </>
-        ) : null}
-      </View>
-      {/* Gruppen nach dem Farbcode der App (Daria, 2026-11-17). Zeilen einer Gruppe in Stufen heller. */}
+          ) : null}
+        </NavList>
+      </FieldGroup>
+      {/* Gruppen nach dem Farbcode der App (Daria, 2026-11-17) */}
       <FieldGroup heading label="Du on KiezCoins">
         {oneGroup ? (
           <NavGroup>
@@ -243,7 +238,8 @@ export default function Account() {
           />
         </NavGroup>
       </FieldGroup>
-      {/* Der Kater steht allein, in der Farbe seiner Sprechblase; im Kreis die Bildmarke (Daria, 2026-11-17) */}
+      {/* Mono: Der Kater steht allein, in der Farbe seiner Sprechblase; im Kreis die Bildmarke (Daria, 2026-11-17) */}
+      {oneGroup ? (
       <View style={styles.catGap}>
         <NavGroup>
           <NavGroupRow
@@ -263,6 +259,7 @@ export default function Account() {
           />
         </NavGroup>
       </View>
+      ) : null}
       <FieldGroup heading label="Einstellungen">
         <NavList>
           <NavRow label="Benachrichtigungen" value={profile.push ? 'Push an' : 'Push aus'} onPress={() => router.push('/account/notifications')} />
@@ -315,8 +312,6 @@ const ROW_ICON = 16;
 const styles = StyleSheet.create({
   // Derselbe Abstand wie im Inhalt von SubScreen, die Hülle für das Wischen nimmt ihn sonst weg
   slide: { gap: space[16] },
-  // Wie die Knöpfe unter „Deine Seite“ im Schaufenster
-  views: { gap: space[8] },
   // Kater der Bildmarke größer als sein gelbgrüner Kreis, der Kreis schneidet Ohren und Unterkante ab
   catCircle: { width: 40, height: 40, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: KATER_AVATAR_YELLOW },
   catBleed: { marginBottom: -10 },

@@ -990,5 +990,6 @@ const styles = StyleSheet.create({
   groupLabel: { ...text.caption, color: color.text.secondary },
   groupLabelLarge: { ...text.label, marginBottom: space[4] },
   // 20 mehr Luft darüber: mit dem Abstand von 40 zwischen den Abschnitten 60, also 50 % mehr (Daria, 2026-11-10)
-  groupHeading: { ...text.settingsHeading, marginTop: space[20], marginBottom: space[4] },
+  // Kiez: Unbounded in Hauptschrift wie die Abschnitte in „Was Du so machst“ (Daria, 2026-11-28)
+  groupHeading: { ...text.settingsHeading, ...(isLight ? null : { color: color.text.primary }), marginTop: space[20], marginBottom: space[4] },
 });
