@@ -329,8 +329,9 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
           <ShowcaseHints showcase={s} />
           {s.cover ? <Image source={s.cover} style={styles.cover} contentFit="cover" /> : null}
           {!s.switches.online ? <Notice variant="warning" message="Dieses Schaufenster ist offline." /> : null}
-          {/* Reihenfolge (Daria, 2026-11-23): zuerst Posten, dann die Statistik (eingeklappt), dann die Seite selbst mit
-              „Inhalte bearbeiten“, die digitale und getrennt davon die Druckbare Visitenkarte, Funktionen und Einstellungen. */}
+          {/* Reihenfolge (Daria, 2026-11-23): zuerst Posten, dann die Seite selbst mit „Inhalte bearbeiten“, die
+              digitale Visitenkarte, darunter die Statistik (eingeklappt, seit 2026-11-28), die Druckbare Visitenkarte,
+              Funktionen und Einstellungen. */}
           {s.switches.posten ? (
             <FieldGroup heading label="Posten">
               <View style={styles.list}>
@@ -339,7 +340,6 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               </View>
             </FieldGroup>
           ) : null}
-          <ShowcaseSummary showcaseId={s.id} />
           <FieldGroup heading label="Deine Seite">
             {/* Zwei Ansichten: in der App wie ein KiezCoins-Mitglied, im Web wie jede Besucher:in unter kiezcoins.de/s/….
                 Ansehen ist eine Handlung (Secondary-Button); der Pfeil zeigt, wohin es geht: `chevron-right` bleibt in der
@@ -390,6 +390,8 @@ function Mine({ header, compactHeader }: { header: React.ReactNode; compactHeade
               <BusinessCard showcase={s} viewer="team" origin="manage" />
             </FieldGroup>
           ) : null}
+          {/* Statistik unter der Digitalen Visitenkarte (Daria, 2026-11-28), in beiden Looks gleich */}
+          <ShowcaseSummary showcaseId={s.id} />
           {/* Druckbare Visitenkarte (2026-11-23): eigener Abschnitt und eigener Bildschirm, damit sie nicht mit dem
               Weitergeben der digitalen Karte verwechselt wird. Auch am Handy. Der QR-Code darauf führt zur digitalen
               Karte, deshalb wie sie nur bei „Alle“ und online. */}
