@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { GalleryFrame, useGalleryFramed } from './feed/GalleryFrame';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
@@ -223,6 +224,7 @@ function KiezBeforeAfter(props: ChallengePostProps) {
   const { challenge, author, distance, onPress } = props;
   const { before, after, beforeText, afterText, duration } = useParts(props);
   const hideName = useHideName(author);
+  const framed = useGalleryFramed();
   const meta = [distance, formatRelative(challenge.createdAt)].filter(Boolean).join(' · ');
   const overlay = (
     <Pressable
@@ -245,6 +247,7 @@ function KiezBeforeAfter(props: ChallengePostProps) {
   );
   return (
     <View style={styles.post}>
+      <GalleryFrame>
       <BeforeAfterPair
         before={before}
         after={after}
@@ -255,8 +258,9 @@ function KiezBeforeAfter(props: ChallengePostProps) {
         overlay={overlay}
         onLongPress={onPress}
         onPress={onPress}
-        rounded
+        rounded={!framed}
       />
+      </GalleryFrame>
       <Actions {...props} />
       {challenge.text ? (
         <Pressable onPress={onPress} style={styles.textBlock}>

@@ -1,4 +1,5 @@
 import { RoutineNudge } from '../components/RoutineNudge';
+import { GalleryWall } from '../components/feed/GalleryFrame';
 import { RoutineCalendarDesktop, RoutineCalendarStages } from '../components/RoutineList';
 import { getCalendarLevel, setCalendarLevel, useCalendarLevel, useRoutineData } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
@@ -864,6 +865,7 @@ export default function FeedScreen() {
     switch (item.kind) {
       case 'pair':
         return (
+          <GalleryWall value>
           <View style={styles.pair}>
             {item.items.map((i) => (
               <View key={i.challenge.id} style={styles.pairCell}>
@@ -872,6 +874,7 @@ export default function FeedScreen() {
             ))}
             {item.items.length < 2 ? <View style={styles.pairCell} /> : null}
           </View>
+          </GalleryWall>
         );
       // Leere Reiter sehen aus wie Kiez und Überall (Daria, 29.10.2026)
       case 'groupsEmpty':
