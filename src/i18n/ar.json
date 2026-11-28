@@ -1470,5 +1470,6 @@
   "{n} Aufgaben ohne Uhrzeit": "{n, plural, two {مهمتان} few {# مهام} many {# مهمة} other {# مهمة}} بدون وقت",
   "Weiter posten": "متابعة النشر",
   "Nichts posten, zurück zum Feed": "عدم نشر أي شيء والعودة إلى الصفحة الرئيسية",
-  "Nichts posten und zurück": "عدم نشر أي شيء والعودة"
+  "Nichts posten und zurück": "عدم نشر أي شيء والعودة",
+  "Meine Digitale Visitenkarte zeigen": "عرض بطاقة العمل الرقمية الخاصة بي"
 }

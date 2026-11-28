@@ -1433,5 +1433,6 @@
   "{n} Aufgaben ohne Uhrzeit": "{n, plural, one {# задача} few {# задачи} many {# задач} other {# задачи}} без времени",
   "Weiter posten": "Продолжить публикацию",
   "Nichts posten, zurück zum Feed": "Ничего не публиковать, назад к ленте",
-  "Nichts posten und zurück": "Ничего не публиковать и вернуться"
+  "Nichts posten und zurück": "Ничего не публиковать и вернуться",
+  "Meine Digitale Visitenkarte zeigen": "Показать мою цифровую визитку"
 }
