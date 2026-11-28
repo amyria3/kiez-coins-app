@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import type { ImageSource } from '../data/types';
 import { color, radius, scheme, space, stroke, text, withAlpha } from '../theme/tokens';
+import { BARE } from '../theme/kiezPage';
 import { useAccentColor, useFocusColor, useSpaceText, useToggleOffColor } from '../theme/signal';
 import { BlurView } from 'expo-blur';
 import { Glass, glassControls } from './Glass';
@@ -825,7 +826,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: stroke.thin,
     borderColor: 'transparent',
-    backgroundColor: color.bg.surface,
+    // Kiez: ohne Kasten, die gewählte Option trägt ihren Rahmen
+    backgroundColor: BARE ? 'transparent' : color.bg.surface,
   },
   radio: {
     width: 20,

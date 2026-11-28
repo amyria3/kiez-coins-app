@@ -6,6 +6,7 @@ import { useStore } from '../data/store';
 import type { Group } from '../data/types';
 import { t } from '../data/texts';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { BARE, LINE } from '../theme/kiezPage';
 import { LivingCrystal } from './icons/Brand';
 import { Icon } from './icons/Icon';
 
@@ -80,9 +81,10 @@ export function GroupCard({ group, meta, onFeed, onManage }: GroupCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: radius.md, backgroundColor: color.bg.surface },
+  // Kiez: ohne Kasten, eine Linie schließt die Gruppe ab (Daria, 2026-11-28)
+  card: { borderRadius: radius.md, backgroundColor: color.bg.surface, ...(BARE ? { backgroundColor: 'transparent', borderRadius: 0, borderBottomWidth: 1, borderBottomColor: LINE } : null) },
   // Mehr Raum, die Karte ist höher (Daria, 24.10.2026)
-  top: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[20], paddingVertical: space[32] },
+  top: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: BARE ? 0 : space[20], paddingVertical: BARE ? space[20] : space[32] },
   flex: { flex: 1, gap: space[6] },
   name: { ...text.cardTitle, color: color.text.primary },
   meta: { ...text.meta, color: color.text.secondary },

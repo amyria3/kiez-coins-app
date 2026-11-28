@@ -15,6 +15,9 @@ import { KaterMessage } from './KaterMessage';
 import { KeyboardArea } from './Keyboard';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
+import { KaterCircle } from './Content';
+import { Text } from './T';
+import { BARE } from '../theme/kiezPage';
 import { NudgeScrollProvider, useNudgeScroll } from './Nudge';
 import { SectionIndexProvider } from './SectionIndex';
 import { t } from '../data/texts';
@@ -39,6 +42,37 @@ type SubScreenProps = {
  * Aufbau aller Unterseiten aus Figma: NavigationBar (fest), Inhalt in `scroll-y-auto`
  * (Abstand 16, unten 24) und ActionBar (fest, bleibt über der Tastatur, Keyboard.tsx).
  */
+/**
+ * Kiez: großer Seitenkopf (Daria, 2026-11-28). Die Überschrift steht groß in der Unbounded in zwei Zeilen, daneben der
+ * Kater-Avatar, groß und angeschnitten, die Brille in der Farbe des Grunds. Er ist das eine laute Element der Seite.
+ * Lange Wörter stehen kleiner, damit sie den Kater nicht berühren. `note`: leise Zeile unter der Überschrift.
+ * `fixed`: Der Kopf steht außerhalb eines Rollbereichs und bringt seine Ränder selbst mit.
+ */
+export function PageHead({ title, note, fixed }: { title: string; note?: string; fixed?: boolean }) {
+  const words = title.split(' ');
+  // Umbruch an dem Leerzeichen, das der Mitte am nächsten liegt
+  let best = 1;
+  for (let i = 1; i < words.length; i++) {
+    const a = words.slice(0, i).join(' ').length;
+    if (Math.abs(a - title.length / 2) < Math.abs(words.slice(0, best).join(' ').length - title.length / 2)) best = i;
+  }
+  const lines = words.length > 1 ? [words.slice(0, best).join(' '), words.slice(best).join(' ')] : [title];
+  const longest = Math.max(...lines.map((l) => l.length));
+  const long = longest > 6;
+  const veryLong = longest > 13;
+  return (
+    <View style={[styles.pageHead, fixed && styles.pageHeadFixed]}>
+      <View style={[styles.pageHeadCat, veryLong && styles.pageHeadCatAside]} pointerEvents="none">
+        <KaterCircle size={long ? 240 : 290} glass={color.bg.screen} />
+      </View>
+      <Text noTranslate style={[styles.pageHeadTitle, long && styles.pageHeadTitleLong, veryLong && styles.pageHeadTitleVeryLong]} accessibilityRole="header">
+        {lines.join('\n')}
+      </Text>
+      {note ? <Text noTranslate style={styles.pageHeadNote}>{note}</Text> : null}
+    </View>
+  );
+}
+
 export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header, tabBar }: SubScreenProps) {
   const insets = useSafeAreaInsets();
   // Deaktivierte Buttons können zu dem Feld scrollen, das noch fehlt (Nudge.tsx)
@@ -48,7 +82,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
     // Abschnittsüberschriften im Inhalt melden sich für den Schnellsprung im Kopf an (SectionIndex.tsx)
     <SectionIndexProvider>
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      {header ?? <NavigationBar title={title} subtitle={subtitle} variant={navigation} onLeadingPress={onLeadingPress} />}
+      {header ?? <NavigationBar title={BARE ? '' : title} subtitle={BARE ? undefined : subtitle} variant={navigation} onLeadingPress={onLeadingPress} />}
       <KeyboardArea style={styles.flex}>
         <NudgeScrollProvider value={nudgeScroll}>
         <ScrollView
@@ -60,6 +94,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
           scrollEventThrottle={32}
           onScroll={(e) => nudgeScroll.onScroll(e.nativeEvent.contentOffset.y)}
         >
+          {BARE && !header && title ? <PageHead title={t(title)} note={subtitle ? t(subtitle) : undefined} /> : null}
           {children}
         </ScrollView>
         {/* Die ActionBar gehört dazu: Enter im letzten Feld springt zu ihrem Haupt-Button */}
@@ -601,6 +636,15 @@ const styles = StyleSheet.create({
   underDim: { backgroundColor: '#000' },
   flex: { flex: 1 },
   // Platz unter der schwebenden Leiste, wie TAB_BAR_SPACE in TabBar.tsx plus Home-Balken
+  pageHead: { height: 200, marginHorizontal: -space[16], marginTop: -space[16], marginBottom: space[8], paddingHorizontal: space[24], justifyContent: 'flex-end', paddingBottom: space[16], overflow: 'hidden' },
+  pageHeadCat: { position: 'absolute', right: -112, bottom: -46, transform: [{ rotate: '-8deg' }] },
+  pageHeadTitle: { ...text.pageTitle, color: color.text.primary },
+  pageHeadTitleLong: { ...text.pageTitleLong },
+  pageHeadTitleVeryLong: { ...text.pageTitleVeryLong },
+  pageHeadNote: { ...text.label, color: color.text.secondary, marginTop: space[8] },
+  pageHeadFixed: { marginHorizontal: 0, marginTop: 0, marginBottom: 0 },
+  // Sehr lange Zeilen: Der Kater rückt weiter aus dem Bild
+  pageHeadCatAside: { right: -160 },
   contentTabBar: { paddingBottom: 96 + space[24] },
   content: {
     paddingTop: space[16],

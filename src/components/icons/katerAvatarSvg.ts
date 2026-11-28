@@ -17,8 +17,8 @@ const HEARTS = [
 ].join('');
 
 /** Kater ohne Kreis. `herzen: false` lässt die Herzen weg, damit sie als eigene Ebene ein- und ausblenden können. */
-export function katerAvatarSvg({ hearts = true }: { hearts?: boolean } = {}): string {
-  return `<svg viewBox="0 0 2204 2204" fill="none" xmlns="http://www.w3.org/2000/svg">${KATER}${hearts ? HEARTS : ''}</svg>`;
+export function katerAvatarSvg({ hearts = true, glass }: { hearts?: boolean; glass?: string } = {}): string {
+  return `<svg viewBox="0 0 2204 2204" fill="none" xmlns="http://www.w3.org/2000/svg">${glass ? KATER.replace('#000027', glass) : KATER}${hearts ? HEARTS : ''}</svg>`;
 }
 
 /** Nur die grünen Herzen in der Brille, gleiche Fläche wie der Kater */

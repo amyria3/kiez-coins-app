@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { Text } from './T';
 
 import { color, radius, space, stroke, text, withAlpha } from '../theme/tokens';
+import { BARE } from '../theme/kiezPage';
 import { isLight, isMono } from '../theme/look';
 import { isRtl, t as translate, useTexts } from '../data/texts';
 import { openLink } from '../lib/places';
@@ -188,7 +189,7 @@ function UserBubble({
  */
 export function SectionLabel({ children }: { children: string }) {
   return (
-    <Text style={styles.sectionLabel} accessibilityRole="header">
+    <Text style={[styles.sectionLabel, BARE && { borderTopWidth: 1, borderTopColor: withAlpha(color.text.primary, 0.28), paddingTop: space[24], marginTop: space[8] }]} accessibilityRole="header">
       {children}
     </Text>
   );
@@ -687,7 +688,7 @@ const CIRCLE_SIZE = 64;
 const randomBetween = (a: number, b: number) => a + Math.random() * (b - a);
 /** `bg`: feste Farbe statt Verlauf und Gelb, z. B. die Kartenfarbe in Routine (Daria, 2026-11-12) */
 /** `pulse`: Atem von außen, z. B. damit Kreis und Blase im selben Takt atmen (KaterCard in Mono) */
-export function KaterCircle({ size = CIRCLE_SIZE, bg, pulse: shared }: { size?: number; bg?: string; pulse?: Animated.Value } = {}) {
+export function KaterCircle({ size = CIRCLE_SIZE, bg, pulse: shared, glass }: { size?: number; bg?: string; pulse?: Animated.Value; glass?: string } = {}) {
   const [still, setStill] = useState<boolean | null>(null);
   const slideIn = useRef(new Animated.Value(0)).current;
   const own = useKaterBreath(!shared);
@@ -754,7 +755,7 @@ export function KaterCircle({ size = CIRCLE_SIZE, bg, pulse: shared }: { size?: 
           transform: [{ translateY: slideIn.interpolate({ inputRange: [0, 1], outputRange: [size, 0] }) }],
         }}
       >
-        <SvgXml xml={katerAvatarSvg({ hearts: false })} width={size} height={size} />
+        <SvgXml xml={katerAvatarSvg({ hearts: false, glass })} width={size} height={size} />
         <Animated.View style={[StyleSheet.absoluteFill, { opacity: hearts }]}>
           <SvgXml xml={katerHeartsSvg()} width={size} height={size} />
         </Animated.View>

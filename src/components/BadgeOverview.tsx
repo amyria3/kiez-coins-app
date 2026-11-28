@@ -1,4 +1,5 @@
 import { SectionLabel } from './Content';
+import { BARE, paper } from '../theme/kiezPage';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -102,8 +103,8 @@ export function BadgeOverview({ gutter = 0 }: { gutter?: number }) {
 const styles = StyleSheet.create({
   wrap: { gap: space[24] },
   block: { gap: space[12] },
-  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[16] },
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden', ...paper },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: BARE ? 0 : space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   flex: { flex: 1, gap: space[4] },
   head: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },

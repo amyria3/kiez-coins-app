@@ -1,4 +1,5 @@
 import { SectionBlock } from './Content';
+import { BARE, paper } from '../theme/kiezPage';
 import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, Platform, StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
@@ -233,8 +234,8 @@ function Gift({ open, seenKey, share, index }: { open: boolean; seenKey: string;
 const styles = StyleSheet.create({
   // Wie „Deine Abzeichen“ darunter: eine Fläche, Zeilen mit feiner Linie, schmaler Balken, „1 von 1“ rechts
   // (Daria, 2026-11-28: lila Balken auf einzelnen Karten „passt stilistisch nicht“)
-  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, marginBottom: space[12] },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[16], paddingHorizontal: space[16] },
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, marginBottom: space[12], ...paper },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[16], paddingHorizontal: BARE ? 0 : space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   texts: { flex: 1, gap: space[6] },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: space[8] },

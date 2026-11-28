@@ -11,6 +11,8 @@ import { Button } from '../components/Button';
 import { Explanation } from '../components/Content';
 import { Segments } from '../components/FeedHeader';
 import { Icon } from '../components/icons/Icon';
+import { PageHead } from '../components/Screen';
+import { BARE, LINE_STRONG } from '../theme/kiezPage';
 import { NavigationBar } from '../components/NavigationBar';
 import { formatDayMonthShort, formatDurationSince, formatRelative, formatRemainingShort, nameInText, meInProgress } from '../data/format';
 import { useRequireKiez } from '../data/kiez';
@@ -248,7 +250,8 @@ export default function ManageChallenges() {
 
   // Karten kürzer als der Bildschirm, damit die nächste unten herausschaut (Daria, 2026-11-02)
   // Karte nur so hoch wie ihr Inhalt braucht, höchstens 85 % der Seite (Daria, 2026-11-02)
-  const itemHeight = Math.round(Math.min(pageHeight * 0.85, 410));
+  // Kiez: Das Foto steht groß über dem Text, die Einträge sind deshalb höher
+  const itemHeight = Math.round(Math.min(pageHeight * (BARE ? 0.9 : 0.85), BARE ? 560 : 410));
   // Challenge-Karten sind so hoch wie ihr Inhalt, ohne Leerraum über den Knöpfen (Daria, 2026-11-05).
   // Die Höhen messen wir, damit das Einrasten beim Wischen trotzdem genau am Kartenanfang landet.
   const keyOf = (p: Page) => (p.kind === 'challenge' ? p.challenge.id : p.kind);
@@ -355,11 +358,15 @@ export default function ManageChallenges() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <NavigationBar
-        title="Meine Posts"
-        subtitle={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
+        title={BARE ? '' : 'Meine Posts'}
+        subtitle={!BARE && pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined}
         variant="back"
         onLeadingPress={() => (goBack())}
       />
+      {/* Kiez: großer Kopf mit Kater wie auf allen Unterseiten (Daria, 2026-11-28) */}
+      {BARE ? (
+        <PageHead title={t('Meine Posts')} note={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined} fixed />
+      ) : null}
       <View style={styles.switch}>
         <Segments
           tabs={[
@@ -459,6 +466,77 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
           : { value: 'Erledigt', hint: c.confirmedAt ? t('am {date}', { date: formatDayMonthShort(c.confirmedAt) }) : '' };
   const photo = c.image ?? c.imageAfter ?? c.imageBefore;
 
+  const hasStats = (c.views ?? 0) > 0 || (!isDraft && (c.likeCount ?? 0) > 0) || c.comments.length > 0 || !(showTimeBar || isDraft || isPost);
+  // Kiez (Daria, 2026-11-28): ohne Karte. Foto groß, Titel in der Unbounded, Status als leise Zeile, Zahlen nur, wenn
+  // es etwas zu zählen gibt. Rangfolge der Aktionen über die Form: Umriss für die Aufgabe des Eintrags, Text für den Rest.
+  if (BARE)
+    return (
+      <View style={styles.bare}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={t('{title} öffnen', { title: t(cardTitle(c)) })}
+          onPress={onOpen}
+          style={({ pressed }) => [pressed && styles.pressed]}
+        >
+          {photo ? <Image source={photo} style={styles.barePhoto} contentFit="cover" /> : null}
+          <View style={styles.bareHead}>
+            <Text style={[styles.bareTitle, styles.flex]} numberOfLines={2}>
+              {cardTitle(c)}
+            </Text>
+            {c.bountyAmount ? <BountyBadge amount={c.bountyAmount} /> : null}
+          </View>
+          <Text style={styles.bareMeta} numberOfLines={1}>
+            {[t(state.value), state.hint ? t(state.hint) : null, c.veryPrivate ? t('Sehr privat') : t('Link an')].filter(Boolean).join('  ·  ')}
+          </Text>
+          {crossposts?.length ? (
+            <Text style={styles.bareMeta} numberOfLines={2}>
+              {t('Weitergepostet: {list}', { list: crossposts.map(crosspostText).join(', ') })}
+            </Text>
+          ) : null}
+        </Pressable>
+        {c.text ? (
+          <Text style={styles.bareBody} numberOfLines={2}>
+            {c.text}
+          </Text>
+        ) : null}
+        {showTimeBar ? <TimeBar createdAt={c.createdAt} deadline={c.deadline} /> : null}
+        {hasStats ? (
+          <View style={styles.bareStats}>
+            {(c.views ?? 0) > 0 ? <IconStat icon="eye-filled" value={String(c.views)} label={c.views === 1 ? 'Ansicht' : 'Ansichten'} /> : null}
+            {!isDraft && (c.likeCount ?? 0) > 0 ? (
+              <IconStat
+                icon="heart"
+                value={String(c.likeCount)}
+                label={c.likeCount === 1 ? 'Like' : 'Likes'}
+                onPress={() => router.push({ pathname: '/challenge/[id]/likes', params: { id: c.id } })}
+              />
+            ) : null}
+            {c.comments.length > 0 ? (
+              <IconStat icon="comment-filled" value={String(c.comments.length)} label={c.comments.length === 1 ? 'Kommentar' : 'Kommentare'} onPress={isDraft ? undefined : onComments} />
+            ) : null}
+            {showTimeBar || isDraft || isPost ? null : <IconStat icon="clock-filled" value={formatDurationSince(c.createdAt)} label="online" />}
+          </View>
+        ) : null}
+        <View style={styles.bareActions}>
+          {isDraft ? (
+            <Button label="Weiter bearbeiten" onPress={onEdit} style={styles.flex} />
+          ) : meInProgress(c) ? (
+            <Button icon="camera" label="Nachher aufnehmen" onPress={onEdit} style={styles.flex} />
+          ) : c.status === 'closed' ? (
+            <Button label="Kopie erstellen" onPress={onCopy} style={styles.flex} />
+          ) : isOpen ? (
+            <Button label="Bearbeiten" variant="secondary" onPress={onEdit} style={styles.flex} />
+          ) : (
+            <Button label="Ansehen" variant="secondary" onPress={onOpen} style={styles.flex} />
+          )}
+          {isOpen && !isPost ? <TextAction label="Schließen" onPress={onClose} /> : null}
+          {(meInProgress(c) || c.status === 'closed') && !isDraft ? <TextAction label="Ansehen" onPress={onOpen} /> : null}
+          {/* Löschen bleibt ausgegraut tippbar: Die Meldung erklärt, warum es nicht geht */}
+          <TextAction label="Löschen" danger muted={!canDelete} onPress={onDelete} />
+        </View>
+      </View>
+    );
+
   return (
     <View style={styles.card}>
       <Pressable
@@ -549,6 +627,21 @@ function ChallengeCard({ challenge: c, assignee, onOpen, onEdit, onClose, onCopy
         </View>
       </View>
     </View>
+  );
+}
+
+/** Kiez: Aktion dritten Rangs als reiner Text neben dem Knopf des Eintrags */
+function TextAction({ label, onPress, danger, muted }: { label: string; onPress: () => void; danger?: boolean; muted?: boolean }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={t(label)}
+      onPress={onPress}
+      hitSlop={8}
+      style={({ pressed }) => [styles.textAction, muted && styles.muted, pressed && styles.pressed]}
+    >
+      <Text style={[styles.textActionLabel, danger && styles.quietDanger]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -750,7 +843,7 @@ function IconStat({ icon, value, label, onPress }: { icon: 'eye-filled' | 'heart
       onPress={onPress}
       hitSlop={8}
     >
-      <Icon name={icon} size={16} color={color.icon.large} />
+      <Icon name={icon} size={16} color={BARE ? color.text.secondary : color.icon.large} />
       <Text style={styles.iconStatValue} numberOfLines={1}>
         {value}
       </Text>
@@ -781,7 +874,19 @@ const styles = StyleSheet.create({
     padding: space[16],
     borderRadius: radius.md,
     backgroundColor: color.bg.surface,
+    // Kiez: auch die übrigen Einträge ohne Kasten, mit Linie darunter
+    ...(BARE ? { backgroundColor: 'transparent', borderRadius: 0, paddingHorizontal: 0, paddingTop: 0, paddingBottom: space[24], borderBottomWidth: 1, borderBottomColor: LINE_STRONG } : null),
   },
+  bare: { gap: space[16], paddingBottom: space[32], borderBottomWidth: 1, borderBottomColor: LINE_STRONG },
+  barePhoto: { width: '100%', height: 190, borderRadius: 4 },
+  bareHead: { flexDirection: 'row', alignItems: 'flex-start', gap: space[12], marginTop: 13 },
+  bareTitle: { ...text.entryTitle, color: color.text.primary },
+  bareMeta: { ...text.bodySm, color: color.text.secondary, marginTop: space[6] },
+  bareBody: { ...text.bodyLarge, color: color.text.primary },
+  bareStats: { flexDirection: 'row', alignItems: 'center', gap: space[24] },
+  bareActions: { flexDirection: 'row', alignItems: 'center', gap: space[8], marginTop: space[8] },
+  textAction: { minHeight: 44, justifyContent: 'center', paddingHorizontal: space[12] },
+  textActionLabel: { ...text.label, color: color.text.primary },
   // Etwas mehr Luft über und unter dem Text (Daria, 2026-11-05)
   bodyCard: { marginVertical: space[8] },
   timeBar: { gap: space[6] },
@@ -790,7 +895,7 @@ const styles = StyleSheet.create({
   timeLabels: { flexDirection: 'row', justifyContent: 'space-between', gap: space[8] },
   iconStats: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: space[4] },
   iconStat: { flexDirection: 'row', alignItems: 'center', gap: space[8], minHeight: 32 },
-  iconStatValue: { ...text.label, color: color.icon.large, fontVariant: ['tabular-nums'] },
+  iconStatValue: { ...text.label, color: BARE ? color.text.secondary : color.icon.large, fontVariant: ['tabular-nums'] },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   pressed: { opacity: 0.7 },
   // Rundung wie die Posts im Feed

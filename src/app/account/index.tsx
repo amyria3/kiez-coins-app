@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BARE } from '../../theme/kiezPage';
 import { Animated, Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
@@ -17,7 +18,8 @@ import { katerSaying } from '../../data/kater';
 import { useAuth } from '../../data/auth';
 import { isModerator, loadFriends } from '../../data/remote';
 import { useCurrentUser, useStore } from '../../data/store';
-import { color, space } from '../../theme/tokens';
+import { color, space, text } from '../../theme/tokens';
+import { Text } from '../../components/T';
 import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, lookName } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
@@ -135,7 +137,7 @@ export default function Account() {
       />
       {/* Kiez: Der Kater spricht oben wie in „Was Du so machst“, ein Tipp führt zu seinen Sprüchen (Daria, 2026-11-28).
           Mono behält die Zeile „Auf eine Frotzerei“ weiter unten. */}
-      {!oneGroup && catSaying ? <KaterCard onPress={() => router.push('/cat')}>{catSaying}</KaterCard> : null}
+      {!oneGroup && catSaying ? BARE ? <Text style={styles.saying} onPress={() => router.push('/cat')}>{catSaying}</Text> : <KaterCard onPress={() => router.push('/cat')}>{catSaying}</KaterCard> : null}
       {/* Ansehen als ruhige Liste statt vier umrandeter Knöpfe (Daria, 2026-11-28). Das eigene Profil so, wie andere
           es sehen; das Schaufenster wie unter schaufenster/index. */}
       <FieldGroup heading label="So sehen Dich andere">
@@ -310,6 +312,7 @@ export default function Account() {
 const ROW_ICON = 16;
 
 const styles = StyleSheet.create({
+  saying: { ...text.saying, color: color.text.primary },
   // Derselbe Abstand wie im Inhalt von SubScreen, die Hülle für das Wischen nimmt ihn sonst weg
   slide: { gap: space[16] },
   // Kater der Bildmarke größer als sein gelbgrüner Kreis, der Kreis schneidet Ohren und Unterkante ab
