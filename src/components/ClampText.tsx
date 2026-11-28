@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ComponentProps } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, type NativeSyntheticEvent, type TextLayoutEventData } from 'react-native';
 
 import { Text } from './T';
 
@@ -10,13 +10,53 @@ import { Text } from './T';
  */
 export const FullCard = createContext<{ full: boolean; report: (key: object, cut: boolean) => void } | null>(null);
 
-type Props = ComponentProps<typeof Text> & { lines: number };
+type Props = ComponentProps<typeof Text> & {
+  lines: number;
+  /**
+   * Zeilen gleichmäßig füllen (Daria, 2026-11-27: „Bei Polina um … hätte man auf 2 gleichmäßigere Zeilen verteilen
+   * können“): im Browser `text-wrap: balance`, auf Android der ausgewogene Umbruch, auf iOS eine schmalere Breite, die
+   * aus den gemessenen Zeilen folgt.
+   */
+  balance?: boolean;
+};
+
+const BALANCE_WEB = { textWrap: 'balance' } as object;
 
 /**
  * Text mit höchstens `lines` Zeilen. Eine unsichtbare, ungekürzte Kopie misst die volle Höhe; ist sie höher als der
  * sichtbare Text, ist er gekürzt. So geht es im Browser und in der App gleich.
  */
-export function ClampText({ lines, style, children, ...props }: Props) {
+export function ClampText({ lines, style, children, balance, ...props }: Props) {
+  const iosBalance = balance && Platform.OS === 'ios';
+  // iOS: so breit wie der Schnitt der Zeilen plus Luft; brauchen die Zeilen dann mehr Platz, bleibt die volle Breite
+  const [maxWidth, setMaxWidth] = useState<number | undefined>(undefined);
+  const [count, setCount] = useState(0);
+  const [gaveUp, setGaveUp] = useState(false);
+  const balanceLayout = (e: NativeSyntheticEvent<TextLayoutEventData>) => {
+    const found = e.nativeEvent.lines;
+    if (!maxWidth) {
+      if (found.length < 2 || found.length > lines) return;
+      const total = found.reduce((sum, l) => sum + l.width, 0);
+      const widest = Math.max(...found.map((l) => l.width));
+      const even = Math.ceil(total / found.length) + 12;
+      if (even < widest - 8) {
+        setCount(found.length);
+        setMaxWidth(even);
+      }
+    } else if (found.length > count) {
+      setMaxWidth(undefined);
+      setGaveUp(true);
+    }
+  };
+  const balanced = balance
+    ? Platform.OS === 'web'
+      ? BALANCE_WEB
+      : iosBalance && maxWidth && !gaveUp
+        ? { maxWidth }
+        : null
+    : null;
+  const textStyle = balanced ? [style, balanced] : style;
+  const nativeBalance = balance && Platform.OS === 'android' ? { textBreakStrategy: 'balanced' as const } : null;
   const card = useContext(FullCard);
   const full = !!card?.full;
   const [shown, setShown] = useState(0);
@@ -30,18 +70,24 @@ export function ClampText({ lines, style, children, ...props }: Props) {
   useEffect(() => () => report?.(key, false), [report, key]);
   if (!card) {
     return (
-      <Text {...props} style={style} numberOfLines={lines}>
+      <Text {...props} {...nativeBalance} style={textStyle} numberOfLines={lines}>
         {children}
       </Text>
     );
   }
   return (
     <View style={measure.wrap}>
-      <Text {...props} style={style} numberOfLines={full ? undefined : lines} onLayout={(e) => setShown(e.nativeEvent.layout.height)}>
+      <Text {...props} {...nativeBalance} style={textStyle} numberOfLines={full ? undefined : lines} onLayout={(e) => setShown(e.nativeEvent.layout.height)}>
         {children}
       </Text>
       <View style={measure.box} pointerEvents="none" aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Text {...props} style={style} onLayout={(e) => setWhole(e.nativeEvent.layout.height)}>
+        <Text
+          {...props}
+          {...nativeBalance}
+          style={textStyle}
+          onLayout={(e) => setWhole(e.nativeEvent.layout.height)}
+          onTextLayout={iosBalance && !gaveUp ? balanceLayout : undefined}
+        >
           {children}
         </Text>
       </View>

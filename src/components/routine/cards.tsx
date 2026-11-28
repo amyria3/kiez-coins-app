@@ -683,7 +683,7 @@ function CardHead({ meta, title }: { meta: string; title: string }) {
   return (
     <>
       <Text style={styles.meta}>{meta}</Text>
-      <ClampText noTranslate style={styles.title} lines={2}>
+      <ClampText noTranslate style={styles.title} lines={2} balance>
         {title}
       </ClampText>
     </>
@@ -715,7 +715,7 @@ export function CalendarCard({ event: e }: { event: CalendarEvent }) {
       head={
         <>
           <Text style={styles.meta}>{when}</Text>
-          <ClampText noTranslate style={styles.title} lines={2}>
+          <ClampText noTranslate style={styles.title} lines={2} balance>
             {e.title}
           </ClampText>
         </>
@@ -783,7 +783,7 @@ export function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: ()
       head={
         <>
           <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
-          <ClampText noTranslate style={[styles.title, e.cancelled && styles.struck]} lines={2}>
+          <ClampText noTranslate style={[styles.title, e.cancelled && styles.struck]} lines={2} balance>
             {e.title}
           </ClampText>
         </>
