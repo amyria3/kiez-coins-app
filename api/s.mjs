@@ -9,7 +9,7 @@ import { hatTermine, schaufensterKalender } from './_kalender.mjs';
 import { buchungsLink } from './_buchung.mjs';
 import { contactGroups, shortUrl, socialLink, telLink } from '../src/data/digitalCard.mjs';
 import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
-import { anfahrtLink, hatPunkt, karteEinbetten, karteGross } from './_karte.mjs';
+import { anfahrtLink, hatPunkt, KARTE_B, KARTE_H, karteGross, kartenKacheln } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
 import { appVisitenkarte, teamHinweis, vcard, vorschauSeite } from './_visitenkarte.mjs';
 import { BILD_B, BILD_H, bildBaum, bildText } from './_visitenkarte-bild.mjs';
@@ -261,17 +261,19 @@ function eintrag(x) {
 // Teilen, Speichern, QR-Code und Mail stehen auf der Karte in der Web-App; /s/<kurzname>/visitenkarte leitet dorthin
 // (api/_visitenkarte.mjs). `von=schaufenster` sagt ihr, dass die Person von hier kommt. Kam sie über den QR-Code der Karte (?via=karte), geht
 // die Kennung mit.
-function visitenkarte(s, via, team) {
+function visitenkarte(s, via, team, fassung) {
   // height: auto und object-fit: contain (2026-11-24, Bildschirmfoto von Daria): Das Bild hat width und height als
   // Attribute. Ohne height: auto galten die 630 px Höhe bei voller Breite, und `.geteilt img` (Fotos der Posts, cover)
   // schnitt die Karte riesig vergrößert zu.
   const ziel = `/s/${s.slug}/visitenkarte?von=schaufenster${via === 'karte' ? '&via=karte' : ''}${team ? '&als=team' : ''}`;
-  return `<style>
+  // Die Seite zeigt die Karte zweimal (rechte Spalte am Desktop, Schluss am Handy); der Stil kommt einmal mit
+  const stil = fassung === 'schmal' ? '' : `<style>
 .geteilt .sf-vk { margin: 0 0 56px; max-width: 420px; }
 .geteilt .sf-vk-bild { display: block; width: 100%; height: auto; object-fit: contain; aspect-ratio: ${BILD_B} / ${BILD_H}; border-radius: 10px; margin: 0 0 24px; background: #F0FFA6; }
 .geteilt .sf-vk a.sf-vk-haupt { display: flex; align-items: center; justify-content: center; min-height: 50px; padding: 13px 20px; box-sizing: border-box;
   border-radius: 999px; background: var(--text); color: var(--bg); font: 500 16px/1.25 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
-</style>
+</style>`;
+  return `${stil}
   <h2 class="sf-abschnitt">Digitale Visitenkarte</h2>
   <section class="sf-vk" aria-label="Digitale Visitenkarte">
     <a href="${esc(ziel)}"><img class="sf-vk-bild" src="/s/${esc(s.slug)}/visitenkarte.png" width="${BILD_B}" height="${BILD_H}" loading="lazy" alt="Digitale Visitenkarte von ${esc(s.name)}"></a>
@@ -308,66 +310,74 @@ async function zaehlen(slug, art, request) {
   }).catch(() => {});
 }
 
-// Fuß der Schaufenster-Seite (Daria, 2026-11-12): Wer die Seite sieht, kann selbst eine anlegen oder die App laden.
-// Ersetzt die Karte „Mach mit in Deinem Kiez.“ der gemeinsamen Vorlage, die geteilte Posts weiter zeigen.
+// Fuß der Schaufenster-Seite (Daria, 2026-11-12): Wer die Seite sieht, kann dem Betrieb folgen, selbst eine Seite
+// anlegen oder die App laden. Ersetzt die Karte „Mach mit in Deinem Kiez.“ der gemeinsamen Vorlage, die geteilte Posts
+// weiter zeigen.
+// Neu geordnet (Daria, 2026-11-28, Variante A „Zwei Kacheln“, vorher „Hierarchie unklar, vor allem die 3 Buttons
+// stören“): zwei gleich große Kacheln, links Folgen als einziger gefüllter Knopf mit „Anfreunden“ als Link, rechts die
+// eigene Seite mit umrandetem Knopf. Die Seite gehört dem Betrieb, Folgen hat deshalb Vorrang. „Komplett kostenlos“ und
+// „Super schnell“ stehen gerade nebeneinander über der Frage. Runterladen und „Mehr über KiezCoins“ als Textlinks darunter.
 function mitmachen(s) {
   return `<style>
-.geteilt .sf-mit { margin: 8px 0 40px; padding-top: 24px; border-top: 1px solid var(--line); }
-.geteilt .sf-mit h2 { font: 500 24px/1.2 Unbounded, var(--display); letter-spacing: 0; margin: 0 0 16px; }
-.geteilt .sf-mit h3 { font: 500 18px/1.25 Unbounded, var(--display); letter-spacing: 0; margin: 0 0 12px; }
-.geteilt .sf-mit-block { margin: 0 0 32px; }
-.geteilt .sf-mit a.sf-mit-knopf { display: inline-block; border-radius: 999px; padding: 12px 22px; background: var(--text); color: var(--bg);
-  font: 500 15px/1 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; }
-.geteilt .sf-mit-knoepfe { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-/* Langer Name wird gekürzt, „in KiezCoins folgen“ bleibt stehen (Daria, 2026-11-17) */
-.geteilt .sf-mit-knoepfe a.sf-mit-knopf { display: inline-flex; max-width: 100%; box-sizing: border-box; white-space: nowrap; line-height: 1.25; padding-block: 10px; }
+.geteilt .sf-mit { margin: 56px 0 40px; padding-top: 32px; border-top: 1px solid var(--line); }
+.geteilt .sf-mit-kacheln { display: grid; gap: 16px; }
+@media (min-width: 760px) { .geteilt .sf-mit-kacheln { grid-template-columns: 1fr 1fr; } }
+.geteilt .sf-mit-kachel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; }
+.geteilt .sf-mit h2 { font: 500 22px/1.25 Unbounded, var(--display); letter-spacing: 0; margin: 0; overflow-wrap: anywhere; }
+.geteilt .sf-mit-kachel p { margin: 0; font-size: 16px; line-height: 1.4; }
+.geteilt .sf-mit-kachel p.sf-mit-marke { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; margin: 0; }
+.geteilt .sf-mit-sticker { display: flex; flex-wrap: wrap; gap: 8px; }
+.geteilt .sf-mit-sticker span { font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase;
+  padding: 5px 10px; border-radius: 999px; background: #E4FF5F; color: #161616; white-space: nowrap; }
+.geteilt .sf-mit-zeile { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: auto; padding-top: 4px; max-width: 100%; }
+.geteilt .sf-mit a.sf-mit-knopf { display: inline-flex; max-width: 100%; box-sizing: border-box; border-radius: 999px; padding: 12px 22px;
+  font: 500 15px/1.25 Inter, sans-serif; letter-spacing: .01em; text-decoration: none; white-space: nowrap; }
+.geteilt .sf-mit a.sf-mit-voll { background: var(--text); color: var(--bg); }
+.geteilt .sf-mit a.sf-mit-rand { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--text); }
+/* Langer Name wird gekürzt, „folgen“ bleibt stehen (Daria, 2026-11-17) */
 .geteilt .sf-mit-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.geteilt .sf-mit a.sf-mit-zweit { background: none; color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
-.geteilt .sf-mit h2 { position: relative; display: inline-block; padding-top: 22px; }
-/* Sticker schräg wie aufgeklebt (Daria, 2026-11-12): „Komplett kostenlos“ über dem Ende der Frage, „Super schnell“ links unter dem Knopf */
-.geteilt .sf-mit-sticker { display: inline-block; font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase;
-  padding: 6px 10px; border-radius: 999px; background: #E4FF5F; color: #161616; white-space: nowrap; }
-.geteilt .sf-mit h2 .sf-mit-sticker { position: absolute; right: -6px; top: -10px; --dreh: 5deg; }
-.geteilt .sf-mit-schnell { margin: 10px 0 0 10px; --dreh: -4deg; animation-delay: -1.6s !important; }
-/* Leichtes Wippen; wer weniger Bewegung eingestellt hat, sieht sie still */
-.geteilt .sf-mit-sticker { transform: rotate(var(--dreh, 0deg)); animation: sf-wippen 3.2s ease-in-out infinite; }
-@keyframes sf-wippen {
-  0%, 100% { transform: rotate(var(--dreh, 0deg)) translateY(0); }
-  50% { transform: rotate(calc(var(--dreh, 0deg) * -0.4)) translateY(-2px); }
-}
-@media (prefers-reduced-motion: reduce) { .geteilt .sf-mit-sticker { animation: none; } }
-.geteilt .sf-mit a.sf-mit-mehr { color: var(--text); text-decoration: underline; font-size: 15px; }
+.geteilt .sf-mit-zeile a:not(.sf-mit-knopf), .geteilt .sf-mit-fuss a { color: var(--text); font-size: 15px; text-underline-offset: 3px; }
+.geteilt .sf-mit-fuss { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 20px; }
 </style>
-  <section class="sf-mit" aria-labelledby="sf-mit-titel">
-    <div class="sf-mit-block">
-      <h2 id="sf-mit-titel">Willst Du auch so eine Seite? <span class="sf-mit-sticker">Komplett kostenlos</span></h2>
-      <a class="sf-mit-knopf" href="/schaufenster?von=schaufenster">Verein, Laden oder Café registrieren</a>
-      <div><span class="sf-mit-sticker sf-mit-schnell">Super schnell</span></div>
-    </div>
-    <div class="sf-mit-block">
-      <h3>Mach mit in Deinem Kiez.</h3>
-      <div class="sf-mit-knoepfe">
-        ${/* Folgen in der App (Daria, 2026-11-17); ohne Konto geht es übers Onboarding und danach zurück */ ''}<a class="sf-mit-knopf" href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?folgen=1" aria-label="${esc(s.name)} in KiezCoins folgen"><span class="sf-mit-name">${esc(s.name)}</span><span>&nbsp;in KiezCoins folgen</span></a>
-        ${/* Anfreunden nach dem Scan (Daria, 2026-11-17); ohne Konto über das Onboarding und danach zurück */ s.freunde ? `<a class="sf-mit-knopf" href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?anfreunden=1" aria-label="Mit ${esc(s.name)} in KiezCoins anfreunden"><span>Mit&nbsp;</span><span class="sf-mit-name">${esc(s.name)}</span><span>&nbsp;anfreunden</span></a>` : ''}
-        <a class="sf-mit-knopf sf-mit-zweit" href="/laden?von=schaufenster">KiezCoins runterladen</a>
+  <section class="sf-mit" aria-label="Mitmachen">
+    <div class="sf-mit-kacheln">
+      <div class="sf-mit-kachel">
+        <p class="sf-mit-marke">In KiezCoins</p>
+        <h2>Bleib bei ${esc(s.name)} auf dem Laufenden</h2>
+        <p>Neue Posts und Termine erscheinen in Deinem Feed.</p>
+        <div class="sf-mit-zeile">
+          ${/* Folgen in der App (Daria, 2026-11-17); ohne Konto geht es übers Onboarding und danach zurück */ ''}<a class="sf-mit-knopf sf-mit-voll" href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?folgen=1" aria-label="${esc(s.name)} in KiezCoins folgen"><span class="sf-mit-name">${esc(s.name)}</span><span>&nbsp;folgen</span></a>
+          ${/* Anfreunden nach dem Scan (Daria, 2026-11-17); ohne Konto über das Onboarding und danach zurück */ s.freunde ? `<a href="https://app.kiezcoins.de/schaufenster/${esc(s.id)}?anfreunden=1" aria-label="Mit ${esc(s.name)} in KiezCoins anfreunden">Anfreunden</a>` : ''}
+        </div>
+      </div>
+      <div class="sf-mit-kachel">
+        <div class="sf-mit-sticker"><span>Komplett kostenlos</span><span>Super schnell</span></div>
+        <h2>Willst Du auch so eine Seite?</h2>
+        <p>Für Vereine, Läden und Cafés im Kiez.</p>
+        <div class="sf-mit-zeile"><a class="sf-mit-knopf sf-mit-rand" href="/schaufenster?von=schaufenster">Schaufenster anlegen</a></div>
       </div>
     </div>
-    <a class="sf-mit-mehr" href="/?von=schaufenster">Mehr über KiezCoins erfahren</a>
+    <div class="sf-mit-fuss">
+      <a href="/laden?von=schaufenster">KiezCoins runterladen</a>
+      <a href="/?von=schaufenster">Mehr über KiezCoins erfahren</a>
+    </div>
   </section>`;
 }
 
 // Wie shareableMapsUrl in src/lib/places.ts. Auf iPhone und iPad tauscht das Skript unten auf Apple Karten.
 const kartenLink = (ort) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ort.trim())}`;
 
-// Anfahrt und Karte über OpenStreetMap (Daria, 2026-11-18). Die Karte lädt erst nach einem Tipp, denn sie holt
-// Kartenbilder von openstreetmap.org; vorher geht keine Anfrage dorthin.
+// Anfahrt und Karte über OpenStreetMap (Daria, 2026-11-18).
+// Karte als Bild von kiezcoins.de (Daria, 2026-11-28: „Karte gern automatisch laden“, Wahl „Kartenbild über
+// kiezcoins.de“): Der Server setzt das Bild aus Kacheln von OpenStreetMap zusammen (/s/<kurzname>/karte.png). Der
+// Browser der Besucher:in fragt OpenStreetMap nicht selbst an, deshalb lädt das Bild ohne Tipp. Ein Tipp öffnet die
+// große Karte auf openstreetmap.org. Der Punkt steht in der Adresse des Bilds, damit eine neue Adresse sofort ein
+// neues Bild bekommt.
 function osmKarte(s) {
   if (!hatPunkt(s)) return '';
-  return `<div class="sf-osm" data-osm="${esc(karteEinbetten(s))}" data-titel="${esc(`Karte: ${s.name}`)}">
-    <button type="button" class="sf-osm-laden">Karte anzeigen</button>
-    <p class="sf-osm-hinweis">Lädt die Karte von OpenStreetMap.</p>
-  </div>
-  <p class="sf-osm-quelle">Karte © <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">OpenStreetMap-Mitwirkende</a> · <a href="${esc(karteGross(s))}" rel="noopener" target="_blank">Größere Karte</a></p>`;
+  const bild = `/s/${encodeURIComponent(s.slug)}/karte.png?p=${s.lat.toFixed(5)},${s.lng.toFixed(5)}`;
+  return `<a class="sf-osm" href="${esc(karteGross(s))}" target="_blank" rel="noopener"><img src="${esc(bild)}" width="${KARTE_B}" height="${KARTE_H}" loading="lazy" alt="${esc(`Karte: ${s.name}`)}"></a><p class="sf-osm-quelle">Karte © <a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">OpenStreetMap-Mitwirkende</a> · <a href="${esc(karteGross(s))}" rel="noopener" target="_blank">Größere Karte</a></p>`;
 }
 
 function ortKnoepfe(s) {
@@ -410,6 +420,9 @@ ${
 /* KiezCoins-Logo oben klein, das Schaufenster steht im Vordergrund (Daria, 2026-11-10) */
 /* Klein, ohne Slogan, rechts, mit Abstand darunter (Daria, 2026-11-10) */
 .top { justify-content: flex-end; padding: 28px 0 0; margin-bottom: 40px; }
+/* Logo an der Inhaltsspalte ausrichten statt am Rand von .wrap (1080 px). Im breiten Fenster stand es sonst weit links
+   neben der schmalen Spalte (Daria, 2026-11-28: „Dass das Logo wegrutscht nervt“). */
+.top { max-width: 560px; margin-left: auto; margin-right: auto; }
 .top .brand { align-items: flex-end; }
 /* Daria (2026-11-17): „Zu klein, viel zu klein“. So groß wie auf kiezcoins.de: 31 px, auf schmalen Bildschirmen 26 px */
 .top .brand svg { height: 31px; width: auto; }
@@ -471,14 +484,11 @@ ${
 .geteilt .sf-zahlung { display: block; }
 .geteilt .sf-zahlung + .sf-zahlung { margin-top: 18px; }
 .geteilt .sf-ort-hinweis { font-size: 13px; color: var(--text); }
-/* Karte von OpenStreetMap: erst ein ruhiger Kasten mit Knopf, nach dem Tipp die Karte (Daria, 2026-11-18) */
-.geteilt .sf-osm { position: relative; margin-top: 16px; aspect-ratio: 4 / 3; border-radius: 16px; overflow: hidden;
-  background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); display: grid; place-content: center; justify-items: center;
-  gap: 8px; padding: 16px; text-align: center; white-space: normal; }
-.geteilt .sf-osm iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.geteilt .sf-osm-laden { border: 0; border-radius: 999px; padding: 10px 18px; background: none; color: var(--text);
-  box-shadow: inset 0 0 0 1.5px var(--text); font: 500 15px/1 Inter, sans-serif; cursor: pointer; }
-.geteilt .sf-osm-hinweis { margin: 0; font-size: 13px; color: var(--muted); }
+/* Karte von OpenStreetMap als Bild, lädt sofort; ein Tipp öffnet die große Karte (Daria, 2026-11-28). Das Bild hat die
+   Größe als Attribute, deshalb height: auto gegen .geteilt img (Fotos der Posts, 4 : 5) */
+.geteilt .sf-osm { display: block; margin-top: 16px; border-radius: 12px; overflow: hidden; background: var(--surface);
+  box-shadow: 0 0 0 1px var(--line); }
+.geteilt .sf-osm img { display: block; width: 100%; height: auto; aspect-ratio: ${KARTE_B} / ${KARTE_H}; border-radius: 0; object-fit: cover; }
 .geteilt .sf-osm-quelle { margin: 6px 0 0; font-size: 12px; color: var(--muted); white-space: normal; }
 .geteilt .sf-osm-quelle a { color: inherit; }
 .geteilt .sf-services p, .geteilt .sf-services ul { margin: 0 0 12px; }
@@ -507,6 +517,37 @@ ${
 .geteilt .sf-herz[aria-pressed="true"] { color: color-mix(in srgb, var(--pink) 70%, var(--text)); }
 .geteilt .sf-herz[aria-pressed="true"] span { color: var(--text); }
 .geteilt .sf-herz:disabled { cursor: default; opacity: .6; }
+/* Desktop (Daria, 2026-11-28): ab 1040 px zwei Spalten, Hauptspalte 620 px, Abstand 40 px, rechte Spalte 340 px, wie die
+   Desktop-Fassung der App. Darunter stehen alle Teile untereinander wie bisher. Die rechte Spalte ist ruhig: Angaben als
+   Zeilen mit feiner Linie, Aktionen als Textlinks in zwei Spalten (Daria: „etwas hektisch angeordnet“). */
+.sf-nur-breit { display: none; }
+@media (min-width: 1040px) {
+  .wrap { padding: 0 40px; }
+  .top, .geteilt { max-width: 1000px; }
+  .sf-nur-breit { display: block; }
+  .sf-nur-schmal { display: none; }
+  .geteilt .sf-cover { aspect-ratio: 5 / 2; }
+  .geteilt .sf-cover.sf-mit-logo + .sf-wer { padding-right: 28px; }
+  .sf-spalten { display: grid; grid-template-columns: minmax(0, 620px) 340px; grid-template-rows: auto 1fr; column-gap: 40px;
+    grid-template-areas: "start seite" "haupt seite"; }
+  .sf-start { grid-area: start; }
+  .sf-haupt { grid-area: haupt; }
+  .sf-seite { grid-area: seite; align-self: start; position: sticky; top: 28px; }
+  .geteilt .sf-start p.text { margin-top: 0; font-size: 19px; line-height: 1.45; }
+  .geteilt .sf-seite .sf-fakten { display: block; margin: 0; border-top: 1px solid var(--line); }
+  .geteilt .sf-seite .sf-fakt { padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .geteilt .sf-seite .sf-fakt dt { margin-bottom: 4px; }
+  .geteilt .sf-seite .sf-fakt dd { font-size: 15px; }
+  .geteilt .sf-seite .sf-ort { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 6px 24px; margin-top: 10px; }
+  .geteilt .sf-seite .sf-ort > * { justify-self: start; text-align: left; }
+  .geteilt .sf-seite .sf-ort .sf-ort-haupt, .geteilt .sf-seite .sf-ort .sf-ort-neben { padding: 0; border-radius: 0; background: none;
+    color: var(--text); box-shadow: none; font: 500 14px/20px Inter, sans-serif; text-decoration: underline; text-underline-offset: 3px; }
+  .geteilt .sf-seite .sf-ort-hinweis:empty { display: none; }
+  .geteilt .sf-seite .sf-osm { margin-top: 12px; }
+  .geteilt .sf-seite h2.sf-abschnitt { margin-top: 32px; border-top: 0; padding-top: 0; }
+  .geteilt .sf-seite .sf-vk { margin-bottom: 0; max-width: none; }
+  .geteilt .sf-haupt > h2.sf-abschnitt:first-child, .geteilt .sf-haupt > .sf-klappe:first-child h2.sf-abschnitt { margin-top: 32px; }
+}
 /* Platzhalter (Daria, 2026-11-11) */
 .geteilt .sf-verlauf { background: linear-gradient(135deg, #8F90FA 0%, #FFB2E5 55%, #FFAD7E 100%); }
 .geteilt .sf-kater { display: flex; align-items: center; justify-content: center; background: #000; }
@@ -527,19 +568,21 @@ function inhalt(s, via, team = false) {
   const fakt = (label, html) => `<div class="sf-fakt"><dt>${label}</dt><dd>${html}</dd></div>`;
   // Leere Angaben fallen ganz weg statt „Noch keine …“, wie schon die E-Mail. Eine Einzelperson hat oft dauerhaft
   // keine Adresse und keine Öffnungszeiten (Daria, 2026-11-17: „Ort und Öffnungszeiten verbergen wenn leer“).
+  // Reihenfolge (Daria, 2026-11-28): Öffnungszeiten zuerst, das Kalender-Abo der Termine als letzte Angabe nach den
+  // Kontaktwegen, direkt vor der Digitalen Visitenkarte. Gleich am Handy und am Desktop.
+  const zeiten = s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '';
   const infos = [
     // Adresse an die Karten-App oder ans Teilen-Menü (Daria, 2026-11-17: „in jedem Fall offen teilbar“)
     // Karten-Links, Anfahrt und Karte nur mit Punkt. Ohne Punkt hat die Gründer:in den Ort als Text gespeichert oder die
     // Kartensuche fand ihn nicht; dann steht er nur als Text da (2026-11-23).
     s.address?.trim() ? fakt('Adresse', `${esc(s.address)}${hatPunkt(s) ? ortKnoepfe(s) + osmKarte(s) : ''}`) : '',
-    s.opening_hours?.trim() ? fakt('Öffnungszeiten', esc(s.opening_hours)) : '',
     // Termin buchen über Cal.com oder einen anderen Dienst (Daria, 2026-11-18); ohne Link keine Zeile
     buchungsLink(s) ? fakt('Termin buchen', buchungKnopf(s)) : '',
     cleanPaymentLinks(s.payment_links).length ? fakt('Bezahlen', zahlungen(s)) : '',
-    // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
-    // Kalender-Abo nur, wenn der Schalter an ist (calendar_feed, Migration 20261123000200; ohne Spalte an)
-    s.slug && hatTermine(s) && s.calendar_feed !== false ? fakt('Termine', aboKnoepfe(s)) : '',
   ].join('');
+  // Abo nur, wenn es Termine gibt (Daria, 2026-11-18: leere Angaben fallen weg)
+  // Kalender-Abo nur, wenn der Schalter an ist (calendar_feed, Migration 20261123000200; ohne Spalte an)
+  const abo = s.slug && hatTermine(s) && s.calendar_feed !== false ? fakt('Termine', aboKnoepfe(s)) : '';
   // Mehrere Links (Migration 20261110000600); vorher nur die Webseite
   const links = Array.isArray(s.links) && s.links.length ? s.links : s.website ? [s.website] : [];
   // Kontakt, Webseiten und soziale Netzwerke getrennt wie in der App (Daria, 2026-11-23, data/digitalCard.mjs).
@@ -587,8 +630,18 @@ function inhalt(s, via, team = false) {
   ${cover ? `<img class="sf-cover sf-mit-logo" src="${esc(cover)}" alt="Titelbild von ${esc(s.name)}">` : '<div class="sf-cover sf-mit-logo sf-verlauf" aria-hidden="true"></div>'}
   <div class="sf-wer">${logo ? `<img class="sf-logo" src="${esc(logo)}" alt="Logo von ${esc(s.name)}">` : `<span class="sf-logo sf-kater">${KATER}</span>`}<h1 style="${titelGroesse(s.name)}">${esc(s.name)}</h1></div>
   ${s.kiez ? `<p class="wer">${esc(s.kiez)}</p>` : ''}
-  ${/* Ohne Beschreibung keine Zeile, wie bei Adresse und Öffnungszeiten (Daria, 2026-11-17) */ s.about?.trim() ? `<p class="text">${esc(s.about)}</p>` : ''}
-  ${infos || mail || web || netze ? `<dl class="sf-fakten">${infos}${mail}${web}${netze}</dl>` : ''}
+  ${
+    /* Desktop ab 1040 px (Daria, 2026-11-28): Hauptspalte 620 px und rechts die Angaben in 340 px, 40 px Abstand, wie
+       die Desktop-Fassung der App. .sf-start ist die Beschreibung, .sf-seite die rechte Spalte, .sf-haupt der Rest der
+       linken Spalte. Am Handy stehen sie in dieser Reihenfolge untereinander, wie bisher. Die Digitale Visitenkarte
+       steht am Desktop rechts unter den Angaben und am Handy am Schluss der Seite: zwei Fassungen, je eine verborgen. */ ''
+  }<div class="sf-spalten">
+  <div class="sf-start">${/* Ohne Beschreibung keine Zeile, wie bei Adresse und Öffnungszeiten (Daria, 2026-11-17) */ s.about?.trim() ? `<p class="text">${esc(s.about)}</p>` : ''}</div>
+  <aside class="sf-seite" aria-label="Angaben">
+  ${zeiten || infos || mail || web || netze || abo ? `<dl class="sf-fakten">${zeiten}${infos}${mail}${web}${netze}${abo}</dl>` : ''}
+  <div class="sf-nur-breit">${visitenkarte(s, via, team, 'breit')}</div>
+  </aside>
+  <div class="sf-haupt">
   ${s.imprint?.trim() ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     // Leere Abschnitte (Services, AGB, Impressum) fallen ganz weg statt „Noch keine …“ (Daria, 2026-11-18)
@@ -610,7 +663,9 @@ function inhalt(s, via, team = false) {
   <div class="sf-ende"><p class="sf-klein" style="white-space: pre-line">${esc(s.imprint)}</p></div>`
       : ''
   }
-  ${/* Digitale Visitenkarte am Schluss der Seite (Daria, 2026-11-12) */ visitenkarte(s, via, team)}
+  </div>
+  </div>
+  ${/* Digitale Visitenkarte am Schluss der Seite (Daria, 2026-11-12), am Desktop in der rechten Spalte */ `<div class="sf-nur-schmal">${visitenkarte(s, via, team, 'schmal')}</div>`}
 <script>
 (() => {
   // Name: die Schrift so weit verkleinern, dass das längste Wort in die Zeile passt (höchstens bis 16 px)
@@ -643,17 +698,6 @@ function inhalt(s, via, team = false) {
         hinweis.textContent = 'Adresse kopiert';
         setTimeout(() => (hinweis.textContent = ''), 2500);
       } catch {}
-    });
-  }
-  // Karte erst auf Tipp laden (keine Anfrage an OpenStreetMap ohne Zutun)
-  for (const k of document.querySelectorAll('[data-osm]')) {
-    k.querySelector('button').addEventListener('click', () => {
-      const f = document.createElement('iframe');
-      f.src = k.dataset.osm;
-      f.title = k.dataset.titel;
-      f.loading = 'lazy';
-      f.referrerPolicy = 'no-referrer-when-downgrade';
-      k.replaceChildren(f);
     });
   }
   // Kalender-Abo: Apple-Geräte (auch der Mac) öffnen webcal:// in der Kalender-App
@@ -767,6 +811,43 @@ async function visitenkarteBild(s, origin) {
   });
 }
 
+// Kartenbild /s/<kurzname>/karte.png (Daria, 2026-11-28): Kacheln von tile.openstreetmap.org, in der Mitte ein Pin in
+// Tinte. Die Funktion holt die Kacheln selbst, mit eigener Kennung, wie es die Regeln von OpenStreetMap verlangen
+// (operations.osmfoundation.org/policies/tiles). Vercel hält das Bild eine Woche vor; der Punkt steht in der Adresse
+// des Bilds, eine neue Adresse holt also ein neues.
+const PIN = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="56" viewBox="0 0 44 56"><path d="M22 54C22 54 41 33.5 41 21C41 10.5 32.5 2 22 2C11.5 2 3 10.5 3 21C3 33.5 22 54 22 54Z" fill="#161616" stroke="#fff" stroke-width="3"/><circle cx="22" cy="21" r="7" fill="#fff"/></svg>`;
+async function kartenBild(s) {
+  if (!s || !hatPunkt(s)) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  const kacheln = kartenKacheln(s);
+  const bilder = await Promise.all(
+    kacheln.map(async (k) => {
+      const res = await fetch(`https://tile.openstreetmap.org/${k.z}/${k.x}/${k.y}.png`, {
+        headers: { 'User-Agent': 'KiezCoins-Schaufenster/1.0 (+https://kiezcoins.de)', Referer: SITE },
+        signal: AbortSignal.timeout(4000),
+      });
+      if (!res.ok) throw new Error(`Kachel ${res.status}`);
+      return `data:image/png;base64,${Buffer.from(await res.arrayBuffer()).toString('base64')}`;
+    }),
+  ).catch(() => null);
+  if (!bilder) return new Response('Karte nicht verfügbar', { status: 502, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
+  const { ImageResponse } = await import('@vercel/og');
+  const img = (src, style) => ({ type: 'img', props: { src, style: { position: 'absolute', ...style } } });
+  const baum = {
+    type: 'div',
+    props: {
+      style: { display: 'flex', position: 'relative', width: KARTE_B, height: KARTE_H, backgroundColor: '#F2EFE9', overflow: 'hidden' },
+      children: [
+        ...kacheln.map((k, i) => img(bilder[i], { left: k.links, top: k.oben, width: 256, height: 256 })),
+        img(`data:image/svg+xml,${encodeURIComponent(PIN)}`, { left: KARTE_B / 2 - 22, top: KARTE_H / 2 - 54, width: 44, height: 56 }),
+      ],
+    },
+  };
+  const bild = new ImageResponse(baum, { width: KARTE_B, height: KARTE_H });
+  return new Response(bild.body, {
+    headers: { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=604800' },
+  });
+}
+
 async function kontaktDatei(s, slug, felder, request) {
   if (!s) return new Response('Nicht gefunden', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
   // „In Kontakte speichern“ zählt fürs Team (2026-11-23)
@@ -791,7 +872,7 @@ export async function GET(request) {
   if (!s && SLUG.test(slug)) {
     const neu = await neuerKurzname(slug);
     if (neu) {
-      const rest = { ics: '/termine.ics', vcf: '/kontakt.vcf', png: '/visitenkarte.png' }[url.searchParams.get('format')] ?? (url.searchParams.get('ansicht') === 'visitenkarte' ? '/visitenkarte' : '');
+      const rest = { ics: '/termine.ics', vcf: '/kontakt.vcf', png: '/visitenkarte.png', karte: '/karte.png' }[url.searchParams.get('format')] ?? (url.searchParams.get('ansicht') === 'visitenkarte' ? '/visitenkarte' : '');
       const weiter = new URLSearchParams();
       if (url.searchParams.get('via') === 'karte') weiter.set('via', 'karte');
       if (url.searchParams.get('von') === 'schaufenster') weiter.set('von', 'schaufenster');
@@ -818,6 +899,7 @@ export async function GET(request) {
   // Browser entsteht die vCard mit Ort und Notiz auf dem Gerät (src/data/vcard.mjs, dieselbe Vorlage).
   if (url.searchParams.get('format') === 'vcf') return kontaktDatei(s, slug, {}, request);
   if (url.searchParams.get('format') === 'png') return visitenkarteBild(s, url.origin);
+  if (url.searchParams.get('format') === 'karte') return kartenBild(s);
 
   const via = url.searchParams.get('via') === 'karte' ? 'karte' : undefined;
   const von = url.searchParams.get('von') === 'schaufenster' ? 'schaufenster' : undefined;

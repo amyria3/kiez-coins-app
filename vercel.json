@@ -99,6 +99,10 @@
       "destination": "/api/s?slug=:slug&format=png"
     },
     {
+      "source": "/s/:slug/karte.png",
+      "destination": "/api/s?slug=:slug&format=karte"
+    },
+    {
       "source": "/s/:slug/kontakt.vcf",
       "destination": "/api/s?slug=:slug&format=vcf"
     },

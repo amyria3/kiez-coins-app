@@ -28,9 +28,10 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
   // Kontakt, Webseiten und soziale Netzwerke getrennt wie auf der Schaufenster-Seite (Daria, 2026-11-23)
   const { email, phone, websites, social } = contactGroups(s);
   // Mehr Innenabstand, je breiter die Karte (Daria, 2026-11-28: „Bei dieser Größe kann das Ganze etwas mehr Padding
-  // vertragen“). Am Handy (Karte unter 400 px) bleibt es bei 20, in der Web-App (480 px) 32, ab 720 px 48.
+  // vertragen“). Am Handy (Karte unter 400 px) bleibt es bei 20, in der Web-App (480 px) 32, ab 600 px 48. Die
+  // Desktop-Fassung der öffentlichen Karte ist 620 px breit (Daria, 2026-11-28), deshalb greifen die 48 dort schon.
   const [width, setWidth] = useState(0);
-  const roomy = width >= 720 ? styles.cardWide : width >= 400 ? styles.cardMedium : null;
+  const roomy = width >= 600 ? styles.cardWide : width >= 400 ? styles.cardMedium : null;
   const linkRow = (label: string, links: { href: string; text: string }[]) =>
     links.length ? (
       <View style={styles.row}>

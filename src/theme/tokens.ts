@@ -698,6 +698,8 @@ export const space = {
   20: 20,
   24: 24,
   32: 32,
+  // Spaltenabstand der Desktop-Fassung (Daria, 2026-11-28)
+  40: 40,
   48: 48,
 } as const;
 
