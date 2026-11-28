@@ -9,6 +9,8 @@
 //   { action: 'post', challengeId, platforms: ['bluesky', 'mastodon', 'instagram', 'facebook'], look?: { frame, watermark } }
 //                                                                    look: Foto im Rahmen, mit Logo; ohne Angabe beides an
 //   { action: 'post_event', eventId, platforms, look? }               Termin aus dem Schaufenster (Daria, 2026-11-18)
+//   Posts und Termine aus exklusiven Schaufenstern (visibility 'invite') gehen nur nach Telegram, mit Link in die App
+//   (Daria, 2026-11-28); andere Plattformen antworten mit { error: 'exclusive' }.
 //   { action: 'delete', challengeId, platforms? }                    Weiterposts dort wieder löschen (ohne platforms: alle)
 //   { action: 'linkedin_start', returnTo }                           Anmeldung bei LinkedIn beginnen: gibt { url } zurück.
 //                                                                    LinkedIn kehrt zur Edge Function `linkedin-anmeldung` zurück,
@@ -651,6 +653,32 @@ const sendElsewhere = (platform: Platform, account: Account, post: Post) =>
           ? postLinkedin(account, post)
           : postFacebook(account, post);
 
+// ---------- Exklusive Schaufenster (Daria, 2026-11-28) ----------
+// Posts und Termine sehen dort nur Team und Eingeladene. Sie gehen nur nach Telegram, wo der Betrieb Chat, Kanäle und
+// Gruppen selbst wählt. Der Link führt in die App: Mitglieder sehen den Post, alle anderen Name, Logo und Angaben.
+// Den Einladungslink hängt KiezCoins nicht an.
+
+const EXCLUSIVE_PLATFORMS: Platform[] = ['telegram'];
+const appShowcaseLink = (showcaseId: string) => `https://app.kiezcoins.de/schaufenster/${showcaseId}`;
+
+/**
+ * Schaufenster-ID, wenn der Post in einem exklusiven Schaufenster steht und die Person ihn weiterposten darf;
+ * false, wenn er dort steht, aber nicht weiter darf; null für alle anderen Posts (dann gilt share_challenge).
+ */
+async function exclusiveShowcaseOf(admin: SupabaseClient, asUser: SupabaseClient, challengeId: string, userId: string) {
+  const { data: c } = await admin
+    .from('challenges')
+    .select('author_id, showcase_id, group_id, status, very_private')
+    .eq('id', challengeId)
+    .maybeSingle();
+  if (!c?.showcase_id) return null;
+  const { data: s } = await admin.from('showcases').select('visibility').eq('id', c.showcase_id).maybeSingle();
+  if (s?.visibility !== 'invite') return null;
+  const { data: allowed } = await asUser.rpc('can_post_showcase', { p_showcase: c.showcase_id });
+  const ok = c.author_id === userId && allowed === true && !c.group_id && !c.very_private && !['draft', 'deleted'].includes(c.status);
+  return ok ? (c.showcase_id as string) : false;
+}
+
 const parseLook = (value: unknown): Look => {
   const v = (value ?? {}) as Partial<Look>;
   return { frame: v.frame !== false, watermark: v.watermark !== false };
@@ -772,9 +800,14 @@ Deno.serve(async (req) => {
     const platforms = (Array.isArray(input.platforms) ? input.platforms : []).filter(isPlatform);
     if (!challengeId || !platforms.length) return reply({ error: 'input' }, 400);
 
-    // Prüft Ersteller:in und ob der Post öffentlich sein darf; gibt ihn zugleich für die Seite kiezcoins.de/c/<id> frei
-    const { error: shareError } = await asUser.rpc('share_challenge', { p_challenge_id: challengeId });
-    if (shareError) return reply({ error: 'not_shareable' }, 403);
+    // Post aus einem exklusiven Schaufenster (Daria, 2026-11-28): nur Telegram, Link in die App, keine öffentliche Seite
+    const exclusive = await exclusiveShowcaseOf(admin, asUser, challengeId, user.id);
+    if (exclusive === false) return reply({ error: 'not_shareable' }, 403);
+    if (!exclusive) {
+      // Prüft Ersteller:in und ob der Post öffentlich sein darf; gibt ihn zugleich für die Seite kiezcoins.de/c/<id> frei
+      const { error: shareError } = await asUser.rpc('share_challenge', { p_challenge_id: challengeId });
+      if (shareError) return reply({ error: 'not_shareable' }, 403);
+    }
 
     const { data: all } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
     const accounts = ((all ?? []) as Account[]).filter((a) => platforms.includes(a.platform));
@@ -798,6 +831,10 @@ Deno.serve(async (req) => {
     // Das Foto (mit Rahmen) einmal für alle Plattformen vorbereiten
     let base: Promise<Omit<Post, 'link'>> | undefined;
     for (const platform of platforms) {
+      if (exclusive && !EXCLUSIVE_PLATFORMS.includes(platform)) {
+        results[platform] = { error: 'exclusive' };
+        continue;
+      }
       const account = (accounts ?? []).find((a) => a.platform === platform) as Account | undefined;
       if (!account) {
         results[platform] = { error: 'not_connected' };
@@ -814,7 +851,8 @@ Deno.serve(async (req) => {
         .upsert({ challenge_id: challengeId, platform, user_id: user.id, status: 'running', url: null, error: null });
       try {
         base ??= loadPost(admin, challengeId, look);
-        const post: Post = { ...(await base), link: `https://kiezcoins.de/c/${challengeId}?von=${platform}` };
+        const link = exclusive ? appShowcaseLink(exclusive) : `https://kiezcoins.de/c/${challengeId}?von=${platform}`;
+        const post: Post = { ...(await base), link };
         const sent = await sendTo(admin, platform, account, post);
         await admin
           .from('crosspost_posts')
@@ -851,7 +889,11 @@ Deno.serve(async (req) => {
       .eq('id', e.showcase_id)
       .maybeSingle();
     const { data: online } = await admin.rpc('showcase_online', { p_showcase: e.showcase_id });
-    if (allowed !== true || !showcase || showcase.visibility !== 'public' || online !== true) return reply({ error: 'not_shareable' }, 403);
+    // Exklusives Schaufenster (Daria, 2026-11-28): nur Telegram, Link in die App; online muss es dafür nicht sein
+    const exclusive = showcase?.visibility === 'invite';
+    if (allowed !== true || !showcase || (!exclusive && (showcase.visibility !== 'public' || online !== true))) {
+      return reply({ error: 'not_shareable' }, 403);
+    }
 
     const { data: all } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
     const accounts = ((all ?? []) as Account[]).filter((a) => platforms.includes(a.platform));
@@ -868,6 +910,10 @@ Deno.serve(async (req) => {
     const results: Record<string, { url?: string; error?: string }> = {};
     let base: Promise<Omit<Post, 'link'>> | undefined;
     for (const platform of platforms) {
+      if (exclusive && !EXCLUSIVE_PLATFORMS.includes(platform)) {
+        results[platform] = { error: 'exclusive' };
+        continue;
+      }
       const account = accounts.find((a) => a.platform === platform);
       if (!account) {
         results[platform] = { error: 'not_connected' };
@@ -883,7 +929,8 @@ Deno.serve(async (req) => {
         .upsert({ event_id: eventId, platform, user_id: user.id, status: 'running', url: null, error: null });
       try {
         base ??= loadEvent(admin, e, showcase.cover_path, showcase.address, look);
-        const post: Post = { ...(await base), link: `https://kiezcoins.de/s/${showcase.slug}?von=${platform}` };
+        const link = exclusive ? appShowcaseLink(e.showcase_id) : `https://kiezcoins.de/s/${showcase.slug}?von=${platform}`;
+        const post: Post = { ...(await base), link };
         const sent = await sendTo(admin, platform, account, post);
         await admin
           .from('crosspost_event_posts')

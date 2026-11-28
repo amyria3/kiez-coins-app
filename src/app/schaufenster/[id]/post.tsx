@@ -6,7 +6,7 @@ import { Notice } from '../../../components/Content';
 import { PhotoPicker, TextField } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { CrosspostRow } from '../../../components/compose/CrosspostRow';
-import { crosspostChallenge, loadCrosspostSelection, useCrosspostEnabled, type LivePlatform } from '../../../data/crosspost';
+import { crosspostChallenge, EXCLUSIVE_PLATFORMS, loadCrosspostSelection, useCrosspostEnabled, type LivePlatform } from '../../../data/crosspost';
 import { clearShowcasePost, loadShowcase, setShowcasePost, type Showcase } from '../../../data/showcase';
 import { useStore } from '../../../data/store';
 import type { ImageSource } from '../../../data/types';
@@ -33,6 +33,8 @@ export default function NewShowcasePost() {
   const [failed, setFailed] = useState<string | null>(null);
   const crosspost = useCrosspostEnabled();
   const [crosspostOff, setCrosspostOff] = useState<LivePlatform[]>([]);
+  // Exklusives Schaufenster: Weiterposten nur nach Telegram (Daria, 2026-11-28)
+  const exclusive = showcase?.visibility === 'invite';
 
   useEffect(() => {
     loadShowcase(id, currentUserId).then((d) => setShowcase(d?.showcase ?? null));
@@ -55,7 +57,12 @@ export default function NewShowcasePost() {
       // Fehler stehen in crosspost_posts und stören das Posten nicht
       if (crosspost) {
         loadCrosspostSelection()
-          .then((platforms) => crosspostChallenge(postId, platforms.filter((p) => !crosspostOff.includes(p))))
+          .then((platforms) =>
+            crosspostChallenge(
+              postId,
+              platforms.filter((p) => !crosspostOff.includes(p) && (!exclusive || EXCLUSIVE_PLATFORMS.includes(p))),
+            ),
+          )
           .catch(() => undefined);
       }
       goBack();
@@ -77,7 +84,7 @@ export default function NewShowcasePost() {
     >
       <PhotoPicker photo={photo} hint="Zeig, was es bei Euch gibt." onChange={setPhoto} title={{ value: title, onChange: setTitle, optional: true, maxLength: 80 }} />
       <TextField label="Text" multiline value={text} onChangeText={setText} maxLength={2000} />
-      <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} />
+      <CrosspostRow off={crosspostOff} onChange={setCrosspostOff} exclusive={exclusive} />
       {failed ? <Notice variant="warning" message={failed} /> : null}
     </SubScreen>
   );
