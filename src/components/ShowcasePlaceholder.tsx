@@ -4,6 +4,7 @@ import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import type { ImageSource } from '../data/types';
 import { isMono } from '../theme/look';
+import { serviceItems } from '../data/digitalCard.mjs';
 import { color, radius, space, text } from '../theme/tokens';
 import { Text } from './T';
 
@@ -103,19 +104,54 @@ export function ShowcaseLogo({
 }
 
 /**
- * Standard-Post (Daria, 2026-11-28: „Default-Posts, die erscheinen, bevor echte Posts erscheinen. Minimalistisch aber
- * modern. À la Grafikdesigner“): eine Karte wie ein kleines Plakat, Willkommen in Tinte mit Schrift in Gelbgrün. Ein
- * zweites Plakat mit den Services fiel weg, weil sie doppelt dastanden (Daria: „wieso gedoppelt?“). Die öffentliche
- * Seite (api/s.mjs, standardPosts) zeigt dasselbe.
+ * Standard-Posts (Daria, 2026-11-28: „Default-Posts, die erscheinen, bevor echte Posts erscheinen. Minimalistisch aber
+ * modern. À la Grafikdesigner“): Karten wie kleine Plakate. Willkommen in Tinte mit Schrift in Gelbgrün, darunter in
+ * Gelbgrün die Services, nummeriert; solange sie hier stehen, fällt der Abschnitt „Services“ weg (Daria: „wieso
+ * gedoppelt?“ … „Services auf Plakat“). Ohne Services die Öffnungszeiten, ohne beides nur das erste Plakat.
+ * Die öffentliche Seite (api/s.mjs, standardPosts) zeigt dasselbe.
  */
-export function StandardPosts({ name, kiez }: { name: string; kiez?: string }) {
+export function StandardPosts({
+  name,
+  kiez,
+  services,
+  openingHours,
+}: {
+  name: string;
+  kiez?: string;
+  services?: string;
+  openingHours?: string;
+}) {
+  const list: string[] = serviceItems(services ?? '');
+  const hours = (openingHours ?? '')
+    .split('\n')
+    .map((z) => z.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  const rows = list.length ? list : hours;
   return (
-    <View style={styles.poster}>
-      <Text style={styles.posterKicker}>Willkommen</Text>
-      <Text noTranslate style={styles.posterTitle}>
-        {kiez?.trim() ? `Neu in ${kiez.trim()}.` : 'Neu im Kiez.'}
-      </Text>
-      <Text style={styles.posterFoot}>{`${name} hat jetzt ein Schaufenster. Neues erscheint hier.`}</Text>
+    <View style={styles.posters}>
+      <View style={[styles.poster, styles.posterInk]}>
+        <Text style={[styles.posterKicker, styles.onInk]}>Willkommen</Text>
+        <Text noTranslate style={[styles.posterTitle, styles.onInk]}>
+          {kiez?.trim() ? `Neu in ${kiez.trim()}.` : 'Neu im Kiez.'}
+        </Text>
+        <Text style={[styles.posterFoot, styles.onInk]}>{`${name} hat jetzt ein Schaufenster. Neues erscheint hier.`}</Text>
+      </View>
+      {rows.length ? (
+        <View style={[styles.poster, styles.posterLime]}>
+          <Text style={[styles.posterKicker, styles.onLime]}>{list.length ? 'Services' : 'Geöffnet'}</Text>
+          <View style={styles.posterList}>
+            {rows.map((x, i) => (
+              <View key={i} style={styles.posterRow}>
+                {list.length ? <Text style={[styles.posterNumber, styles.onLime]}>{String(i + 1).padStart(2, '0')}</Text> : null}
+                <Text noTranslate style={[styles.posterItem, styles.onLime]}>
+                  {x}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -129,16 +165,25 @@ const styles = StyleSheet.create({
   clip: { overflow: 'hidden' },
   // Schwarz in beiden Looks (Daria, 2026-11-11)
   katerCircle: { backgroundColor: color.showcasePlaceholder.circle, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  poster: {
-    minHeight: 300,
-    padding: space[24],
-    borderRadius: radius.post,
-    gap: space[20],
-    justifyContent: 'space-between',
-    backgroundColor: color.showcasePlaceholder.posterInk,
+  posters: { gap: space[16] },
+  poster: { minHeight: 300, padding: space[24], borderRadius: radius.post, gap: space[20], justifyContent: 'space-between' },
+  posterInk: { backgroundColor: color.showcasePlaceholder.posterInk },
+  posterLime: { backgroundColor: color.showcasePlaceholder.posterLime },
+  onInk: { color: color.showcasePlaceholder.posterLime },
+  onLime: { color: color.showcasePlaceholder.posterInk },
+  posterKicker: { ...text.captionStrong, letterSpacing: 0.4, textTransform: 'uppercase' },
+  posterTitle: { ...text.displayLarge, marginTop: 'auto' },
+  posterFoot: { ...text.bodySm, opacity: 0.8 },
+  posterList: { marginTop: 'auto' },
+  posterRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: space[16],
+    paddingVertical: space[12],
+    borderTopWidth: 1,
+    borderTopColor: color.showcasePlaceholder.posterRule,
   },
-  posterKicker: { ...text.captionStrong, letterSpacing: 0.4, textTransform: 'uppercase', color: color.showcasePlaceholder.posterLime },
-  posterTitle: { ...text.displayLarge, marginTop: 'auto', color: color.showcasePlaceholder.posterLime },
-  posterFoot: { ...text.bodySm, opacity: 0.8, color: color.showcasePlaceholder.posterLime },
+  posterNumber: { ...text.caption, fontVariant: ['tabular-nums'] },
+  posterItem: { ...text.metricSm, flex: 1 },
   empty: { ...text.caption, color: color.text.secondary, fontStyle: 'italic' },
 });

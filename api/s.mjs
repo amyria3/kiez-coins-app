@@ -11,7 +11,7 @@ import { contactGroups, shortUrl, socialLink, telLink } from '../src/data/digita
 import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
 import { anfahrtLink, hatPunkt, KARTE_B, KARTE_H, karteGross, kartenKacheln } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
-import { appVisitenkarte, teamHinweis, vcard, vorschauSeite } from './_visitenkarte.mjs';
+import { appVisitenkarte, serviceListe, teamHinweis, vcard, vorschauSeite } from './_visitenkarte.mjs';
 import { BILD_B, BILD_H, bildBaum, bildText } from './_visitenkarte-bild.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
@@ -581,6 +581,11 @@ ${
 .geteilt .sf-plakat p.sf-plakat-marke { margin: 0; font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: inherit; }
 .geteilt .sf-plakat h2 { margin: auto 0 0; font: 500 34px/1.08 Unbounded, var(--display); letter-spacing: -.01em; color: inherit; overflow-wrap: anywhere; }
 .geteilt .sf-plakat p.sf-plakat-fuss { margin: 0; font: 400 15px/1.4 Inter, sans-serif; color: inherit; opacity: .8; }
+.geteilt .sf-plakat-hell { background: #F0FFA6; color: #161616; }
+.geteilt .sf-plakat-liste { list-style: none; margin: auto 0 0; padding: 0; }
+.geteilt .sf-plakat-liste li { display: flex; gap: 16px; align-items: baseline; padding: 12px 0; border-top: 1px solid rgba(22,22,22,.25);
+  font: 500 18px/1.3 'Inter Tight', Inter, sans-serif; }
+.geteilt .sf-plakat-liste li span { flex: none; font: 500 12px/1 Inter, sans-serif; font-variant-numeric: tabular-nums; }
 @media (min-width: 1040px) { .geteilt .sf-plakat { aspect-ratio: 4 / 5; min-height: 0; } }
 /* Platzhalter (Daria, 2026-11-11) */
 .geteilt .sf-verlauf { background: linear-gradient(135deg, #8F90FA 0%, #FFB2E5 55%, #FFAD7E 100%); }
@@ -589,17 +594,37 @@ ${
 </style>`;
 }
 
-// Standard-Post (Daria, 2026-11-28: „Default-Posts, die erscheinen, bevor echte Posts erscheinen. Minimalistisch aber
-// modern. À la Grafikdesigner“). Statt des gestrichelten Platzhalters eine Karte wie ein kleines Plakat: Willkommen in
-// Tinte mit Schrift in Gelbgrün. Ein zweites Plakat mit den Services fiel weg, weil sie dann doppelt dastanden (Daria:
-// „wieso gedoppelt?“). Feste Farben wie das Bild der Digitalen Visitenkarte. Mit dem ersten echten Post fällt es weg.
+// Standard-Posts (Daria, 2026-11-28: „Default-Posts, die erscheinen, bevor echte Posts erscheinen. Minimalistisch aber
+// modern. À la Grafikdesigner“). Statt des gestrichelten Platzhalters Karten wie kleine Plakate: Willkommen in Tinte mit
+// Schrift in Gelbgrün, daneben in Gelbgrün die Services, nummeriert. Solange die Plakate stehen, fällt der Abschnitt
+// „Services“ weg, damit nichts doppelt dasteht (Daria: „wieso gedoppelt?“ … „Services auf Plakat“). Ohne Services zeigt
+// das zweite Plakat die Öffnungszeiten, ohne beides gibt es nur das erste. Feste Farben wie das Bild der Digitalen
+// Visitenkarte. Mit dem ersten echten Post oder Termin fallen sie weg.
 function standardPosts(s) {
   const kiez = s.kiez?.trim();
-  return `<h2 class="sf-abschnitt">Neu im Schaufenster</h2><div class="sf-liste sf-plakate"><article class="sf-plakat">
+  const services = serviceListe(s.services ?? '');
+  const zeiten = (s.opening_hours ?? '')
+    .split('\n')
+    .map((z) => z.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  const willkommen = `<article class="sf-plakat">
       <p class="sf-plakat-marke">Willkommen</p>
       <h2>${kiez ? `Neu in ${esc(kiez)}.` : 'Neu im Kiez.'}</h2>
       <p class="sf-plakat-fuss">${esc(s.name)} hat jetzt ein Schaufenster. Neues erscheint hier.</p>
-    </article></div>`;
+    </article>`;
+  const zweites = services.length
+    ? `<article class="sf-plakat sf-plakat-hell">
+      <p class="sf-plakat-marke">Services</p>
+      <ol class="sf-plakat-liste">${services.map((x, i) => `<li><span>${String(i + 1).padStart(2, '0')}</span>${esc(x)}</li>`).join('')}</ol>
+    </article>`
+    : zeiten.length
+      ? `<article class="sf-plakat sf-plakat-hell">
+      <p class="sf-plakat-marke">Geöffnet</p>
+      <ol class="sf-plakat-liste">${zeiten.map((z) => `<li>${esc(z)}</li>`).join('')}</ol>
+    </article>`
+      : '';
+  return `<h2 class="sf-abschnitt">Neu im Schaufenster</h2><div class="sf-liste sf-plakate">${willkommen}${zweites}</div>`;
 }
 
 function inhalt(s, via, team = false) {
@@ -684,7 +709,8 @@ function inhalt(s, via, team = false) {
   ${s.imprint?.trim() ? '<p class="sf-klein"><a href="#impressum">Impressum</a></p>' : ''}
   ${
     // Leere Abschnitte (Services, AGB, Impressum) fallen ganz weg statt „Noch keine …“ (Daria, 2026-11-18)
-    !s.services?.trim()
+    // Ohne Posts stehen die Services auf dem Plakat (standardPosts), dann fällt der Abschnitt weg (Daria, 2026-11-28)
+    !s.services?.trim() || (!eintraege && serviceListe(s.services).length)
       ? ''
       : // Immer offen, auch wenn in der App „eingeklappt“ eingestellt ist (Daria, 2026-11-28: „unnötig, zu verbergen“)
         `<h2 class="sf-abschnitt">Services</h2><div class="sf-services">${richHtml(s.services)}</div>`
