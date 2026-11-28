@@ -307,6 +307,43 @@ export default function FeedScreen() {
     expand();
     revealRef.current();
   };
+  // Im Browser am Rechner gibt es kein Herunterziehen (Daria, 2026-11-28: „Finde den Header hier nicht“, „Komme
+  // nicht in die Suche“). Ganz oben weiter nach oben scrollen (Mausrad, Trackpad) zählt deshalb wie der Zug:
+  // erst das Suchfeld, ein zweiter Schub holt den Kopf. In „My Structure“ bleibt es beim Ziehen.
+  const wheelRef = useRef({ sum: 0, last: 0, blocked: false });
+  const revealSearchRef = useRef(() => {});
+  revealSearchRef.current = () => {
+    if (routineActiveRef.current) return;
+    if (searchHiddenRef.current) revealSearch();
+    else reveal();
+  };
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+      const onWheel = (e: WheelEvent) => {
+        const w = wheelRef.current;
+        const now = Date.now();
+        if (e.deltaY >= 0 || lastY.current > 0) {
+          w.sum = 0;
+          return;
+        }
+        // Ein Schub endet nach einer kurzen Pause; Nachlauf des Trackpads zählt nicht doppelt
+        if (now - w.last > 250) {
+          w.sum = 0;
+          w.blocked = false;
+        }
+        w.last = now;
+        if (w.blocked) return;
+        w.sum -= e.deltaY;
+        if (w.sum < PULL_SEARCH) return;
+        w.sum = 0;
+        w.blocked = true;
+        revealSearchRef.current();
+      };
+      window.addEventListener('wheel', onWheel, { passive: true });
+      return () => window.removeEventListener('wheel', onWheel);
+    }, []),
+  );
 
   // Eigene Position nur, wenn der Standort schon freigegeben ist. Bleibt auf dem Gerät.
   const [here, setHere] = useState<Coords | null>(null);

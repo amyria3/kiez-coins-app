@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
 
@@ -22,7 +22,7 @@ import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, lookName } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
-import { myShowcases, useShowcaseEnabled } from '../../data/showcase';
+import { myShowcases, showcasePublicLink, useShowcaseEnabled, type Showcase } from '../../data/showcase';
 import { installedVersionLabel } from '../../data/appRelease';
 import { PageSlideProvider, usePageSlide } from '../../lib/pageSlide';
 
@@ -51,12 +51,12 @@ export default function Account() {
   }, [mode, me.id]);
   // Eigene Digitale Visitenkarte (Daria, 2026-11-28): das erste Schaufenster, das für alle sichtbar und online ist.
   // Nur dann gibt es die Karte, wie unter schaufenster/index (canShare).
-  const [cardShowcaseId, setCardShowcaseId] = useState<string | null>(null);
+  const [cardShowcase, setCardShowcase] = useState<Showcase | null>(null);
   useEffect(() => {
     if (mode !== 'live' || !showcase) return;
     let active = true;
     myShowcases(me.id).then(
-      (list) => active && setCardShowcaseId(list.find((s) => s.visibility === 'public' && s.switches.online)?.id ?? null),
+      (list) => active && setCardShowcase(list.find((s) => s.visibility === 'public' && s.switches.online) ?? null),
       () => {},
     );
     return () => {
@@ -131,14 +131,39 @@ export default function Account() {
         details={[salutation(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
-      {cardShowcaseId ? (
+      {/* Ansehen als Knöpfe untereinander, gleich dargestellt (Daria, 2026-11-28: „Wäre doch logisch, das unter
+          ‚Meine Digitale …' zu platzieren und auch meinen Account über einen genauso dargestellten Button zu zeigen“).
+          Das eigene Profil so, wie andere es sehen; das Schaufenster wie unter schaufenster/index. */}
+      <View style={styles.views}>
         <Button
-          label="Meine Digitale Visitenkarte zeigen"
+          label="Mein Profil zeigen"
           variant="secondary"
           iconEnd="chevron-right"
-          onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: cardShowcaseId } })}
+          onPress={() => router.push({ pathname: '/user/[id]', params: { id: me.id } })}
         />
-      ) : null}
+        {cardShowcase ? (
+          <>
+            <Button
+              label="Meine Digitale Visitenkarte zeigen"
+              variant="secondary"
+              iconEnd="chevron-right"
+              onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: cardShowcase.id } })}
+            />
+            <Button
+              label="Schaufenster in der App"
+              variant="secondary"
+              iconEnd="chevron-right"
+              onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: cardShowcase.id } })}
+            />
+            <Button
+              label="Schaufenster im Web"
+              variant="secondary"
+              iconEnd="external"
+              onPress={() => Linking.openURL(`${showcasePublicLink(cardShowcase.slug)}?als=team`)}
+            />
+          </>
+        ) : null}
+      </View>
       {/* Gruppen nach dem Farbcode der App (Daria, 2026-11-17). Zeilen einer Gruppe in Stufen heller. */}
       <FieldGroup heading label="Du on KiezCoins">
         {oneGroup ? (
@@ -290,6 +315,8 @@ const ROW_ICON = 16;
 const styles = StyleSheet.create({
   // Derselbe Abstand wie im Inhalt von SubScreen, die Hülle für das Wischen nimmt ihn sonst weg
   slide: { gap: space[16] },
+  // Wie die Knöpfe unter „Deine Seite“ im Schaufenster
+  views: { gap: space[8] },
   // Kater der Bildmarke größer als sein gelbgrüner Kreis, der Kreis schneidet Ohren und Unterkante ab
   catCircle: { width: 40, height: 40, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: KATER_AVATAR_YELLOW },
   catBleed: { marginBottom: -10 },

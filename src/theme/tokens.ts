@@ -589,8 +589,10 @@ const monoOverrides = {
   icon: { large: mono.ink, startGears: { 3: mono.ink, 4: mono.ink, 5: mono.ink } as Record<number, string> },
   nav: {
     bar: withAlpha(mono.white, 0.96),
-    /** Nicht ausgewählte Tabs grau, damit sich der ausgewählte abhebt (Daria, 2026-11-27) */
-    icon: mono.inkSoft,
+    /** Nicht ausgewählte Tabs in derselben Tinte, nur zu 85 % (Daria, 2026-11-28: „für alle Strokes of Icons gleiche
+     *  Farbe … nur für die nicht ausgewählten ein wenig durchsichtig, also so 85%“). Fest auf Weiß gemischt statt
+     *  Alpha, sonst werden überlappende Striche (Doppelherz) an den Kreuzungen dunkler. */
+    icon: '#353535',
     /** Ausgewählter Tab: zart lila wie die Aufgaben, schwarz umrandet (Daria, 2026-11-27) */
     selectedFill: mono.lila,
     // Grün-gelber Verlauf aus dem Grund des Katers (Daria, 2026-11-28: „grün-gelb Verlauf aus dem Icon hinterlegen“)
