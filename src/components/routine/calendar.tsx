@@ -7,6 +7,7 @@ import { weekdayShort } from '../../data/katerRoutine';
 import { addDays, capitalize, isoWeekday, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../../data/reminders';
 import { setCalendarLevel, setCalendarMonth, setFocusCard, setRoutineDay, useCalendarLevel, useCalendarMonth, useRoutineDay, type CalendarLevel } from '../../data/routineView';
 import { localeTag, t } from '../../data/texts';
+import { color } from '../../theme/tokens';
 import { Text } from '../T';
 import { HATCH } from './constants';
 import { Saved } from './shared';
@@ -452,6 +453,8 @@ function DayBar({
 
 /** Stufe, ab der ein Zug an der Pille eine Stufe weiter geht */
 const LEVEL_STEP = 56;
+/** Linie unter der Pille, angefasst so dick */
+const HANDLE_LINE_HELD = 2;
 const LEVEL_NAMES = ['Kalender zu', 'Woche', 'Kurze Liste', 'Monat'];
 
 /**
@@ -569,6 +572,8 @@ function CalendarHandle({ level }: { level: CalendarLevel }) {
   const start = useRef<{ level: number; moved: boolean }>({ level, moved: false });
   const levelRef = useRef(level);
   levelRef.current = level;
+  // Angefasst: Linie und Pille etwas dicker (Daria, 2026-11-28)
+  const [held, setHeld] = useState(false);
   const pan = useMemo(
     () =>
       PanResponder.create({
@@ -577,14 +582,17 @@ function CalendarHandle({ level }: { level: CalendarLevel }) {
         onPanResponderTerminationRequest: () => false,
         onPanResponderGrant: () => {
           start.current = { level: levelRef.current, moved: false };
+          setHeld(true);
         },
         onPanResponderMove: (_e, g) => {
           if (Math.abs(g.dy) > 6) start.current.moved = true;
           setCalendarLevel(start.current.level + Math.round(g.dy / LEVEL_STEP));
         },
         onPanResponderRelease: () => {
+          setHeld(false);
           if (!start.current.moved) setCalendarLevel(levelRef.current === 3 ? 0 : levelRef.current + 1);
         },
+        onPanResponderTerminate: () => setHeld(false),
       }),
     [],
   );
@@ -599,11 +607,12 @@ function CalendarHandle({ level }: { level: CalendarLevel }) {
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={(e) => setCalendarLevel(level + (e.nativeEvent.actionName === 'increment' ? 1 : -1))}
     >
-      <View style={styles.handleLineClip}>
-        <View style={styles.handleLine} />
-      </View>
+      {/* Gestrichelt per SVG: Strichlänge frei wählbar, schwarz (Daria, 2026-11-28: „Linie schwarz und längere Striche“) */}
+      <Svg width="100%" height={HANDLE_LINE_HELD} style={styles.handleLine}>
+        <Line x1="0" y1={HANDLE_LINE_HELD / 2} x2="100%" y2={HANDLE_LINE_HELD / 2} stroke={color.text.primary} strokeWidth={held ? HANDLE_LINE_HELD : 1} strokeDasharray="12 6" />
+      </Svg>
       <View style={styles.handleBarGap}>
-        <View style={styles.handleBar} />
+        <View style={[styles.handleBar, held && styles.handleBarHeld]} />
       </View>
     </View>
   );

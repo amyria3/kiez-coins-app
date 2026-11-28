@@ -168,12 +168,11 @@ export const styles = StyleSheet.create({
   // Pille zum Schieben: breite Fläche zum Greifen, im Browser ohne Textauswahl und ohne Scrollen. Sie liegt auf einer
   // gestrichelten Linie über die ganze Breite statt über vier Punkten (Daria, 2026-11-28)
   handle: { justifyContent: 'center', paddingTop: space[16], paddingBottom: space[12], userSelect: 'none', touchAction: 'none', cursor: 'grab' } as object,
-  // Gestrichelt nur über einen ganzen Rand (iOS): Rahmen doppelt so hoch, der untere Teil abgeschnitten
-  handleLineClip: { height: 1, overflow: 'hidden' },
-  handleLine: { height: 2, borderWidth: 1, borderStyle: 'dashed', borderColor: color.text.secondary, opacity: 0.5 },
+  handleLine: { alignSelf: 'stretch' },
   handleBarGap: { position: 'absolute', alignSelf: 'center', paddingHorizontal: space[8], backgroundColor: color.bg.screen },
   // In Schriftfarbe (Daria, 2026-11-28: „Schiebepille in schwarz, also in Font Color“)
   handleBar: { width: 44, height: 5, borderRadius: 3, backgroundColor: color.text.primary },
+  handleBarHeld: { width: 48, height: 7, borderRadius: 4 },
 });
 
 /** Tagesstapel (Daria, 2026-11-28) */
