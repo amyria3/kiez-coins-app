@@ -10,11 +10,12 @@ import { color, motion, radius, size, space, text, scheme } from '../theme/token
 import { useAppDimensions, useDesktop } from '../theme/layout';
 import { useDesktopContentWidth } from './DesktopNav';
 import { ActionBar } from './ActionBar';
-import type { CatMood } from './icons/Brand';
+import { CrownIcon, type CatMood } from './icons/Brand';
 import { KaterMessage } from './KaterMessage';
 import { KeyboardArea } from './Keyboard';
 import { GlassIconButton } from './Glass';
 import { NavigationBar } from './NavigationBar';
+import { Icon, type IconName } from './icons/Icon';
 import { KaterCircle } from './Content';
 import { Text } from './T';
 import { BARE } from '../theme/kiezPage';
@@ -36,6 +37,8 @@ type SubScreenProps = {
   header?: ReactNode;
   /** Schwebende untere Leiste (TabBar), z. B. auf „Dein Konto“. Der Inhalt bekommt unten Platz dafür. */
   tabBar?: ReactNode;
+  /** Kiez: eigenes Motiv im Seitenkopf statt des Katers */
+  motif?: PageMotif;
 };
 
 /**
@@ -48,7 +51,10 @@ type SubScreenProps = {
  * Lange Wörter stehen kleiner, damit sie den Kater nicht berühren. `note`: leise Zeile unter der Überschrift.
  * `fixed`: Der Kopf steht außerhalb eines Rollbereichs und bringt seine Ränder selbst mit.
  */
-export function PageHead({ title, note, fixed }: { title: string; note?: string; fixed?: boolean }) {
+/** Eigenes Motiv im Seitenkopf: eines von Darias Symbolen, riesig und angeschnitten, in der Farbe des Bereichs */
+export type PageMotif = { icon: IconName | 'crown'; tint: string };
+
+export function PageHead({ title, note, fixed, motif }: { title: string; note?: string; fixed?: boolean; motif?: PageMotif }) {
   const words = title.split(' ');
   // Umbruch an dem Leerzeichen, das der Mitte am nächsten liegt
   let best = 1;
@@ -62,9 +68,15 @@ export function PageHead({ title, note, fixed }: { title: string; note?: string;
   const veryLong = longest > 13;
   return (
     <View style={[styles.pageHead, fixed && styles.pageHeadFixed]}>
-      <View style={[styles.pageHeadCat, veryLong && styles.pageHeadCatAside]} pointerEvents="none">
-        <KaterCircle size={long ? 240 : 290} glass={color.bg.screen} />
-      </View>
+      {motif ? (
+        <View style={[styles.pageHeadMotif, veryLong && styles.pageHeadCatAside]} pointerEvents="none">
+          {motif.icon === 'crown' ? <CrownIcon height={210} fill={motif.tint} /> : <Icon name={motif.icon} size={150} color={motif.tint} />}
+        </View>
+      ) : (
+        <View style={[styles.pageHeadCat, veryLong && styles.pageHeadCatAside]} pointerEvents="none">
+          <KaterCircle size={long ? 240 : 290} glass={color.bg.screen} />
+        </View>
+      )}
       <Text noTranslate style={[styles.pageHeadTitle, long && styles.pageHeadTitleLong, veryLong && styles.pageHeadTitleVeryLong]} accessibilityRole="header">
         {lines.join('\n')}
       </Text>
@@ -73,7 +85,7 @@ export function PageHead({ title, note, fixed }: { title: string; note?: string;
   );
 }
 
-export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header, tabBar }: SubScreenProps) {
+export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions, children, header, tabBar, motif }: SubScreenProps) {
   const insets = useSafeAreaInsets();
   // Deaktivierte Buttons können zu dem Feld scrollen, das noch fehlt (Nudge.tsx)
   const scrollRef = useRef<ScrollView>(null);
@@ -94,7 +106,7 @@ export function SubScreen({ title, subtitle, navigation, onLeadingPress, actions
           scrollEventThrottle={32}
           onScroll={(e) => nudgeScroll.onScroll(e.nativeEvent.contentOffset.y)}
         >
-          {BARE && !header && title ? <PageHead title={t(title)} note={subtitle ? t(subtitle) : undefined} /> : null}
+          {BARE && !header && title ? <PageHead title={t(title)} note={subtitle ? t(subtitle) : undefined} motif={motif} /> : null}
           {children}
         </ScrollView>
         {/* Die ActionBar gehört dazu: Enter im letzten Feld springt zu ihrem Haupt-Button */}
@@ -637,6 +649,7 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   // Platz unter der schwebenden Leiste, wie TAB_BAR_SPACE in TabBar.tsx plus Home-Balken
   pageHead: { height: 200, marginHorizontal: -space[16], marginTop: -space[16], marginBottom: space[8], paddingHorizontal: space[24], justifyContent: 'flex-end', paddingBottom: space[16], overflow: 'hidden' },
+  pageHeadMotif: { position: 'absolute', right: -44, bottom: -48, transform: [{ rotate: '-10deg' }] },
   pageHeadCat: { position: 'absolute', right: -112, bottom: -46, transform: [{ rotate: '-8deg' }] },
   pageHeadTitle: { ...text.pageTitle, color: color.text.primary },
   pageHeadTitleLong: { ...text.pageTitleLong },

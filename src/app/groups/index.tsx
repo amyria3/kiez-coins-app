@@ -25,6 +25,7 @@ export default function Groups() {
   return (
     <SubScreen
       title="Deine Gruppen"
+      motif={{ icon: 'behausung', tint: color.accountCards.friendship[0] }}
       navigation="back"
       onLeadingPress={() => (goBack())}
       actions={

@@ -94,7 +94,7 @@ function Journey() {
         {/* Kiez: großer Kopf mit Kater wie auf allen Unterseiten (Daria, 2026-11-28) */}
         {BARE ? (
           <View style={styles.headBleed}>
-            <PageHead title={t('Was Du so machst')} />
+            <PageHead motif={{ icon: 'crown', tint: color.accountCards.activity }} title={t('Was Du so machst')} />
           </View>
         ) : (
         <View style={styles.titleRow}>
