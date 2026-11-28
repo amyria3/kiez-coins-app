@@ -1467,5 +1467,6 @@
   "Cal.com-Konto anlegen": "إنشاء حساب على Cal.com",
   "Freie Zeiten sehen und online buchen.": "اطّلع على الأوقات المتاحة واحجز عبر الإنترنت.",
   "{n} Termine: {list}": "{n, plural, two {موعدان} few {# مواعيد} many {# موعدًا} other {# موعد}}: {list}",
-  "{n} Aufgaben ohne Uhrzeit": "{n, plural, two {مهمتان} few {# مهام} many {# مهمة} other {# مهمة}} بدون وقت"
+  "{n} Aufgaben ohne Uhrzeit": "{n, plural, two {مهمتان} few {# مهام} many {# مهمة} other {# مهمة}} بدون وقت",
+  "Meine Digitale Visitenkarte zeigen": "عرض بطاقة العمل الرقمية الخاصة بي"
 }

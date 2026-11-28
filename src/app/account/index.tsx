@@ -3,6 +3,7 @@ import { Animated, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SvgXml } from 'react-native-svg';
 
+import { Button } from '../../components/Button';
 import { FieldGroup } from '../../components/Content';
 import { CrownIcon } from '../../components/icons/Brand';
 import { Icon } from '../../components/icons/Icon';
@@ -21,7 +22,7 @@ import { getLanguage, getLanguageChoice, languages, t } from '../../data/texts';
 import { look, lookName } from '../../theme/look';
 import { MODES, useModes } from '../../data/features';
 import { useGoBack } from '../../lib/goBack';
-import { useShowcaseEnabled } from '../../data/showcase';
+import { myShowcases, useShowcaseEnabled } from '../../data/showcase';
 import { installedVersionLabel } from '../../data/appRelease';
 import { PageSlideProvider, usePageSlide } from '../../lib/pageSlide';
 
@@ -48,6 +49,20 @@ export default function Account() {
       () => {},
     );
   }, [mode, me.id]);
+  // Eigene Digitale Visitenkarte (Daria, 2026-11-28): das erste Schaufenster, das für alle sichtbar und online ist.
+  // Nur dann gibt es die Karte, wie unter schaufenster/index (canShare).
+  const [cardShowcaseId, setCardShowcaseId] = useState<string | null>(null);
+  useEffect(() => {
+    if (mode !== 'live' || !showcase) return;
+    let active = true;
+    myShowcases(me.id).then(
+      (list) => active && setCardShowcaseId(list.find((s) => s.visibility === 'public' && s.switches.online)?.id ?? null),
+      () => {},
+    );
+    return () => {
+      active = false;
+    };
+  }, [mode, showcase, me.id]);
   const languageName = getLanguageChoice() === 'auto' ? t('Wie das Handy') : languages.find((l) => l.code === getLanguage())?.name;
   useEffect(() => {
     if (mode === 'live') isModerator().then(setModerator);
@@ -116,6 +131,14 @@ export default function Account() {
         details={[salutation(profile), profile.kiez ?? 'Kiez noch nicht festgelegt']}
         onPress={() => router.push('/account/profile')}
       />
+      {cardShowcaseId ? (
+        <Button
+          label="Meine Digitale Visitenkarte zeigen"
+          variant="secondary"
+          iconEnd="chevron-right"
+          onPress={() => router.push({ pathname: '/schaufenster/[id]/visitenkarte', params: { id: cardShowcaseId } })}
+        />
+      ) : null}
       {/* Gruppen nach dem Farbcode der App (Daria, 2026-11-17). Zeilen einer Gruppe in Stufen heller. */}
       <FieldGroup heading label="Du on KiezCoins">
         {oneGroup ? (

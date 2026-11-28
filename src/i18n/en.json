@@ -1947,5 +1947,6 @@
   "Termine aus diesen Kalendern zeigt Routine als Termine, für die nächsten 7 Tage.": "Routine shows events from these calendars for the next 7 days.",
   "Termine aus „{name}“ erscheinen dann nicht mehr in Routine.": "Events from ‘{name}’ will then no longer appear in Routine.",
   "Wähle Dein Google-Konto und bestätige im Google Kalender mit „Hinzufügen“. Google ruft den Link nur alle paar Stunden ab, Deine Termine erscheinen spätestens nach einem Tag. Öffnet sich auf dem Handy nur die App, öffne den Link am Computer im Browser.": "Select your Google account and confirm by clicking ‘Add’ in Google Calendar. Google only checks the link every few hours, so your events will appear within a day at the latest. If the link only opens the app on your mobile, open it in a browser on your computer.",
-  "„{name}“ ist verbunden. Seine Termine der nächsten 7 Tage erscheinen in Routine.": "“{name}” is connected. Its events for the next 7 days appear in Routine."
+  "„{name}“ ist verbunden. Seine Termine der nächsten 7 Tage erscheinen in Routine.": "“{name}” is connected. Its events for the next 7 days appear in Routine.",
+  "Meine Digitale Visitenkarte zeigen": "Show my Digital Business Card"
 }
