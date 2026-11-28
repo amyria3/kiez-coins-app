@@ -54,6 +54,15 @@ export function chatMemberChange(
   return member.status === 'administrator' || member.status === 'member' ? 'add' : 'remove';
 }
 
+/**
+ * Geheimer Wert für den Webhook, abgeleitet aus dem Bot-Token (SHA-256, hex, 48 Zeichen). Telegram schickt ihn im Kopf
+ * X-Telegram-Bot-Api-Secret-Token mit. So braucht es nur ein Secret: TELEGRAM_BOT_TOKEN (Daria, 2026-11-28).
+ */
+export async function webhookSecret(token: string): Promise<string> {
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`kiezcoins-webhook:${token}`));
+  return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, '0')).join('').slice(0, 48);
+}
+
 /** Löschen gescheitert, weil die Nachricht schon weg ist oder zu alt: zählt als gelöscht */
 export const alreadyGone = (description: string) =>
   /message to delete not found|message can't be deleted|chat not found|bot was kicked/i.test(description);

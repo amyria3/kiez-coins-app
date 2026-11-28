@@ -8,14 +8,14 @@
 //    wenn sie dort Admin ist, damit niemand eine fremde Gruppe mit Posts füllt.
 // 3. Der Bot fliegt raus oder darf nicht mehr posten: Zeile weg. Blockiert die Person den Bot: Verbindung weg.
 //
-// Secrets: TELEGRAM_BOT_TOKEN, TELEGRAM_BOT_NAME und TELEGRAM_WEBHOOK_SECRET (beliebiger Zufallswert, Telegram schickt
-// ihn im Kopf X-Telegram-Bot-Api-Secret-Token mit). Deploy ohne Anmeldung, denn Telegram ruft ohne Supabase-Token auf:
+// Secret: TELEGRAM_BOT_TOKEN. Den Wert im Kopf X-Telegram-Bot-Api-Secret-Token leitet webhookSecret (telegram.ts) aus
+// dem Token ab; setWebhook bekommt denselben Wert als secret_token. Deploy ohne Anmeldung, denn Telegram ruft ohne Supabase-Token auf:
 //   npx supabase functions deploy telegram-bot --no-verify-jwt --project-ref aqxzxpxrshizlaqyjplw
 // Einmalig den Webhook setzen (setWebhook mit url …/functions/v1/telegram-bot, secret_token, allowed_updates
 // ["message","my_chat_member"]).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-import { chatMemberChange, startCode } from '../weiterposten/telegram.ts';
+import { chatMemberChange, startCode, webhookSecret } from '../weiterposten/telegram.ts';
 
 /** Ein Code gilt 10 Minuten */
 const CODE_MAX_AGE_MS = 10 * 60 * 1000;
@@ -55,8 +55,8 @@ const HELLO = `Hallo! Ich bin der Bot von KiezCoins. Verbinden kannst Du mich in
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return new Response('method', { status: 405 });
-  const secret = Deno.env.get('TELEGRAM_WEBHOOK_SECRET');
-  if (!secret || req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== secret) return new Response('forbidden', { status: 403 });
+  const token = Deno.env.get('TELEGRAM_BOT_TOKEN');
+  if (!token || req.headers.get('X-Telegram-Bot-Api-Secret-Token') !== (await webhookSecret(token))) return new Response('forbidden', { status: 403 });
 
   let update: Update;
   try {

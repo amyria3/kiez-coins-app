@@ -53,3 +53,13 @@ describe('Telegram beim Weiterposten', () => {
     assert.ok(!alreadyGone('telegram 429 Too Many Requests'));
   });
 });
+
+describe('Webhook-Geheimnis', () => {
+  it('48 Zeichen hex, gleich für dasselbe Token', async () => {
+    const { webhookSecret } = await import('../supabase/functions/weiterposten/telegram');
+    const a = await webhookSecret('1:abc');
+    assert.match(a, /^[0-9a-f]{48}$/);
+    assert.equal(a, await webhookSecret('1:abc'));
+    assert.notEqual(a, await webhookSecret('1:abd'));
+  });
+});

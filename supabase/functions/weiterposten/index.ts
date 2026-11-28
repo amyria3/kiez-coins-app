@@ -28,7 +28,7 @@
 //
 // SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Für LinkedIn zusätzlich
 // LINKEDIN_CLIENT_ID (Secret der Edge Functions, aus dem LinkedIn Developer Portal). Für Telegram TELEGRAM_BOT_TOKEN
-// und TELEGRAM_BOT_NAME (Benutzername des Bots ohne @, beides von @BotFather).
+// (von @BotFather); den Benutzernamen des Bots fragt die Funktion bei Telegram ab (getMe).
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { Image } from 'https://deno.land/x/imagescript@1.3.0/mod.ts';
 
@@ -440,6 +440,16 @@ async function telegram(method: string, body: Record<string, unknown> | FormData
   return data.result;
 }
 
+/** Benutzername des Bots ohne @, einmal je Instanz bei Telegram abgefragt. Leer, wenn Telegram nicht eingerichtet ist. */
+let botName: Promise<string> | undefined;
+const telegramBot = () =>
+  (botName ??= telegram('getMe', {})
+    .then((me) => String((me as { username?: string }).username ?? ''))
+    .catch(() => {
+      botName = undefined;
+      return '';
+    }));
+
 /** Kanäle und Gruppen, die die Person (Telegram-Kennung) mit dem Bot verbunden hat */
 async function telegramChatsOf(admin: SupabaseClient, telegramUser: string): Promise<TelegramChat[]> {
   const { data } = await admin
@@ -489,7 +499,7 @@ async function postTelegram(admin: SupabaseClient, account: Account, post: Post)
     }
   }
   if (!sent.length) throw firstError ?? new Error('telegram');
-  return { url: telegramLink(sent, Deno.env.get('TELEGRAM_BOT_NAME') ?? ''), refs: sent.map((s) => s.ref) };
+  return { url: telegramLink(sent, await telegramBot()), refs: sent.map((s) => s.ref) };
 }
 
 /** Alle Nachrichten eines Weiterposts löschen. Weitergeleitete Kopien in Gruppen bleiben, die hat die Person gesendet. */
@@ -733,8 +743,8 @@ Deno.serve(async (req) => {
   if (input.action === 'telegram_start') {
     // Telegram verbinden (Daria, 2026-11-28): Code merken, dann zum Bot. „Starten“ dort schickt „/start <code>“ an den
     // Webhook `telegram-bot`, der den Chat mit der Person verbindet.
-    const bot = Deno.env.get('TELEGRAM_BOT_NAME');
-    if (!bot || !Deno.env.get('TELEGRAM_BOT_TOKEN')) return reply({ error: 'not_configured' }, 503);
+    const bot = await telegramBot();
+    if (!bot) return reply({ error: 'not_configured' }, 503);
     const code = crypto.randomUUID().replaceAll('-', '');
     const { error } = await admin.from('telegram_link_codes').insert({ code, user_id: user.id });
     if (error) return reply({ error: 'save' }, 500);
@@ -742,7 +752,7 @@ Deno.serve(async (req) => {
   }
 
   if (input.action === 'telegram_chats' || input.action === 'telegram_remove') {
-    const bot = Deno.env.get('TELEGRAM_BOT_NAME') ?? '';
+    const bot = await telegramBot();
     const { data: all } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
     const account = ((all ?? []) as Account[]).find((a) => a.platform === 'telegram');
     if (!account) return reply({ bot, chats: [] });
