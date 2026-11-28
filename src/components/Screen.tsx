@@ -7,7 +7,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, motion, radius, size, space, text, scheme } from '../theme/tokens';
-import { useAppDimensions } from '../theme/layout';
+import { useAppDimensions, useDesktop } from '../theme/layout';
+import { useDesktopContentWidth } from './DesktopNav';
 import { ActionBar } from './ActionBar';
 import type { CatMood } from './icons/Brand';
 import { KaterMessage } from './KaterMessage';
@@ -147,6 +148,8 @@ export function HeroScreen({
 }: HeroScreenProps) {
   const insets = useSafeAreaInsets();
   const { height, width } = useAppDimensions();
+  const { twoPane: desktop } = useDesktop();
+  useDesktopContentWidth(desktop ? HERO_DESKTOP_WIDTH : undefined);
   const images = image ? [image, ...(moreImages ?? [])] : [];
   const [page, setPage] = useState(0);
   // Eingeklappt: Das Foto bekommt den Platz, das Blatt zeigt nur noch die Zusammenfassung.
@@ -259,6 +262,25 @@ export function HeroScreen({
       }),
     [drag],
   );
+  // Desktop (Daria, 2026-11-28): Foto links als hohe Karte, rechts daneben Text, Kommentare und Knöpfe
+  if (desktop) {
+    return (
+      <HeroDesktop
+        images={images}
+        hero={hero}
+        imageLabel={imageLabel}
+        photoText={photoText}
+        imageOverlay={imageOverlay}
+        onBackPress={onBackPress}
+        onSharePress={onSharePress}
+        summary={summary}
+        actions={actions}
+        scrollToEndOnOpen={scrollToEndOnOpen}
+      >
+        {children}
+      </HeroDesktop>
+    );
+  }
   return (
     <View style={styles.flex}>
     {overlay ? (
@@ -399,6 +421,149 @@ export function HeroScreen({
   );
 }
 
+/** Desktop: Breite der Detailseite, Foto und Spalte daneben */
+const HERO_DESKTOP_WIDTH = 1160;
+const HERO_DESKTOP_PANEL = 420;
+/** Seitenverhältnis der Fotokarte, wie die Posts im Feed (4:5) */
+const HERO_DESKTOP_RATIO = 4 / 5;
+
+/**
+ * Detailseite am Desktop (Daria, 2026-11-28): Das Foto steht links als hohe Karte im Format der Posts, rechts daneben
+ * steht alles, was am Handy im Blatt liegt, immer aufgeklappt. Pfeile und Pfeiltasten blättern durch mehrere Fotos,
+ * Escape schließt.
+ */
+function HeroDesktop({
+  images,
+  hero,
+  imageLabel,
+  photoText,
+  imageOverlay,
+  onBackPress,
+  onSharePress,
+  summary,
+  actions,
+  scrollToEndOnOpen,
+  children,
+}: {
+  images: ImageSourcePropType[];
+  hero?: ReactNode;
+  imageLabel?: string;
+  photoText?: PhotoTextValue;
+  imageOverlay?: ReactNode;
+  onBackPress?: () => void;
+  onSharePress?: () => void;
+  summary: ReactNode;
+  actions?: ReactNode;
+  scrollToEndOnOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [stage, setStage] = useState({ width: 0, height: 0 });
+  const [page, setPage] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+  const nudge = useNudgeScroll(scrollRef);
+  const scrolledToEnd = useRef(false);
+  const fade = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(fade, { toValue: 1, duration: 180, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [fade]);
+  // Karte so groß, wie sie in die Fläche passt
+  const cardHeight = Math.min(stage.height, stage.width / HERO_DESKTOP_RATIO);
+  const cardWidth = cardHeight * HERO_DESKTOP_RATIO;
+  const count = images.length;
+  const go = (next: number) => setPage(Math.max(0, Math.min(count - 1, next)));
+  const pageRef = useRef(page);
+  pageRef.current = page;
+  const backRef = useRef(onBackPress);
+  backRef.current = onBackPress;
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      // In Feldern, z. B. im Kommentar, gehören die Tasten dem Text
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      if (e.key === 'Escape') backRef.current?.();
+      else if (e.key === 'ArrowRight') go(pageRef.current + 1);
+      else if (e.key === 'ArrowLeft') go(pageRef.current - 1);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+    // `go` liest nur `count`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
+  return (
+    <Animated.View style={[styles.desktop, { opacity: fade }]}>
+      <View style={styles.desktopStage} onLayout={(e) => setStage({ width: e.nativeEvent.layout.width, height: e.nativeEvent.layout.height })}>
+        {cardHeight > 0 ? (
+          <View style={[styles.desktopCard, { width: cardWidth, height: cardHeight }]}>
+            {hero ? (
+              <View style={[StyleSheet.absoluteFill, styles.heroCustom]}>{hero}</View>
+            ) : count ? (
+              <Image
+                source={images[page]}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                accessibilityLabel={count > 1 ? t('{imageLabel}, {i} von {images}', { imageLabel: imageLabel ?? t('Foto'), i: page + 1, images: count }) : imageLabel}
+              />
+            ) : null}
+            {!hero && page === 0 && photoText ? (
+              <View style={StyleSheet.absoluteFill} pointerEvents="none">
+                <PhotoTextOverlay value={photoText} size="hero" />
+              </View>
+            ) : null}
+            {imageOverlay ? <View style={styles.desktopOverlay}>{imageOverlay}</View> : null}
+            {count > 1 ? (
+              <>
+                <View style={styles.desktopDots} pointerEvents="none">
+                  {images.map((_, i) => (
+                    <View key={i} style={[styles.dot, i === page && styles.dotActive]} />
+                  ))}
+                </View>
+                {page > 0 ? (
+                  <View style={[styles.desktopArrow, styles.desktopArrowLeft]}>
+                    <GlassIconButton icon="chevron-left" accessibilityLabel={t('Voriges Foto')} onPress={() => go(page - 1)} />
+                  </View>
+                ) : null}
+                {page < count - 1 ? (
+                  <View style={[styles.desktopArrow, styles.desktopArrowRight]}>
+                    <GlassIconButton icon="chevron-right" accessibilityLabel={t('Nächstes Foto')} onPress={() => go(page + 1)} />
+                  </View>
+                ) : null}
+              </>
+            ) : null}
+          </View>
+        ) : null}
+      </View>
+      <View style={styles.desktopPanel}>
+        <View style={styles.desktopBar}>
+          {onBackPress ? <GlassIconButton icon="close" accessibilityLabel={t('Schließen')} onPress={onBackPress} /> : <View />}
+          {onSharePress ? <GlassIconButton icon="send" accessibilityLabel={t('Teilen')} onPress={onSharePress} /> : null}
+        </View>
+        <KeyboardArea style={styles.flex}>
+          <NudgeScrollProvider value={nudge}>
+            <ScrollView
+              ref={scrollRef}
+              style={styles.flex}
+              contentContainerStyle={styles.desktopSheet}
+              keyboardShouldPersistTaps="handled"
+              scrollEventThrottle={16}
+              onScroll={(e) => nudge.onScroll(e.nativeEvent.contentOffset.y)}
+              onContentSizeChange={() => {
+                if (!scrollToEndOnOpen || scrolledToEnd.current) return;
+                scrolledToEnd.current = true;
+                setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 350);
+              }}
+            >
+              <View style={styles.sheetHeadAbove}>{summary}</View>
+              {children}
+            </ScrollView>
+            {actions ? <ActionBar>{actions}</ActionBar> : null}
+          </NudgeScrollProvider>
+        </KeyboardArea>
+      </View>
+    </Animated.View>
+  );
+}
+
 /**
  * Browser: Liegt der Finger in einer seitlich gewischten Reihe (weitere Fotos, Text-Blätter), wischt er dort
  * erst zurück. Erst auf dem ersten Bild schließt Wischen nach rechts die Seite.
@@ -473,6 +638,18 @@ const styles = StyleSheet.create({
     gap: space[20],
   },
   sheetHeadAbove: { zIndex: 10 },
+  // Desktop: Foto als hohe Karte links, Spalte mit Text und Knöpfen rechts
+  desktop: { flex: 1, flexDirection: 'row', backgroundColor: color.bg.screen },
+  desktopStage: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space[24] },
+  desktopCard: { borderRadius: radius.xl, overflow: 'hidden', backgroundColor: color.bg.surface },
+  desktopOverlay: { position: 'absolute', left: space[16], bottom: space[16] },
+  desktopDots: { position: 'absolute', bottom: space[16], alignSelf: 'center', flexDirection: 'row', gap: space[6] },
+  desktopArrow: { position: 'absolute', top: '50%', marginTop: -24 },
+  desktopArrowLeft: { left: space[12] },
+  desktopArrowRight: { right: space[12] },
+  desktopPanel: { width: HERO_DESKTOP_PANEL, borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: color.line.hairline },
+  desktopBar: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: space[16], paddingTop: space[16], paddingBottom: space[8] },
+  desktopSheet: { paddingHorizontal: space[24], paddingTop: space[8], paddingBottom: space[24], gap: space[20] },
   sheetHead: { gap: space[12] },
   // Eingeklappt: durchscheinend wie Glas, das Foto liegt darunter
   sheetGlass: { backgroundColor: color.bg.sheet, overflow: 'hidden' },

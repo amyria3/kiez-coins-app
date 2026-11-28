@@ -72,6 +72,8 @@ export type FeedItem =
   | { kind: 'running'; challenge: Challenge }
   | { kind: 'post'; challenge: Challenge }
   | { kind: 'moved'; challenge: Challenge }
+  /** Desktop: zwei Posts nebeneinander in der Wand (Daria, 2026-11-28) */
+  | { kind: 'pair'; items: ({ kind: 'post'; challenge: Challenge } | { kind: 'moved'; challenge: Challenge })[] }
   | { kind: 'showcases'; hits: ShowcaseHit[] }
   | { kind: 'searchEmpty' }
   | { kind: 'searchError' };

@@ -176,6 +176,8 @@ export const styles = StyleSheet.create({
   calNumMissed: { color: color.text.secondary, opacity: 0.6 },
   // Kalender in Stufen (Daria, 2026-11-28)
   growBox: { overflow: 'hidden' },
+  // Desktop: Kater, Monat und nächste Tage untereinander in der rechten Spalte
+  desktopColumn: { gap: space[16] },
   growInner: { position: 'absolute', top: 0, left: 0, right: 0 },
   short: { gap: space[6] },
   // Kater über dem Kalender in den Stufen: Luft bis zur Woche

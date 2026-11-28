@@ -510,6 +510,22 @@ export function RoutineCalendarStages({ list, events, saved }: { list: Reminder[
   );
 }
 
+/**
+ * Kalender in der rechten Spalte am Desktop (Daria, 2026-11-28, Entwurf B): Der Monat steht fest neben dem Tag, darüber
+ * spricht der Kater, darunter stehen die nächsten drei Tage. Die Stufen und die Pille zum Schieben entfallen.
+ */
+export function RoutineCalendarDesktop({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
+  const katerLine = useKaterLine();
+  const cardOpen = !!useExpandedCard();
+  return (
+    <View style={styles.desktopColumn}>
+      {katerLine && !cardOpen ? <KaterCard>{katerLine}</KaterCard> : null}
+      <RoutineCalendar list={list} events={events} saved={saved} variant="inline" dayBar={false} head />
+      <ShortList list={list} events={events} saved={saved} />
+    </View>
+  );
+}
+
 /** Höhe folgt dem Inhalt mit einer Feder; der Inhalt misst sich frei, darunter rückt alles mit */
 function GrowBox({ children }: { children: ReactNode }) {
   const height = useRef(new Animated.Value(0)).current;

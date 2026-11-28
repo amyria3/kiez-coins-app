@@ -15,7 +15,7 @@ const FLUSH_MS = 3000;
 // Schon geschickt in dieser Sitzung: spart doppelte Anfragen beim Hin- und Herscrollen
 const sent = new Set<string>();
 
-type PostItem = { kind: string; challenge?: Challenge };
+type PostItem = { kind: string; challenge?: Challenge; items?: { kind: string; challenge: Challenge }[] };
 
 export function useFeedViews(active: boolean, currentUserId: string | undefined) {
   const pending = useRef(new Set<string>());
@@ -46,9 +46,16 @@ export function useFeedViews(active: boolean, currentUserId: string | undefined)
     const { active: live, currentUserId: me } = state.current;
     if (!live || !me) return;
     for (const token of changed) {
-      const c = token.item?.kind === 'post' ? token.item.challenge : undefined;
-      if (!token.isViewable || !c || c.authorId === me || sent.has(c.id)) continue;
-      pending.current.add(c.id);
+      if (!token.isViewable) continue;
+      // Desktop: Zwei Posts stehen als Paar in einer Zeile der Wand
+      const shown = 
+        token.item?.kind === 'post' && token.item.challenge
+          ? [token.item.challenge]
+          : (token.item?.items ?? []).filter((i) => i.kind === 'post').map((i) => i.challenge);
+      for (const c of shown) {
+        if (c.authorId === me || sent.has(c.id)) continue;
+        pending.current.add(c.id);
+      }
     }
     if (pending.current.size && !timer.current) timer.current = setTimeout(flush, FLUSH_MS);
   }).current;
