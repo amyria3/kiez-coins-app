@@ -109,6 +109,8 @@ type NavRowProps = {
   tone?: 'default' | 'danger';
   /** `external`: die Zeile öffnet eine Seite außerhalb der App */
   iconEnd?: 'chevron-right' | 'external';
+  /** Ausgegraut, bleibt tippbar: `onPress` erklärt dann, warum es gerade nicht geht */
+  muted?: boolean;
   onPress: () => void;
 };
 
@@ -145,12 +147,12 @@ export function NavList({ children }: { children: ReactNode }) {
 }
 
 /** Figma „NavRow“ (Default, Danger): Zeile, die zu einem anderen Screen führt. */
-export function NavRow({ label, value, tone = 'default', iconEnd = 'chevron-right', onPress }: NavRowProps) {
+export function NavRow({ label, value, tone = 'default', iconEnd = 'chevron-right', muted, onPress }: NavRowProps) {
   const flat = useContext(FlatRows);
   const block = useContext(BlockRows);
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.navRow, flat && styles.flatRow, block && styles.blockRow, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.navRow, flat && styles.flatRow, block && styles.blockRow, muted && styles.muted, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={value ? `${label}, ${value}` : label}
       onPress={onPress}
@@ -302,6 +304,7 @@ const styles = StyleSheet.create({
   headerDetails: { ...text.bodySm, color: color.text.secondary },
   headerEdit: { ...text.labelSm, color: color.accent.functional, marginTop: space[2] },
   pressed: { opacity: 0.8 },
+  muted: { opacity: 0.45 },
   texts: { flex: 1, gap: space[2] },
   flex: { flex: 1 },
   label: { ...text.caption, color: color.text.secondary },
