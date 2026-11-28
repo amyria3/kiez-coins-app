@@ -591,7 +591,7 @@ ${
 /* Platzhalter (Daria, 2026-11-11) */
 .geteilt .sf-verlauf { background: linear-gradient(135deg, #8F90FA 0%, #FFB2E5 55%, #FFAD7E 100%); }
 .geteilt .sf-kater { display: flex; align-items: center; justify-content: center; background: #000; }
-.geteilt .sf-kater svg { width: 50%; height: auto; }
+.geteilt .sf-kater svg { width: 62%; height: auto; }
 .geteilt .sf-ende { margin-bottom: 40px; }
 </style>`;
 }
