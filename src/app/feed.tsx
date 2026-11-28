@@ -1266,7 +1266,7 @@ export default function FeedScreen() {
           onScrollBeginDrag={() => (dragging.current = true)}
           onScrollEndDrag={() => (dragging.current = false)}
           scrollEventThrottle={16}
-          contentContainerStyle={[styles.list, styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
+          contentContainerStyle={[styles.list, wall && styles.listWall, styles.listTop, emptyItem && styles.listGrow, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}
           // Kater erinnert an fällige Erinnerungen, vorerst nur mit Routine (Daria, 2026-11-10)
           ListHeaderComponent={routineOn ? <RoutineNudge enabled onOpen={routineOn && !composing && true ? openRoutine : undefined} /> : null}
           ListFooterComponent={emptyItem ? renderItem({ item: emptyItem }) : null}
