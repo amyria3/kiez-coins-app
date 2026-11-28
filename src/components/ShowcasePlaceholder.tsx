@@ -105,30 +105,29 @@ export function ShowcaseLogo({
 
 /**
  * Standard-Posts (Daria, 2026-11-28: „Default-Posts, die erscheinen, bevor echte Posts erscheinen. Minimalistisch aber
- * modern. À la Grafikdesigner“): zwei Karten wie kleine Plakate, nur aus Angaben, die das Schaufenster schon hat.
- * Willkommen in Tinte mit Schrift in Gelbgrün; daneben in Gelbgrün bis zu drei Services, ohne Services die
- * Öffnungszeiten, ohne beides die Adresse. Die öffentliche Seite (api/s.mjs, standardPosts) zeigt dasselbe.
+ * modern. À la Grafikdesigner“): Karten wie kleine Plakate. Willkommen in Tinte mit Schrift in Gelbgrün, darunter in
+ * Gelbgrün die Services, nummeriert; solange sie hier stehen, fällt der Abschnitt „Services“ weg (Daria: „wieso
+ * gedoppelt?“ … „Services auf Plakat“). Ohne Services die Öffnungszeiten, ohne beides nur das erste Plakat.
+ * Die öffentliche Seite (api/s.mjs, standardPosts) zeigt dasselbe.
  */
 export function StandardPosts({
   name,
   kiez,
   services,
   openingHours,
-  address,
 }: {
   name: string;
   kiez?: string;
   services?: string;
   openingHours?: string;
-  address?: string;
 }) {
-  const list: string[] = serviceItems(services ?? '').slice(0, 3);
+  const list: string[] = serviceItems(services ?? '');
   const hours = (openingHours ?? '')
     .split('\n')
     .map((z) => z.trim())
     .filter(Boolean)
-    .slice(0, 4);
-  const place = address?.trim();
+    .slice(0, 5);
+  const rows = list.length ? list : hours;
   return (
     <View style={styles.posters}>
       <View style={[styles.poster, styles.posterInk]}>
@@ -138,27 +137,19 @@ export function StandardPosts({
         </Text>
         <Text style={[styles.posterFoot, styles.onInk]}>{`${name} hat jetzt ein Schaufenster. Neues erscheint hier.`}</Text>
       </View>
-      {list.length || hours.length || place ? (
+      {rows.length ? (
         <View style={[styles.poster, styles.posterLime]}>
-          <Text style={[styles.posterKicker, styles.onLime]}>
-            {list.length ? 'Was es hier gibt' : hours.length ? 'Geöffnet' : 'Hier zu finden'}
-          </Text>
-          {list.length || hours.length ? (
-            <View style={styles.posterList}>
-              {(list.length ? list : hours).map((x, i) => (
-                <View key={i} style={styles.posterRow}>
-                  {list.length ? <Text style={[styles.posterNumber, styles.onLime]}>{String(i + 1).padStart(2, '0')}</Text> : null}
-                  <Text noTranslate style={[styles.posterItem, styles.onLime]}>
-                    {x}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          ) : (
-            <Text noTranslate style={[styles.posterPlace, styles.onLime]}>
-              {place}
-            </Text>
-          )}
+          <Text style={[styles.posterKicker, styles.onLime]}>{list.length ? 'Services' : 'Geöffnet'}</Text>
+          <View style={styles.posterList}>
+            {rows.map((x, i) => (
+              <View key={i} style={styles.posterRow}>
+                {list.length ? <Text style={[styles.posterNumber, styles.onLime]}>{String(i + 1).padStart(2, '0')}</Text> : null}
+                <Text noTranslate style={[styles.posterItem, styles.onLime]}>
+                  {x}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
       ) : null}
     </View>
@@ -194,6 +185,5 @@ const styles = StyleSheet.create({
   },
   posterNumber: { ...text.caption, fontVariant: ['tabular-nums'] },
   posterItem: { ...text.metricSm, flex: 1 },
-  posterPlace: { ...text.profileName, marginTop: 'auto' },
   empty: { ...text.caption, color: color.text.secondary, fontStyle: 'italic' },
 });

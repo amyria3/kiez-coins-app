@@ -34,7 +34,7 @@ import {
   type ShowcaseFriendResult,
   type ShowcasePost,
 } from '../../../data/showcase';
-import { contactGroups, socialLink, telLink } from '../../../data/digitalCard.mjs';
+import { contactGroups, serviceItems, socialLink, telLink } from '../../../data/digitalCard.mjs';
 import { countShowcaseVisit } from '../../../data/showcaseCard';
 import { useAuth } from '../../../data/auth';
 import { rememberInvite } from '../../../data/pendingInvite';
@@ -310,7 +310,8 @@ export default function ShowcaseScreen() {
         ) : null}
 
         {/* Ohne Termine oder Services fehlt der Abschnitt, auch fürs Team (Daria, 2026-11-18: „Leere Karten noch sichtbar“) */}
-        {s.services ? (
+        {/* Ohne Posts stehen die Services auf dem Plakat (StandardPosts), dann fällt der Abschnitt weg (Daria, 2026-11-28) */}
+        {s.services && !(access.canSee && !posts.length && serviceItems(s.services).length) ? (
           <View style={routine.group}>
             <SectionHead title="Services" />
             <ServicesCard services={s.services} collapsed={s.servicesCollapsed} />
@@ -336,7 +337,7 @@ export default function ShowcaseScreen() {
             // Ohne Posts die Standard-Posts für alle, nicht nur fürs Team (Daria, 2026-11-28)
             <View style={routine.group}>
               <SectionHead title="Neu im Schaufenster" />
-              <StandardPosts name={s.name} kiez={s.kiez} services={s.services} openingHours={s.openingHours} address={s.address} />
+              <StandardPosts name={s.name} kiez={s.kiez} services={s.services} openingHours={s.openingHours} />
             </View>
           ) : null}
 
