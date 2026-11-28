@@ -6,6 +6,7 @@ import { setFocusCard, useFocusCard } from '../../data/routineView';
 import { t } from '../../data/texts';
 import { markCardSwipe } from '../../lib/cardSwipe';
 import { color } from '../../theme/tokens';
+import { handDrawn } from '../../theme/look';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
 import { HandButton } from './cards';
@@ -366,7 +367,7 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
                     styles.slot,
                     {
                       zIndex: z,
-                      elevation: z / 10,
+                      elevation: handDrawn ? z / 10 : 0,
                       opacity: v.o,
                       transform: [
                         { translateX: v.x },
