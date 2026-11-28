@@ -5,9 +5,10 @@ import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
 import { eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { weekdayShort } from '../../data/katerRoutine';
 import { addDays, capitalize, isoWeekday, loadRoutineDays, localDate, weekStart, type Reminder, type RoutineDays } from '../../data/reminders';
-import { setCalendarLevel, setCalendarMonth, setFocusCard, setRoutineDay, useCalendarLevel, useCalendarMonth, useRoutineDay, type CalendarLevel } from '../../data/routineView';
+import { CALENDAR_TOP, setCalendarLevel, setCalendarMonth, setFocusCard, setRoutineDay, useCalendarLevel, useCalendarMonth, useKaterLine, useRoutineDay, type CalendarLevel } from '../../data/routineView';
 import { localeTag, t } from '../../data/texts';
 import { color } from '../../theme/tokens';
+import { KaterCard } from '../Content';
 import { Text } from '../T';
 import { HATCH } from './constants';
 import { Saved } from './shared';
@@ -19,6 +20,7 @@ export function RoutineCalendar({
   saved,
   variant = 'inline',
   dayBar = true,
+  head = true,
 }: {
   list: Reminder[];
   events: CalendarEvent[];
@@ -30,6 +32,8 @@ export function RoutineCalendar({
    * Die Woche bleibt so niedriger als die kurze Liste danach, die Fläche wächst nur.
    */
   dayBar?: boolean;
+  /** Kopf mit Monat und Zählung. In der Woche der Stufen ohne (Daria, 2026-11-28: „but no header“) */
+  head?: boolean;
 }) {
   // Monat oder Woche, geteilt mit dem Feed: Dieselbe Bewegung wie beim Aufklappen zeigt den ganzen Monat (Daria, 2026-11-14)
   const open = useCalendarMonth();
@@ -141,6 +145,7 @@ export function RoutineCalendar({
 
   return (
     <View style={styles.cal}>
+      {head ? (
       <Pressable
         onPress={() => settled() && setOpen(!open)}
         accessibilityRole="button"
@@ -159,6 +164,7 @@ export function RoutineCalendar({
           })}
         </Text>
       </Pressable>
+      ) : null}
       <Animated.View
         style={[styles.calGrid, slideStyle]}
         {...pan.panHandlers}
@@ -462,7 +468,7 @@ function DayBar({
 const LEVEL_STEP = 56;
 /** Linie unter der Pille, angefasst so dick */
 const HANDLE_LINE_HELD = 2;
-const LEVEL_NAMES = ['Kalender zu', 'Woche', 'Kurze Liste', 'Monat'];
+const LEVEL_NAMES = ['Kalender zu', 'Kater', 'Woche', 'Kurze Liste', 'Monat'];
 
 /**
  * Kalender als Teil der Seite (Daria, 2026-11-28): „Statt Overlay ist der Kalender ein Teil des Screens in vier
@@ -472,11 +478,21 @@ const LEVEL_NAMES = ['Kalender zu', 'Woche', 'Kurze Liste', 'Monat'];
  */
 export function RoutineCalendarStages({ list, events, saved }: { list: Reminder[]; events: CalendarEvent[]; saved: Saved[] }) {
   const level = useCalendarLevel();
+  const katerLine = useKaterLine();
   return (
     <View>
       <GrowBox>
-        {/* Reihenfolge (Daria, 2026-11-28): zu, Woche, kurze Liste, Monat */}
-        {level === 2 ? <ShortList list={list} events={events} saved={saved} /> : level !== 0 ? <RoutineCalendar list={list} events={events} saved={saved} variant="inline" dayBar={false} /> : null}
+        {/* Reihenfolge (Daria, 2026-11-28): zu, Kater, Woche, kurze Liste, Monat. Der Kater bleibt über dem Kalender. */}
+        {level >= 1 && katerLine ? (
+          <View style={level >= 2 && styles.stageKater}>
+            <KaterCard>{katerLine}</KaterCard>
+          </View>
+        ) : null}
+        {level === 3 ? (
+          <ShortList list={list} events={events} saved={saved} />
+        ) : level >= 2 ? (
+          <RoutineCalendar list={list} events={events} saved={saved} variant="inline" dayBar={false} head={level === CALENDAR_TOP} />
+        ) : null}
       </GrowBox>
       <CalendarHandle level={level} />
     </View>
@@ -597,7 +613,7 @@ function CalendarHandle({ level }: { level: CalendarLevel }) {
         },
         onPanResponderRelease: () => {
           setHeld(false);
-          if (!start.current.moved) setCalendarLevel(levelRef.current === 3 ? 0 : levelRef.current + 1);
+          if (!start.current.moved) setCalendarLevel(levelRef.current === CALENDAR_TOP ? 0 : levelRef.current + 1);
         },
         onPanResponderTerminate: () => setHeld(false),
       }),

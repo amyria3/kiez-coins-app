@@ -161,6 +161,8 @@ export const styles = StyleSheet.create({
   growBox: { overflow: 'hidden' },
   growInner: { position: 'absolute', top: 0, left: 0, right: 0 },
   short: { gap: space[6] },
+  // Kater über dem Kalender in den Stufen: Luft bis zur Woche
+  stageKater: { marginBottom: space[16] },
   shortRow: { backgroundColor: DAY, borderRadius: radius.md, paddingHorizontal: space[12], paddingVertical: 10 },
   shortRowOn: { borderWidth: 1.5, borderColor: color.text.primary, paddingHorizontal: space[12] - 1.5, paddingVertical: 10 - 1.5 },
   shortText: { marginTop: 0, color: color.text.primary },

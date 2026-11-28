@@ -9,14 +9,13 @@ import { allDoneLine, dayName } from '../../data/katerRoutine';
 import { addDays, capitalize, kindOf, localDate, type Reminder, type ReminderEnd } from '../../data/reminders';
 import { localeTag, t } from '../../data/texts';
 import { eventOver, isUrgent, restingOf, sortAgenda, sortByUrgency } from '../../data/urgency';
-import { KaterCard } from '../Content';
 import { RoutineCalendarStages } from './calendar';
 import { CalendarCard, EventCard, SavedCard, TaskCard } from './cards';
 import { OLIVE, POWDER } from './constants';
-import { AsideWhenCalendar, Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
+import { Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
 import { DayHead, DayStack } from './stack';
 import { stackStyles, styles } from './styles';
-import { setRoutineDay, useRoutineDay } from '../../data/routineView';
+import { setKaterLine, setRoutineDay, useRoutineDay } from '../../data/routineView';
 import { useAccentColor } from '../../theme/signal';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
@@ -165,17 +164,15 @@ export const RoutineList = memo(function RoutineList({
   }
   // Heute nichts Offenes, aber Routinen da: alles erledigt (Daria, 2026-11-15)
   const katerText = summary || (isToday && list.length ? allDoneLine() : '');
+  // Der Kater spricht in der ersten Stufe über dem Kalender (Daria, 2026-11-28), nicht mehr hier in der Liste
+  useEffect(() => {
+    setKaterLine(katerText);
+  }, [katerText]);
   const dayLabel = isToday || date === localDate(addDays(1, now)) ? `${dayName(date, now)}, ${shortDate(date)}` : dayName(date, now);
 
   return (
     <Motion.Provider value={motion}>
     <PageLock.Provider value={onDragLock ?? noLock}>
-      {/* Kater spricht wie im Feed als Sprechblase (Daria, 2026-11-11) */}
-      {katerText ? (
-        <AsideWhenCalendar>
-          <KaterCard>{katerText}</KaterCard>
-        </AsideWhenCalendar>
-      ) : null}
       {showCalendar ? <RoutineCalendarStages list={list} events={events} saved={saved} /> : null}
       {cards.length || cardDays.length > 1 || pickedDay ? (
         <View style={stackStyles.wrap}>
