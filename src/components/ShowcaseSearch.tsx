@@ -73,26 +73,34 @@ export function ShowcaseHitList({ hits, onOpen }: { hits: ShowcaseHit[]; onOpen:
   );
 }
 
-/** Ein Treffer: Logo, Name, Kiez und der Anfang von „Über uns“. Antippen öffnet das Schaufenster. */
+/**
+ * Ein Treffer als eigene Karte (Daria, 2026-11-28: „besser anordnen“): oben Logo, Name und Kiez wie
+ * eine Visitenkarte, darunter „Über uns“ über die volle Breite in zurückgenommener Tinte. Antippen öffnet das
+ * Schaufenster.
+ */
 function ShowcaseHitCard({ hit, onPress }: { hit: ShowcaseHit; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="link" onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-      <ShowcaseLogo image={hit.logo} size={44} />
-      <View style={styles.rowText}>
-        <Text style={styles.name} numberOfLines={1}>
-          {hit.name}
-        </Text>
-        {hit.kiez ? (
-          <Text style={styles.meta} numberOfLines={1}>
-            {hit.kiez}
+      <View style={styles.head}>
+        <ShowcaseLogo image={hit.logo} size={48} />
+        <View style={styles.headText}>
+          <Text style={styles.name} numberOfLines={2}>
+            {hit.name}
           </Text>
-        ) : null}
-        {hit.about ? (
-          <Text style={styles.about} numberOfLines={2}>
-            {hit.about}
-          </Text>
-        ) : null}
+          {hit.kiez ? (
+            // Ohne Ortsmarke: Sie stand eingerückt neben der Schriftkante und war größer als die Schrift (Daria,
+            // 2026-11-28: „Ist das gutes Design?“). Der Kiez fluchtet jetzt mit dem Namen.
+            <Text style={styles.meta} numberOfLines={1}>
+              {hit.kiez}
+            </Text>
+          ) : null}
+        </View>
       </View>
+      {hit.about ? (
+        <Text style={styles.about} numberOfLines={3}>
+          {hit.about}
+        </Text>
+      ) : null}
     </Pressable>
   );
 }
@@ -137,8 +145,6 @@ const styles = StyleSheet.create({
   list: { marginHorizontal: space[16], marginTop: space[8], gap: space[12] },
   count: { ...text.caption, color: color.text.secondary },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: space[12],
     padding: space[16],
     borderWidth: stroke.thin,
@@ -147,8 +153,9 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.screen,
   },
   pressed: { opacity: 0.6 },
-  rowText: { flex: 1, gap: space[2] },
-  name: { ...text.title, color: color.text.primary },
-  meta: { ...text.caption, color: color.text.secondary },
-  about: { ...text.caption, color: color.text.primary, opacity: emphasis.humble },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
+  headText: { flex: 1, gap: space[4] },
+  name: { ...text.cardTitle, color: color.text.primary },
+  meta: { ...text.small, color: color.text.secondary },
+  about: { ...text.bodySm, color: color.text.primary, opacity: emphasis.humble },
 });
