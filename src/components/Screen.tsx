@@ -70,11 +70,11 @@ export function PageHead({ title, note, fixed, motif }: { title: string; note?: 
     <View style={[styles.pageHead, fixed && styles.pageHeadFixed]}>
       {motif ? (
         <View style={[styles.pageHeadMotif, veryLong && styles.pageHeadCatAside]} pointerEvents="none">
-          {motif.icon === 'crown' ? <CrownIcon height={210} fill={motif.tint} /> : <Icon name={motif.icon} size={150} color={motif.tint} />}
+          {motif.icon === 'crown' ? <CrownIcon height={132} fill={motif.tint} /> : <Icon name={motif.icon} size={112} color={motif.tint} />}
         </View>
       ) : (
         <View style={[styles.pageHeadCat, veryLong && styles.pageHeadCatAside]} pointerEvents="none">
-          <KaterCircle size={long ? 240 : 290} glass={color.bg.screen} />
+          <KaterCircle size={long ? 170 : 190} glass={color.bg.screen} />
         </View>
       )}
       <Text noTranslate style={[styles.pageHeadTitle, long && styles.pageHeadTitleLong, veryLong && styles.pageHeadTitleVeryLong]} accessibilityRole="header">
@@ -649,15 +649,16 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   // Platz unter der schwebenden Leiste, wie TAB_BAR_SPACE in TabBar.tsx plus Home-Balken
   pageHead: { height: 200, marginHorizontal: -space[16], marginTop: -space[16], marginBottom: space[8], paddingHorizontal: space[24], justifyContent: 'flex-end', paddingBottom: space[16], overflow: 'hidden' },
-  pageHeadMotif: { position: 'absolute', right: -44, bottom: -48, transform: [{ rotate: '-10deg' }] },
-  pageHeadCat: { position: 'absolute', right: -112, bottom: -46, transform: [{ rotate: '-8deg' }] },
+  // Unten frei, nur am rechten Rand angeschnitten (Daria, 2026-11-28)
+  pageHeadMotif: { position: 'absolute', right: -36, bottom: space[16], transform: [{ rotate: '-10deg' }] },
+  pageHeadCat: { position: 'absolute', right: -52, bottom: space[12], transform: [{ rotate: '-8deg' }] },
   pageHeadTitle: { ...text.pageTitle, color: color.text.primary },
   pageHeadTitleLong: { ...text.pageTitleLong },
   pageHeadTitleVeryLong: { ...text.pageTitleVeryLong },
   pageHeadNote: { ...text.label, color: color.text.secondary, marginTop: space[8] },
   pageHeadFixed: { marginHorizontal: 0, marginTop: 0, marginBottom: 0 },
   // Sehr lange Zeilen: Der Kater rückt weiter aus dem Bild
-  pageHeadCatAside: { right: -160 },
+  pageHeadCatAside: { right: -110 },
   contentTabBar: { paddingBottom: 96 + space[24] },
   content: {
     paddingTop: space[16],
