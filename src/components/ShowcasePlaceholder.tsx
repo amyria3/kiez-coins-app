@@ -82,7 +82,8 @@ export function ShowcaseLogo({
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
-        <Svg width={w} height={(w * 36) / 33} viewBox="0 0 33 36" fill="none">
+        {/* Etwas größer als die Maske, 62 % des Kreises (Daria, 2026-11-28: „bisschen größer vlt“), wie im Web */}
+        <Svg width={size * 0.62} height={(size * 0.62 * 36) / 33} viewBox="0 0 33 36" fill="none">
           {FASHIONABLE_CAT.map((p, i) => (
             <Path key={i} d={p.d} stroke={ink} strokeWidth={p.w} strokeLinecap={p.cap} />
           ))}
