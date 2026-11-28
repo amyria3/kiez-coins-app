@@ -16,6 +16,7 @@ import { color, radius, size, space, stroke, text } from '../../theme/tokens';
 import { localeTag, t } from '../../data/texts';
 import { useGoBack } from '../../lib/goBack';
 import { KeyboardArea } from '../../components/Keyboard';
+import { isMono } from '../../theme/look';
 
 /**
  * Route `chat/[id]`: Unterhaltung mit einer Freund:in. Eigene Nachrichten rechts in Lila, die der anderen links.
@@ -135,7 +136,7 @@ export default function ChatThread() {
           }}
         />
         {/* Aktives Feld mit lila Rand wie alle Eingabefelder (Daria, 2026-11-09) */}
-        <View style={[styles.composer, focused && { borderColor: focusColor }, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
+        <View style={[styles.composer, isMono && styles.composerMono, focused && { borderColor: focusColor }, { marginBottom: Math.max(insets.bottom, space[12]) }]}>
           <TextInput
             style={styles.input}
             value={draft}
@@ -154,9 +155,9 @@ export default function ChatThread() {
             accessibilityLabel={t('Senden')}
             onPress={send}
             disabled={!draft.trim() || sending}
-            style={({ pressed }) => [styles.send, (!draft.trim() || sending) && styles.sendOff, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.send, (!draft.trim() || sending) && (isMono ? styles.sendOffMono : styles.sendOff), pressed && styles.pressed]}
           >
-            <Icon name="send" size={size.icon * 0.8} color={color.text.onAccent} />
+            <Icon name="send" size={size.icon * 0.8} color={isMono && (!draft.trim() || sending) ? color.text.primary : color.text.onAccent} />
           </Pressable>
         </View>
       </KeyboardArea>
@@ -208,4 +209,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   sendOff: { opacity: 0.35 },
+  /**
+   * Mono (Daria, 2026-11-28: „This looks inactive“): Feld weiß mit Rand statt grau, Senden ohne Text als Umriss statt
+   * blass. Mit Text wird der Knopf voll schwarz.
+   */
+  composerMono: { backgroundColor: color.bg.screen, borderColor: color.text.primary, borderWidth: stroke.primary, paddingVertical: space[4] - stroke.primary, paddingLeft: space[16] - stroke.primary, paddingRight: space[4] - stroke.primary },
+  sendOffMono: { backgroundColor: 'transparent', borderWidth: stroke.primary, borderColor: color.text.primary },
 });
