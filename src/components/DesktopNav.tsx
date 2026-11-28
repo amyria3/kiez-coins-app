@@ -1,10 +1,10 @@
 import { useCallback, useSyncExternalStore, type ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, usePathname, useRouter } from 'expo-router';
-import Svg, { Path, SvgXml } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 
 import { color, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
-import { isLight, isMono, look } from '../theme/look';
+import { isMono, look } from '../theme/look';
 import { DESKTOP_ASIDE_WIDTH, DESKTOP_CONTENT_WIDTH, useDesktop } from '../theme/layout';
 import { t } from '../data/texts';
 import { useStore } from '../data/store';
@@ -12,15 +12,19 @@ import { useFriendRequests, useUnreadMessages } from '../data/chat';
 import { useRoutineEnabled } from '../data/routine';
 import { countButton } from '../data/remote';
 import { Icon, type IconName } from './icons/Icon';
-import { katerRingOnlySvg } from './icons/katerAvatarSvg';
-import { BILDMARKE_SVG, WORDMARK_BOTTOM, WORDMARK_LEFT, WORDMARK_LETTERS, WORDMARK_RIGHT, WORDMARK_TOP } from './icons/wordmarkLetters';
+import { CrownIcon } from './icons/Brand';
+import { WORDMARK_BOTTOM, WORDMARK_LEFT, WORDMARK_LETTERS, WORDMARK_RIGHT, WORDMARK_TOP } from './icons/wordmarkLetters';
 import { Text } from './T';
 import type { TabKey } from './TabBar';
 
 /**
- * Desktop-Fassung, Schritt 1 (Daria, 2026-11-28, Variante B aus dem Entwurf „KiezCoins am Desktop“): Ab 900 px
+ * Desktop-Fassung, Schritt 1 (Daria, 2026-11-28, Variante B aus dem Entwurf „KiezCoins am Desktop“): Ab 680 px
  * Fensterbreite steht links eine Seitenleiste statt der Tab-Leiste unten, der Inhalt hat 620 px Lesebreite in der
- * Mitte. Ab 1200 px zeigt die Leiste die Namen neben den Icons, darunter nur die Icons mit kleinem Namen.
+ * Mitte. Ab 880 px zeigt die Leiste die Namen neben den Icons, darunter nur die Icons. Ab 1200 px gibt es rechts eine
+ * weitere Spalte, in die die Seite vorn etwas legen kann (DesktopAside).
+ *
+ * Eine Formensprache für beide Breiten, wie in der Tab-Leiste (Daria, 2026-11-28: „inkonsistent“): Jeder Eintrag ist
+ * eine Pille, schmal ein Kreis. Der gewählte Eintrag trägt die Tönung seiner Farbe, „Posten“ ist voll gefüllt.
  *
  * Die Seiten bleiben, wie sie sind: Jede Seite mit Tab-Leiste meldet hier, welcher Tab aktiv ist und was ihre Knöpfe
  * tun (`useDesktopNavState` in TabBar). Die Seitenleiste zeigt den Stand der Seite, die gerade vorn ist.
@@ -74,21 +78,60 @@ export function useAsideHost(): HTMLElement | null {
   return useSyncExternalStore(subscribeAside, readAside, () => null);
 }
 
+/** Wie viele Seiten gerade etwas in die rechte Spalte legen: Ohne Inhalt nimmt sie keinen Platz ein */
+let asideUsers = 0;
+const readAsideUsed = () => asideUsers > 0;
+export function claimAside() {
+  asideUsers += 1;
+  asideListeners.forEach((l) => l());
+  return () => {
+    asideUsers -= 1;
+    asideListeners.forEach((l) => l());
+  };
+}
+
+/**
+ * Breite des Inhalts der Seite, die vorn ist. Ohne Angabe die Lesebreite `DESKTOP_CONTENT_WIDTH`; der Feed nimmt mehr,
+ * damit zwei Spalten Posts nebeneinander passen.
+ */
+let contentWidth: number = DESKTOP_CONTENT_WIDTH;
+const widthListeners = new Set<() => void>();
+const subscribeWidth = (l: () => void) => {
+  widthListeners.add(l);
+  return () => widthListeners.delete(l);
+};
+const setContentWidth = (w: number) => {
+  if (w === contentWidth) return;
+  contentWidth = w;
+  widthListeners.forEach((l) => l());
+};
+export function useDesktopContentWidth(width: number | undefined) {
+  useFocusEffect(
+    useCallback(() => {
+      if (!width) return;
+      setContentWidth(width);
+      return () => setContentWidth(DESKTOP_CONTENT_WIDTH);
+    }, [width]),
+  );
+}
+
 /** Rahmen der App: auf dem Desktop Seitenleiste links und Inhalt in Lesebreite, sonst nur der Inhalt */
 export function DesktopFrame({ children }: { children: ReactNode }) {
-  const { desktop, wideNav } = useDesktop();
+  const { desktop, wideNav, labels } = useDesktop();
   const { currentUserId } = useStore();
   const pathname = usePathname();
+  const width = useSyncExternalStore(subscribeWidth, () => contentWidth, () => DESKTOP_CONTENT_WIDTH);
+  const asideUsed = useSyncExternalStore(subscribeAside, readAsideUsed, () => false);
   if (!desktop) return <>{children}</>;
   // Ohne Konto (Anmeldung, Einstieg) gibt es nichts zu navigieren: nur die Lesebreite
   const nav = !!currentUserId && !pathname.startsWith('/onboarding');
   return (
     <View style={styles.frame}>
-      {nav ? <Sidebar wide={wideNav} /> : null}
+      {nav ? <Sidebar wide={labels} /> : null}
       <View style={styles.stage}>
-        <View style={styles.column}>{children}</View>
-        {/* Rechte Spalte ab 1200 px, auf jeder Seite reserviert, damit der Inhalt beim Seitenwechsel nicht springt */}
-        {nav && wideNav ? <View ref={setAsideHost} style={styles.aside} /> : null}
+        <View style={[styles.column, { maxWidth: width }]}>{children}</View>
+        {/* Rechte Spalte ab 1200 px. Sie nimmt nur Platz ein, wenn die Seite vorn etwas hineinlegt. */}
+        {nav && wideNav ? <View ref={setAsideHost} style={asideUsed ? styles.aside : styles.asideEmpty} /> : null}
       </View>
     </View>
   );
@@ -116,6 +159,7 @@ function Sidebar({ wide }: { wide: boolean }) {
     else router.push('/chat');
   };
   const toMenu = () => (active === 'menu' ? undefined : state ? state.onMenuPress() : router.push('/account'));
+  const toMe = () => (active === 'reise' ? undefined : router.push('/me'));
   const create = () => {
     countButton('kamera-seitenleiste', look);
     (state?.onCreatePress ?? (() => router.dismissTo({ pathname: '/feed', params: { erstellen: '1' } })))();
@@ -123,30 +167,17 @@ function Sidebar({ wide }: { wide: boolean }) {
 
   return (
     <View style={[styles.side, wide ? styles.sideWide : styles.sideRail]} accessibilityRole="tablist">
-      <View style={[styles.brand, !wide && styles.brandRail]} accessibilityRole="header" accessibilityLabel="KiezCoins">
-        <Wordmark width={wide ? 132 : 64} />
+      <View style={styles.brand} accessibilityRole="header" accessibilityLabel="KiezCoins">
+        <Wordmark initial={!wide} />
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={t('Challenge erstellen')}
-        onPress={create}
-        style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
-          styles.post,
-          !wide && styles.postRail,
-          hovered && styles.postHover,
-          pressed && styles.pressed,
-        ]}
-      >
-        <Icon name="camera" size={size.icon} color={color.nav.onCreate} />
-        {wide ? <Text style={[styles.label, { color: color.nav.onCreate }]}>{t('Posten')}</Text> : null}
-      </Pressable>
+      <NavItem wide={wide} filled icon="camera" label={t('Posten')} accessibilityLabel={t('Challenge erstellen')} role={color.nav.create} selected={false} onPress={create} />
+      <View style={styles.gap} />
       {routineOn ? (
         <NavItem wide={wide} icon="calendar" label={t('Routine')} role={color.nav.calendar} selected={routineActive} onPress={toRoutine} />
       ) : null}
       {routineOn && routineActive ? (
         <NavItem
           wide={wide}
-          sub
           icon="plus"
           label={t('Neue Erinnerung')}
           role={color.nav.calendar}
@@ -168,40 +199,25 @@ function Sidebar({ wide }: { wide: boolean }) {
         dot={!!(unread || requests)}
         onPress={toChat}
       />
+      {/* „Was Du so machst“: am Handy führt das Logo über dem Feed dorthin, hier steht es in der Leiste */}
+      <NavItem
+        wide={wide}
+        glyph={(tint) => <CrownIcon height={size.icon} fill={tint} />}
+        label={t('Was Du so machst')}
+        role={color.nav.calendar}
+        selected={active === 'reise'}
+        onPress={toMe}
+      />
       <NavItem wide={wide} icon="burger" label={t('Menü')} role={color.nav.menu} selected={active === 'menu'} onPress={toMenu} />
-      {/* Kater unten in der Leiste statt oben über dem Feed: führt zu „Was Du so machst“ (Daria, 2026-11-28) */}
-      <Pressable
-        accessibilityRole="tab"
-        accessibilityLabel={t('Was Du so machst')}
-        accessibilityState={{ selected: active === 'reise' }}
-        onPress={() => (active === 'reise' ? undefined : router.push('/me'))}
-        style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
-          styles.item,
-          styles.me,
-          wide ? styles.itemWide : styles.itemRail,
-          hovered && active !== 'reise' && styles.itemHover,
-          active === 'reise' && [styles.itemSelected, { backgroundColor: color.nav.selectedFill ?? undefined }],
-          pressed && styles.pressed,
-        ]}
-      >
-        <View style={styles.kater}>
-          <SvgXml xml={BILDMARKE_SVG} width={KATER} height={KATER} />
-          {isLight ? (
-            <View style={StyleSheet.absoluteFill} pointerEvents="none">
-              <SvgXml xml={katerRingOnlySvg()} width={KATER} height={KATER} />
-            </View>
-          ) : null}
-        </View>
-        {wide ? <Text style={[styles.label, { color: color.text.primary }]}>{t('Was Du so machst')}</Text> : null}
-      </Pressable>
     </View>
   );
 }
 
 function NavItem({
   wide,
-  sub = false,
+  filled = false,
   icon,
+  glyph,
   label,
   accessibilityLabel,
   role,
@@ -210,8 +226,11 @@ function NavItem({
   onPress,
 }: {
   wide: boolean;
-  sub?: boolean;
-  icon: IconName;
+  /** Hauptaktion: voll in ihrer Farbe gefüllt */
+  filled?: boolean;
+  icon?: IconName;
+  /** Eigenes Zeichen statt eines Icons, bekommt die Farbe des Eintrags */
+  glyph?: (tint: string) => ReactNode;
   label: string;
   accessibilityLabel?: string;
   role: string;
@@ -219,49 +238,52 @@ function NavItem({
   dot?: boolean;
   onPress: () => void;
 }) {
-  const tint = selected ? role : color.nav.icon;
+  const tint = filled ? color.nav.onCreate : selected ? (isMono ? color.text.primary : role) : color.nav.icon;
+  const ink = filled ? color.nav.onCreate : selected ? (isMono ? color.text.primary : role) : color.text.primary;
   return (
     <Pressable
-      accessibilityRole={sub ? 'button' : 'tab'}
+      accessibilityRole={filled ? 'button' : 'tab'}
       accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={sub ? undefined : { selected }}
+      accessibilityState={filled ? undefined : { selected }}
       onPress={onPress}
       style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
         styles.item,
         wide ? styles.itemWide : styles.itemRail,
-        sub && wide && styles.itemSub,
-        hovered && !selected && styles.itemHover,
-        selected && [styles.itemSelected, { backgroundColor: color.nav.selectedFill ?? (isMono ? undefined : withAlpha(role, 0.16)) }],
+        filled && { backgroundColor: role },
+        hovered && !selected && !filled && styles.itemHover,
+        hovered && filled && styles.filledHover,
+        selected && { backgroundColor: color.nav.selectedFill ?? withAlpha(role, 0.16), borderColor: color.nav.selectedLine ?? 'transparent' },
         pressed && styles.pressed,
       ]}
     >
-      {/* Feste Breite für jedes Icon, damit die Namen bündig stehen: Die Kiez-Icons sind unterschiedlich breit (Daria, 2026-11-28) */}
+      {/* Feste Breite für jedes Icon, damit die Namen bündig stehen: Die Kiez-Icons sind unterschiedlich breit */}
       <View style={styles.iconBox}>
-        <Icon name={icon} size={sub ? size.icon * 0.8 : size.icon} color={tint} />
+        {glyph ? glyph(tint) : icon ? <Icon name={icon} size={size.icon} color={tint} /> : null}
         {dot ? <View style={styles.dot} /> : null}
       </View>
       {wide ? (
-        <Text style={[sub ? styles.subLabel : styles.label, { color: selected ? role : color.text.primary }]}>{label}</Text>
-      ) : sub ? null : (
-        <Text style={[styles.railLabel, { color: selected ? role : color.text.secondary }]} numberOfLines={1}>
+        <Text style={[styles.label, { color: ink }]} numberOfLines={1}>
           {label}
         </Text>
-      )}
+      ) : null}
     </Pressable>
   );
 }
 
 /**
  * Flaches Logo ohne Kater (Daria, 2026-11-28: „flaches Logo, bitte Logo ohne Katzenbild, da der Kater ja rechts
- * rumschwirrt“): nur die Buchstaben der Wortbildmarke, in der Farbe des Schriftzugs im jeweiligen Look.
+ * rumschwirrt“): nur die Buchstaben der Wortbildmarke, in der Farbe des Schriftzugs im jeweiligen Look. In der schmalen
+ * Leiste steht nur das K, in derselben Größe wie im ganzen Schriftzug.
  */
-function Wordmark({ width }: { width: number }) {
-  const w = WORDMARK_RIGHT - WORDMARK_LEFT;
+function Wordmark({ initial }: { initial: boolean }) {
+  const letters = initial ? WORDMARK_LETTERS.slice(0, 1) : WORDMARK_LETTERS;
+  const left = initial ? letters[0].x0 : WORDMARK_LEFT;
+  const w = (initial ? letters[0].x1 : WORDMARK_RIGHT) - left;
   const h = WORDMARK_BOTTOM - WORDMARK_TOP;
   const fill = color.brand.wordmark ?? WORDMARK_INK;
   return (
-    <Svg width={width} height={(width * h) / w} viewBox={`${WORDMARK_LEFT} ${WORDMARK_TOP} ${w} ${h}`}>
-      {WORDMARK_LETTERS.map((l, i) => (
+    <Svg width={(WORDMARK_HEIGHT * w) / h} height={WORDMARK_HEIGHT} viewBox={`${left} ${WORDMARK_TOP} ${w} ${h}`}>
+      {letters.map((l, i) => (
         <Path key={i} d={l.d} fill={fill} />
       ))}
     </Svg>
@@ -269,53 +291,45 @@ function Wordmark({ width }: { width: number }) {
 }
 /** Schriftfarbe wie in assets/marke/wortbildmarke.svg, wenn der Look keine eigene setzt */
 const WORDMARK_INK = '#7E94FF';
+const WORDMARK_HEIGHT = 30;
 
 const SIDE_WIDE = 232;
-const SIDE_RAIL = 88;
-/** Breite des Icon-Felds in der Seitenleiste: Platz für das breiteste Kiez-Icon */
+const SIDE_RAIL = 80;
+/** Höhe jedes Eintrags, schmal zugleich seine Breite */
+const ITEM = 48;
+/** Breite des Icon-Felds: Platz für das breiteste Kiez-Icon */
 const ICON_BOX = 40;
-/** Kater unten in der Leiste */
-const KATER = 40;
 
 const styles = StyleSheet.create({
   frame: { flex: 1, flexDirection: 'row', backgroundColor: color.bg.screen },
   stage: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
-  column: { flex: 1, maxWidth: DESKTOP_CONTENT_WIDTH },
-  aside: { width: DESKTOP_ASIDE_WIDTH, marginLeft: space[32], paddingTop: space[24], paddingRight: space[16] },
+  column: { flex: 1 },
+  aside: { width: DESKTOP_ASIDE_WIDTH, marginLeft: space[32], marginRight: space[24], paddingTop: space[24] },
+  asideEmpty: { width: 0, overflow: 'hidden' },
   side: {
     borderRightWidth: stroke.thin,
     borderRightColor: color.line.hairline,
     paddingVertical: space[20],
-    gap: space[6],
+    gap: space[4],
   },
   sideWide: { width: SIDE_WIDE, paddingHorizontal: space[12] },
-  sideRail: { width: SIDE_RAIL, paddingHorizontal: space[8], alignItems: 'center' },
-  brand: { paddingHorizontal: space[8], paddingBottom: space[16] },
-  brandRail: { paddingHorizontal: 0, paddingBottom: space[12] },
-  post: {
+  sideRail: { width: SIDE_RAIL, alignItems: 'center' },
+  brand: { height: ITEM, justifyContent: 'center', paddingHorizontal: space[8], marginBottom: space[8] },
+  gap: { height: space[12] },
+  item: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: space[8],
-    height: 48,
+    height: ITEM,
     borderRadius: radius.full,
-    backgroundColor: color.nav.create,
-    marginBottom: space[12],
+    borderWidth: stroke.thin,
+    borderColor: 'transparent',
   },
-  postRail: { width: 52, height: 52 },
-  postHover: { opacity: 0.9 },
-  item: { flexDirection: 'row', alignItems: 'center', borderRadius: radius.md, borderWidth: stroke.thin, borderColor: 'transparent' },
-  itemWide: { gap: space[12], paddingHorizontal: space[12], paddingVertical: space[8] + 2 },
-  itemRail: { flexDirection: 'column', gap: space[4], width: 72, paddingVertical: space[8] },
-  itemSub: { paddingLeft: space[24], paddingVertical: space[6] },
+  itemWide: { gap: space[8], paddingHorizontal: space[8] },
+  itemRail: { width: ITEM, justifyContent: 'center' },
   itemHover: { backgroundColor: color.bg.surface },
-  itemSelected: { borderColor: color.nav.selectedLine ?? 'transparent' },
-  label: text.bodyStrong,
-  subLabel: text.label,
-  railLabel: { ...text.caption, textAlign: 'center' },
+  filledHover: { opacity: 0.9 },
+  label: { ...text.bodyStrong, flex: 1 },
   pressed: { opacity: 0.6 },
-  me: { marginTop: 'auto' },
-  kater: { width: KATER, height: KATER },
   iconBox: { width: ICON_BOX, alignItems: 'center', justifyContent: 'center' },
   dot: {
     position: 'absolute',

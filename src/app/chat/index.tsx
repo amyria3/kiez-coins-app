@@ -8,6 +8,9 @@ import { Avatar } from '../../components/AuthorRow';
 import { Button } from '../../components/Button';
 import { Explanation, Notice } from '../../components/Content';
 import { TAB_BAR_SPACE, TabBar } from '../../components/TabBar';
+import { ChatThreadView } from '../../components/ChatThreadView';
+import { useDesktopContentWidth } from '../../components/DesktopNav';
+import { useDesktop } from '../../theme/layout';
 import { loadConversations, subscribeMessages, type Conversation } from '../../data/chat';
 import { formatRelative } from '../../data/format';
 import { acceptFriend, errorDetail, errorText, removeFriend, type FriendLists } from '../../data/remote';
@@ -21,6 +24,10 @@ import { PageSlideProvider, usePageSlide } from '../../lib/pageSlide';
  * Route `chat` (Tab „Chats“, Sprechblase in der Tab-Leiste): Freundschaftsanfragen oben, darunter alle
  * Freund:innen mit der letzten Nachricht, neueste zuerst. Nachrichten verschwinden nach einem Monat.
  */
+/** Desktop: Breite der Seite und der Liste links */
+const CHAT_DESKTOP_WIDTH = 1040;
+const CHAT_LIST_WIDTH = 380;
+
 export default function Chats() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -85,11 +92,17 @@ export default function Chats() {
     prev: () => router.dismissTo({ pathname: '/feed', params: { reiter: 'letzter' } }),
     next: () => router.push('/account'),
   });
-  const open = (friend: User) => router.push({ pathname: '/chat/[id]', params: { id: friend.id, name: friend.name } });
+  // Desktop (Daria, 2026-11-28): Liste links, der gewählte Verlauf rechts daneben, ohne Seitenwechsel
+  const { twoPane: desktop } = useDesktop();
+  useDesktopContentWidth(desktop ? CHAT_DESKTOP_WIDTH : undefined);
+  const [chosen, setChosen] = useState<string | null>(null);
+  const shown = desktop ? (data?.conversations.find((c) => c.friend.id === chosen) ?? data?.conversations[0]) : undefined;
+  const open = (friend: User) =>
+    desktop ? setChosen(friend.id) : router.push({ pathname: '/chat/[id]', params: { id: friend.id, name: friend.name } });
 
   return (
-    <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <Animated.View style={[styles.slide, slide.style]} {...slide.panHandlers}>
+    <View style={[styles.screen, { paddingTop: insets.top }, desktop && styles.panes]}>
+      <Animated.View style={[styles.slide, slide.style, desktop && styles.listPane]} {...(desktop ? null : slide.panHandlers)}>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
         <Text style={styles.title} accessibilityRole="header">
           Chats
@@ -147,7 +160,13 @@ export default function Chats() {
                 : t('Chat mit {name}', { name: friend.name })
             }
             onPress={() => open(friend)}
-            style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+            style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
+              styles.row,
+              desktop && styles.rowDesktop,
+              desktop && hovered && styles.rowHover,
+              shown?.friend.id === friend.id && styles.rowChosen,
+              pressed && styles.pressed,
+            ]}
           >
             <Avatar user={friend} diameter={52} />
             <View style={styles.flex}>
@@ -172,6 +191,17 @@ export default function Chats() {
         <Button label="Kontakte verwalten" variant="ghost" onPress={() => router.push('/account/friends')} />
       </ScrollView>
       </Animated.View>
+      {desktop ? (
+        <View style={styles.threadPane}>
+          {shown ? (
+            <ChatThreadView key={shown.friend.id} id={shown.friend.id} name={shown.friend.name} embedded onRead={refresh} />
+          ) : (
+            <View style={styles.threadEmpty}>
+              <Text style={styles.preview}>{data ? 'Hier steht der Verlauf, sobald Du mit jemandem schreibst.' : ''}</Text>
+            </View>
+          )}
+        </View>
+      ) : null}
       <PageSlideProvider value={slide.leave}>
         <TabBar active="chat" onFeedPress={toFeed} onMenuPress={() => router.push('/account')} />
       </PageSlideProvider>
@@ -182,6 +212,14 @@ export default function Chats() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
   slide: { flex: 1 },
+  // Desktop: Liste links in fester Breite, Verlauf rechts
+  panes: { flexDirection: 'row' },
+  listPane: { flex: 0, flexBasis: CHAT_LIST_WIDTH, width: CHAT_LIST_WIDTH, borderRightWidth: StyleSheet.hairlineWidth, borderRightColor: color.line.hairline },
+  threadPane: { flex: 1, minWidth: 0 },
+  threadEmpty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space[32] },
+  rowDesktop: { marginHorizontal: -space[8], paddingHorizontal: space[8], paddingVertical: space[8], borderRadius: radius.md },
+  rowHover: { backgroundColor: color.bg.surface },
+  rowChosen: { backgroundColor: color.bg.surface },
   content: { paddingTop: space[24], paddingHorizontal: space[20], gap: space[16] },
   title: { ...text.display, color: color.text.primary },
   section: { gap: space[12] },

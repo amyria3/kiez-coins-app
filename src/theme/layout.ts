@@ -47,23 +47,36 @@ export function useWideWeb() {
 /**
  * Desktop-Fassung (Daria, 2026-11-28, Variante B aus dem Entwurf „KiezCoins am Desktop“): Ab `DESKTOP_FROM` Fensterbreite
  * steht links eine Seitenleiste statt der Tab-Leiste unten, der Inhalt hat eine feste Lesebreite von
- * `DESKTOP_CONTENT_WIDTH`. Ab `DESKTOP_WIDE_FROM` zeigt die Seitenleiste die Namen neben den Icons. Breite öffentliche
+ * `DESKTOP_CONTENT_WIDTH`. Ab `DESKTOP_WIDE_FROM` gibt es die rechte Spalte, ab `DESKTOP_LABELS_FROM` zeigt die Seitenleiste die Namen neben den Icons. Breite öffentliche
  * Seiten (`useWideWeb`) haben ihren eigenen Aufbau und keine Seitenleiste.
  */
-export const DESKTOP_FROM = 900;
+export const DESKTOP_FROM = 680;
 export const DESKTOP_WIDE_FROM = 1200;
+/** Ab hier zeigt die Seitenleiste die Namen: sobald sie neben die Lesebreite passt (Daria, 2026-11-28: „Hier ist ja noch Platz für die Seitenleiste“). */
+export const DESKTOP_LABELS_FROM = 880;
+/** Ab hier stehen zwei Flächen nebeneinander (Chats, Post-Detail) */
+export const DESKTOP_TWO_PANE_FROM = 1000;
 export const DESKTOP_CONTENT_WIDTH = 620;
+/** Breite des Feeds ab `DESKTOP_WIDE_FROM`: Platz für zwei Spalten Posts. Ab `FEED_WALL_FROM` gemessener Breite stehen sie nebeneinander. */
+export const FEED_WALL_WIDTH = 900;
+export const FEED_WALL_FROM = 660;
 /** Rechte Spalte der Desktop-Fassung, ab `DESKTOP_WIDE_FROM` */
 export const DESKTOP_ASIDE_WIDTH = 300;
 /** Muss zu `max-width` von `#root` in `public/index.html` passen: ab hier hat die App die volle Fensterbreite */
 const isDesktopWidth = (width: number) => Platform.OS === 'web' && width >= DESKTOP_FROM;
 
-/** `desktop`: Seitenleiste und Lesebreite. `wideNav`: Seitenleiste mit Namen. */
+/** `desktop`: Seitenleiste und Lesebreite. `wideNav`: rechte Spalte und breiter Feed. `labels`: Seitenleiste mit Namen. */
 export function useDesktop() {
   const { width } = useWindowDimensions();
   const wide = useSyncExternalStore(subscribeWide, isWideWeb, () => false);
   const desktop = isDesktopWidth(width) && !wide;
-  return { desktop, wideNav: desktop && width >= DESKTOP_WIDE_FROM };
+  return {
+    desktop,
+    wideNav: desktop && width >= DESKTOP_WIDE_FROM,
+    labels: desktop && width >= DESKTOP_LABELS_FROM,
+    /** Platz für zwei Flächen nebeneinander: Chats mit Verlauf, Post mit Foto links und Text rechts */
+    twoPane: desktop && width >= DESKTOP_TWO_PANE_FROM,
+  };
 }
 
 /**

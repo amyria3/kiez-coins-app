@@ -11,6 +11,10 @@ export const styles = StyleSheet.create({
   flex: { flex: 1 },
   // Desktop: Umschalter schmaler als die Lesebreite, links bündig (Daria, 2026-11-28)
   desktopSwitch: { flexGrow: 0, flexBasis: 'auto', width: '100%', maxWidth: 460 },
+  // Desktop: Wand aus Posts, zwei nebeneinander, oben bündig (Daria, 2026-11-28)
+  pair: { flexDirection: 'row', alignItems: 'flex-start', gap: space[8] },
+  pairCell: { flex: 1, minWidth: 0 },
+  routineDesktop: { maxWidth: 620 },
   clip: { overflow: 'hidden' },
   // Etwas mehr Abstand zwischen den Posts (Daria, 2026-11-09)
   list: { gap: space[32] },

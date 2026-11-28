@@ -1,5 +1,5 @@
 import { RoutineNudge } from '../components/RoutineNudge';
-import { RoutineCalendarStages } from '../components/RoutineList';
+import { RoutineCalendarDesktop, RoutineCalendarStages } from '../components/RoutineList';
 import { getCalendarLevel, setCalendarLevel, useCalendarLevel, useRoutineData } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
@@ -32,11 +32,12 @@ import { takeComposeDone } from '../components/compose/compose';
 import { IconButton } from '../components/IconButton';
 import { Text } from '../components/T';
 import { t } from '../data/texts';
-import { useAppDimensions, useDesktop } from '../theme/layout';
+import { FEED_WALL_FROM, FEED_WALL_WIDTH, useAppDimensions, useDesktop } from '../theme/layout';
 import { DesktopAside } from '../components/DesktopAside';
+import { useDesktopContentWidth } from '../components/DesktopNav';
 import { FeedAside } from '../components/FeedAside';
 import { useFeedEvents, useOwnToday, type FeedScope } from '../data/feedSummary';
-import { AppHeader, FeedGreeting, MODE_OF_TAB, PlannedHint, Segments, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
+import { AppHeader, FeedGreeting, greetingParts, MODE_OF_TAB, PlannedHint, Segments, TAB_OF_MODE, TabsNavigation, TopChallengeBar, type FeedTab } from '../components/FeedHeader';
 import { FeedStateMessage } from '../components/FeedStateMessage';
 import { GroupBar } from '../components/GroupBar';
 import { AudienceHint, useAudienceHint } from '../components/AudienceHint';
@@ -805,6 +806,12 @@ export default function FeedScreen() {
   const showAudience =
     audienceHint && !composing && !loading && (tab === 'nearby' || tab === 'everywhere' || tab === 'private' || tab === 'groups');
 
+  // Desktop (Daria, 2026-11-28): ab 1200 px ist der Feed breiter als die Lesebreite, die Posts stehen als Wand
+  const { desktop, wideNav } = useDesktop();
+  useDesktopContentWidth(wideNav ? FEED_WALL_WIDTH : undefined);
+  const [listWidth, setListWidth] = useState(0);
+  const wall = wideNav && listWidth >= FEED_WALL_FROM;
+
   // Verschobener Post: Hinweis statt Post, solange er in diesen Reiter nicht mehr gehört
   const postItem = (challenge: Challenge): FeedItem =>
     movedPosts.has(challenge.id) && !matchesTab(challenge, tab, groupId, currentUserId) ? { kind: 'moved', challenge } : { kind: 'post', challenge };
@@ -835,15 +842,37 @@ export default function FeedScreen() {
   // Leerer Zustand steht unter der Liste und füllt den Rest bis zur Leiste, mittig. So verteilt sich der Platz
   // oben und unten gleich (Daria, 2026-11-09).
   const emptyItem = items.find((i) => EMPTY_KINDS.has(i.kind));
-  const listItems = emptyItem ? items.filter((i) => i !== emptyItem) : items;
+  const flatItems = emptyItem ? items.filter((i) => i !== emptyItem) : items;
+  // Desktop: Ist die Spalte breit genug, stehen die Posts als Wand in zwei Spalten, je zwei in einer Zeile
+  // (Daria, 2026-11-28). Alles andere, z. B. Hinweise und der Gruppen-Kopf, bleibt in voller Breite.
+  const listItems: FeedItem[] = [];
+  for (const item of flatItems) {
+    const last = listItems[listItems.length - 1];
+    if (!wall || (item.kind !== 'post' && item.kind !== 'moved')) listItems.push(item);
+    else if (last?.kind === 'pair' && last.items.length < 2) last.items.push(item);
+    else listItems.push({ kind: 'pair', items: [item] });
+  }
   // Gruppen-Kopf, „Aufgabe wartet“ (Daria, 2026-11-16): zu dieser Karte scrollen
   const showPost = (id: string) => {
-    const index = listItems.findIndex((i) => i.kind === 'post' && i.challenge.id === id);
+    const index = listItems.findIndex(
+      (i) => (i.kind === 'post' && i.challenge.id === id) || (i.kind === 'pair' && i.items.some((x) => x.challenge.id === id)),
+    );
     if (index >= 0) listRef.current?.scrollToIndex({ index, viewPosition: 0.15, animated: true });
   };
 
-  const renderItem = ({ item }: { item: FeedItem }) => {
+  const renderItem = ({ item }: { item: FeedItem }): React.ReactElement | null => {
     switch (item.kind) {
+      case 'pair':
+        return (
+          <View style={styles.pair}>
+            {item.items.map((i) => (
+              <View key={i.challenge.id} style={styles.pairCell}>
+                {renderItem({ item: i })}
+              </View>
+            ))}
+            {item.items.length < 2 ? <View style={styles.pairCell} /> : null}
+          </View>
+        );
       // Leere Reiter sehen aus wie Kiez und Überall (Daria, 29.10.2026)
       case 'groupsEmpty':
         return (
@@ -980,7 +1009,6 @@ export default function FeedScreen() {
   };
 
   // Desktop (Daria, 2026-11-28): rechte Spalte mit der Zusammenfassung zum gewählten Feed, ab 1200 px
-  const { desktop, wideNav } = useDesktop();
   const asideOn = wideNav && !composing && !routineActive && !searching;
   const summaryScope = useMemo<FeedScope | null>(
     () =>
@@ -1081,11 +1109,14 @@ export default function FeedScreen() {
             hasTasks={hasTasks}
           />
           {/* In „Me & Myself“ weder Kiez noch Zahlen der Posts (Daria, 2026-11-14) */}
-          <FeedGreeting
-            name={salutation(profile)}
-            kiez={area === 'me' ? undefined : kiezName}
-            counts={feedState === 'loading' || area === 'me' ? undefined : openCounts}
-          />
+          {/* Ab 1200 px sagt der Kater den Gruß in der rechten Spalte (Daria, 2026-11-28) */}
+          {wideNav ? null : (
+            <FeedGreeting
+              name={salutation(profile)}
+              kiez={area === 'me' ? undefined : kiezName}
+              counts={feedState === 'loading' || area === 'me' ? undefined : openCounts}
+            />
+          )}
         </View>
       </Animated.View>
       )}
@@ -1166,9 +1197,16 @@ export default function FeedScreen() {
       ) : null}
       {/* Kalender als Teil der Seite, darunter die Pille zum Schieben (Daria, 2026-11-28) */}
       {routineActive && !composing && routineData ? (
-        <View style={styles.calendarSlot}>
-          <RoutineCalendarStages list={routineData.list} events={routineData.events} saved={routineData.saved} />
-        </View>
+        wideNav ? (
+          // Desktop ab 1200 px: Der Monat steht fest in der rechten Spalte (Daria, 2026-11-28, Entwurf B)
+          <DesktopAside>
+            <RoutineCalendarDesktop list={routineData.list} events={routineData.events} saved={routineData.saved} />
+          </DesktopAside>
+        ) : (
+          <View style={styles.calendarSlot}>
+            <RoutineCalendarStages list={routineData.list} events={routineData.events} saved={routineData.saved} />
+          </View>
+        )
       ) : null}
       </View>
       <Animated.View style={[styles.clip, storiesStyle]}>
@@ -1178,11 +1216,12 @@ export default function FeedScreen() {
       </Animated.View>
       {/* In „Me & Myself“ ist Gelb die Signalfarbe (Daria, 2026-11-12) */}
       <>
-      <View style={styles.flex}>
+      <View style={styles.flex} onLayout={(e) => { const w = Math.round(e.nativeEvent.layout.width); setListWidth((x) => (x === w ? x : w)); }}>
         <Animated.View style={[styles.flex, { transform: [{ translateX: swipeX }] }]} {...swipe.panHandlers}>
         {routineShown ? (
           <View
-            style={styles.flex}
+            // Desktop: Die Karten bleiben in Lesebreite, auch wenn der Feed daneben breiter ist
+            style={[styles.flex, wideNav && styles.routineDesktop]}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={() => (pullStart.current = null)}
@@ -1213,6 +1252,8 @@ export default function FeedScreen() {
               ? item.challenge.id
               : item.kind === 'running'
                 ? `running-${item.challenge.id}`
+                : item.kind === 'pair'
+                  ? `pair-${item.items.map((i) => i.challenge.id).join('-')}`
                 : item.kind
           }
           renderItem={renderItem}
@@ -1274,6 +1315,8 @@ export default function FeedScreen() {
       {asideOn ? (
         <DesktopAside>
           <FeedAside
+            greeting={greetingParts(salutation(profile), area === 'me' ? undefined : kiezName, feedState === 'loading' || area === 'me' ? undefined : openCounts)}
+            onKater={() => router.push('/me')}
             title={summaryTitle}
             events={summaryScope ? summaryEvents : undefined}
             open={summaryOpen}

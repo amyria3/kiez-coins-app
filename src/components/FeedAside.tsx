@@ -7,6 +7,7 @@ import { formatEuro, formatRemainingShort } from '../data/format';
 import { t } from '../data/texts';
 import type { Challenge } from '../data/types';
 import { color, radius, size, space, stroke, text } from '../theme/tokens';
+import { KaterCard } from './Content';
 import { Icon } from './icons/Icon';
 import { Text } from './T';
 
@@ -18,6 +19,8 @@ const OPEN_MAX = 5;
  * und offenen Challenges. Eigene Termine stehen nur als eine graue Zeile darüber, ein Klick führt in die Routine.
  */
 export function FeedAside({
+  greeting,
+  onKater,
   title,
   events,
   open,
@@ -26,6 +29,10 @@ export function FeedAside({
   onChallenge,
   onOwn,
 }: {
+  /** Gruß des Katers: Am Desktop steht er hier statt über dem Feed */
+  greeting: { title: string; sub: string };
+  /** Tipp auf den Kater: „Was Du so machst“ */
+  onKater: () => void;
   /** Welcher Feed, z. B. „Im Kiez Neukölln“ oder der Name der Gruppe */
   title: string;
   /** `null`, solange die Termine laden; `undefined`: Dieser Feed hat keine Termine (Me & Myself) */
@@ -41,6 +48,9 @@ export function FeedAside({
   const nothing = !!events && events.length === 0 && open.length === 0;
   return (
     <View style={styles.wrap}>
+      <KaterCard title={greeting.title} onPress={onKater} accessibilityHint={t('Was Du so machst')}>
+        {greeting.sub || t('Schön, dass Du da bist.')}
+      </KaterCard>
       {own && own.count > 0 ? (
         <Pressable
           accessibilityRole="button"

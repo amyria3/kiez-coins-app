@@ -103,6 +103,13 @@ function useGreetingShown(): boolean {
  * `counts` leer, solange der Feed lädt: Dann steht nur der Kiez da, nicht „Noch nichts“.
  * In „Me & Myself“ ohne Zahlen (`counts` weglassen, Daria, 2026-11-14).
  */
+/** Gruß und Zeile darunter als Text, für die Sprechblase des Katers in der rechten Spalte am Desktop (Daria, 2026-11-28) */
+export function greetingParts(name: string, kiez?: string, counts?: FeedCounts): { title: string; sub: string } {
+  const hour = new Date().getHours();
+  const greeting = hour < 11 ? 'Guten Morgen' : hour < 18 ? 'Hallo' : 'Guten Abend';
+  return { title: `${t(greeting)}, ${name}`, sub: [kiez, counts ? countLine(counts) : ''].filter(Boolean).join(' · ') };
+}
+
 export function FeedGreeting({ name, kiez, counts }: { name: string; kiez?: string; counts?: FeedCounts }) {
   const greetingShown = useGreetingShown();
   const hour = new Date().getHours();
