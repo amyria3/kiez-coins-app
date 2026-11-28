@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { Animated, PanResponder, Platform, Pressable, View, type LayoutChangeEvent, type PanResponderGestureState } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 import { setFocusCard, useFocusCard } from '../../data/routineView';
 import { t } from '../../data/texts';
@@ -532,7 +533,21 @@ export function SortButton({ on, onPress }: { on: boolean; onPress: () => void }
   ];
   return (
     <Animated.View style={[styles.sort, { transform }]}>
-      <HandButton label={on ? 'Alles zusammen' : 'Nach Typ sortieren'} onPress={onPress} tone={color.text.primary} />
+      <HandButton label={on ? 'Alles zusammen' : 'Nach Typ sortieren'} onPress={onPress} tone={color.text.primary} glyph={(ink) => <SortGlyph up={on} ink={ink} />} />
     </Animated.View>
+  );
+}
+
+/**
+ * Zeichen im Knopf (aus dem Entwurf, Daria, 2026-11-28: „süßes Icon, das für Aus- und Einklappen gut passt“): drei
+ * Striche und ein Pfeil. Sortieren: längster Strich oben, Pfeil nach unten. Zusammen: Pfeil nach oben, längster Strich
+ * unten.
+ */
+function SortGlyph({ up, ink }: { up: boolean; ink: string }) {
+  const d = up ? 'M2 4h3M2 8h5M2 12h8M12 13V3M9.5 5.5 12 3l2.5 2.5' : 'M2 4h8M2 8h5M2 12h3M12 3v10M9.5 10.5 12 13l2.5-2.5';
+  return (
+    <Svg width={16} height={16} viewBox="0 0 16 16" fill="none">
+      <Path d={d} stroke={ink} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
   );
 }
