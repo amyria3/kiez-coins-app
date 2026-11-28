@@ -1,5 +1,5 @@
-import { useCallback, useSyncExternalStore, type ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useSyncExternalStore, type ReactNode } from 'react';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, usePathname, useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 
@@ -122,13 +122,23 @@ export function DesktopFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const width = useSyncExternalStore(subscribeWidth, () => contentWidth, () => DESKTOP_CONTENT_WIDTH);
   const asideUsed = useSyncExternalStore(subscribeAside, readAsideUsed, () => false);
+  // Rollbalken in der Farbe des Looks statt im Grau des Browsers (Daria, 2026-11-28: „Wieder ein Grauton“).
+  // `scrollbar-color` vererbt sich, deshalb reicht die Angabe an <html>.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined' || !desktop) return;
+    const root = document.documentElement.style;
+    root.setProperty('scrollbar-color', `${withAlpha(color.accent.primary, 0.45)} transparent`);
+    return () => {
+      root.removeProperty('scrollbar-color');
+    };
+  }, [desktop]);
   if (!desktop) return <>{children}</>;
   // Ohne Konto (Anmeldung, Einstieg) gibt es nichts zu navigieren: nur die Lesebreite
   const nav = !!currentUserId && !pathname.startsWith('/onboarding');
   return (
     <View style={styles.frame}>
       {nav ? <Sidebar wide={labels} /> : null}
-      <View style={styles.stage}>
+      <View style={[styles.stage, nav && wideNav && asideUsed && styles.stageGrid]}>
         <View style={[styles.column, { maxWidth: width }]}>{children}</View>
         {/* Rechte Spalte ab 1200 px. Sie nimmt nur Platz ein, wenn die Seite vorn etwas hineinlegt. */}
         {nav && wideNav ? <View ref={setAsideHost} style={asideUsed ? styles.aside : styles.asideEmpty} /> : null}
@@ -300,11 +310,17 @@ const ITEM = 48;
 /** Breite des Icon-Felds: Platz für das breiteste Kiez-Icon */
 const ICON_BOX = 40;
 
+/** Abstand im Desktop-Raster: zwischen Seitenleiste, Spalten, rechter Spalte und Fensterrand */
+export const GRID = space[48];
+
 const styles = StyleSheet.create({
   frame: { flex: 1, flexDirection: 'row', backgroundColor: color.bg.screen },
   stage: { flex: 1, flexDirection: 'row', justifyContent: 'center' },
   column: { flex: 1 },
-  aside: { width: DESKTOP_ASIDE_WIDTH, marginLeft: space[32], marginRight: space[24], paddingTop: space[24] },
+  // Ein Raster (Daria, 2026-11-28: „Kein richtiges / stimmiges Grid“): Seitenleiste, Spalten und rechte Spalte liegen
+  // überall 48 px auseinander, auch zum Fensterrand. Seiten bringen selbst 16 px Rand mit, deshalb hier 32.
+  stageGrid: { paddingLeft: GRID - space[16] },
+  aside: { width: DESKTOP_ASIDE_WIDTH, marginLeft: GRID - space[16], marginRight: GRID, paddingTop: space[24] + space[4] },
   asideEmpty: { width: 0, overflow: 'hidden' },
   side: {
     borderRightWidth: stroke.thin,

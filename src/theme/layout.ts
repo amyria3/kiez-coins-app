@@ -59,7 +59,7 @@ export const DESKTOP_TWO_PANE_FROM = 1000;
 export const DESKTOP_CONTENT_WIDTH = 620;
 /** Breite des Feeds ab `DESKTOP_WIDE_FROM`: Platz für zwei Spalten Posts. Ab `FEED_WALL_FROM` gemessener Breite stehen sie nebeneinander. */
 export const FEED_WALL_WIDTH = 900;
-export const FEED_WALL_FROM = 660;
+export const FEED_WALL_FROM = 620;
 /** Rechte Spalte der Desktop-Fassung, ab `DESKTOP_WIDE_FROM` */
 export const DESKTOP_ASIDE_WIDTH = 300;
 /** Muss zu `max-width` von `#root` in `public/index.html` passen: ab hier hat die App die volle Fensterbreite */

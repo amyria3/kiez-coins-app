@@ -1257,6 +1257,8 @@ export default function FeedScreen() {
                 : item.kind
           }
           renderItem={renderItem}
+          // Am Desktop stünde der Rollbalken mitten im Fenster zwischen Posts und rechter Spalte
+          showsVerticalScrollIndicator={!wideNav}
           viewabilityConfig={feedViews.viewabilityConfig}
           onViewableItemsChanged={feedViews.onViewableItemsChanged}
           onScroll={onScroll}
