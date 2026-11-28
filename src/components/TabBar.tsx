@@ -1,7 +1,8 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { useFrontSpace } from '../theme/signal';
 import { color, radius, size, space, stroke, text, withAlpha } from '../theme/tokens';
@@ -108,10 +109,13 @@ function MonoTabBar({ active, onFeedPress, onMenuPress, onCreatePress, routineAc
         pointerEvents="none"
         style={[
           styles.tint,
-          { top: tintInset, bottom: tintInset, backgroundColor: color.nav.selectedFill ?? withAlpha(role, 0.16) },
+          { top: tintInset, bottom: tintInset, backgroundColor: color.nav.selectedGradient ? undefined : (color.nav.selectedFill ?? withAlpha(role, 0.16)) },
+          color.nav.selectedGradient ? styles.tintClip : null,
           color.nav.selectedLine ? { borderWidth: stroke.primary, borderColor: color.nav.selectedLine } : null,
         ]}
-      />
+      >
+        {color.nav.selectedGradient ? <TintGradient colors={color.nav.selectedGradient} /> : null}
+      </Animated.View>
       {children}
     </View>
   );
@@ -499,6 +503,7 @@ const styles = StyleSheet.create({
   // Ausgewählter Tab samt Hauptaktion: die Tönung liegt dahinter, die Hauptaktion obenauf
   group: { flexDirection: 'row', alignItems: 'center', height: ITEM_H },
   tint: { position: 'absolute', left: 0, right: 0, borderRadius: radius.full },
+  tintClip: { overflow: 'hidden' },
   // Hauptaktion als volle Pille mit leichtem Schatten, damit sie sichtbar auf der Tönung liegt (Daria, 2026-11-27)
   primary: {
     flexGrow: 0,
@@ -541,3 +546,19 @@ const styles = StyleSheet.create({
     borderColor: color.nav.bar,
   },
 });
+
+/** Verlauf unter dem ausgewählten Tab (Mono, Daria, 2026-11-28) */
+function TintGradient({ colors }: { colors: readonly [string, string] }) {
+  const id = `tab${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  return (
+    <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
+      <Defs>
+        <LinearGradient id={id} x1="0" y1="0.2" x2="1" y2="0.8">
+          <Stop offset="0" stopColor={colors[0]} />
+          <Stop offset="1" stopColor={colors[1]} />
+        </LinearGradient>
+      </Defs>
+      <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${id})`} />
+    </Svg>
+  );
+}
