@@ -72,6 +72,6 @@ export type FeedItem =
   | { kind: 'running'; challenge: Challenge }
   | { kind: 'post'; challenge: Challenge }
   | { kind: 'moved'; challenge: Challenge }
-  | { kind: 'showcase'; hit: ShowcaseHit }
+  | { kind: 'showcases'; hits: ShowcaseHit[] }
   | { kind: 'searchEmpty' }
   | { kind: 'searchError' };
