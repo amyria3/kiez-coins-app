@@ -16,10 +16,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" content="#232326" />
     <meta name="format-detection" content="telephone=no" />
-    <!-- Volle Breite für die Digitale Visitenkarte, bevor die App lädt (useWideWeb in src/theme/layout.ts) -->
-    <script>
-      if (/^\/s\/[^/]+\/visitenkarte\/?$/.test(location.pathname)) document.documentElement.classList.add('kc-breit');
-    </script>
     <!-- Style-Reset von react-native-web: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">
       html,
@@ -99,8 +95,8 @@
           height: calc(100% + env(safe-area-inset-top) - var(--keyboard-inset, 0px));
         }
       }
-      /* Öffentliche Seiten in voller Breite (Daria, 2026-11-28): die Digitale Visitenkarte für Gäste. Die Klasse setzt das
-         Skript unten vor dem Laden, danach useWideWeb in src/theme/layout.ts (WEB_WIDE_MAX_WIDTH). */
+      /* Öffentliche Seiten in voller Breite (Daria, 2026-11-28): die Digitale Visitenkarte für Gäste. Die Klasse setzt
+         public/start.js vor dem Laden, danach useWideWeb in src/theme/layout.ts (WEB_WIDE_MAX_WIDTH). */
       html.kc-breit #root {
         max-width: none;
         box-shadow: none;

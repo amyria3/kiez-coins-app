@@ -1,6 +1,9 @@
 // Start der Web-App: Safari-Ersatz für requestIdleCallback und Fehleranzeige statt schwarzem Bildschirm.
 // Vorher inline in index.html; als eigene Datei, damit die Content-Security-Policy keine Inline-Skripte braucht
 // (Sicherheitsprüfung, 2026-11-15).
+// Volle Breite für die Digitale Visitenkarte für Gäste, bevor die App lädt (Daria, 2026-11-28). Danach hält
+// useWideWeb in src/theme/layout.ts die Klasse; html.kc-breit #root in index.html hebt die 480 px auf.
+if (/^\/s\/[^/]+\/visitenkarte\/?$/.test(location.pathname)) document.documentElement.classList.add('kc-breit');
 // Safari kennt requestIdleCallback nicht. Expo Router ruft es an einer Stelle ohne Prüfung auf.
 // Trigger Deployment
 if (!window.requestIdleCallback) {
