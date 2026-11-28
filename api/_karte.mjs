@@ -28,3 +28,33 @@ export function karteEinbetten(s) {
 
 /** Größere Karte auf openstreetmap.org */
 export const karteGross = (s) => `${OSM}/?mlat=${s.lat.toFixed(5)}&mlon=${s.lng.toFixed(5)}#map=17/${s.lat.toFixed(5)}/${s.lng.toFixed(5)}`;
+
+/** Kartenbild der Schaufenster-Seite (/s/<kurzname>/karte.png): 680 × 340, doppelt so groß wie die Spalte mit 340 px */
+export const KARTE_B = 680;
+export const KARTE_H = 340;
+/** Zoom 17: Straßen mit Namen, rund 600 m Ausschnitt in der Breite */
+export const KARTE_ZOOM = 17;
+const KACHEL = 256;
+
+/**
+ * Kacheln von tile.openstreetmap.org für ein Bild von `breite` × `hoehe` Pixeln mit dem Punkt in der Mitte
+ * (Web-Mercator wie OpenStreetMap). `links` und `oben` sind die Lage jeder Kachel im Bild.
+ * @returns {{ z: number, x: number, y: number, links: number, oben: number }[]}
+ */
+export function kartenKacheln(s, { breite = KARTE_B, hoehe = KARTE_H, zoom = KARTE_ZOOM } = {}) {
+  const n = 2 ** zoom;
+  const welt = n * KACHEL;
+  const rad = (s.lat * Math.PI) / 180;
+  const px = ((s.lng + 180) / 360) * welt;
+  const py = ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * welt;
+  const x0 = px - breite / 2;
+  const y0 = py - hoehe / 2;
+  const kacheln = [];
+  for (let ty = Math.floor(y0 / KACHEL); ty * KACHEL < y0 + hoehe; ty++) {
+    if (ty < 0 || ty >= n) continue;
+    for (let tx = Math.floor(x0 / KACHEL); tx * KACHEL < x0 + breite; tx++) {
+      kacheln.push({ z: zoom, x: ((tx % n) + n) % n, y: ty, links: Math.round(tx * KACHEL - x0), oben: Math.round(ty * KACHEL - y0) });
+    }
+  }
+  return kacheln;
+}
