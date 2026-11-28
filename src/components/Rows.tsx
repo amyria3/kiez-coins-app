@@ -107,19 +107,28 @@ type NavRowProps = {
   label: string;
   value?: string;
   tone?: 'default' | 'danger';
+  /** `external`: die Zeile öffnet eine Seite außerhalb der App */
+  iconEnd?: 'chevron-right' | 'external';
   onPress: () => void;
 };
 
 /** In einer `NavList` mit Trennlinien liegen die Zeilen flach auf dem Grund */
 const FlatRows = createContext(false);
+/** In einer `NavList` im Kiez-Look bilden die Zeilen einen Block, die Liste trägt die Rundung */
+const BlockRows = createContext(false);
 
 /**
- * Liste von `NavRow`s. Kiez: einzelne Kacheln mit Abstand. Mono (`color.accountCards.divider`): flach, Zeilen durch
+ * Liste von `NavRow`s. Kiez: ein Block je Abschnitt, feine Fugen im Grund trennen die Zeilen (Daria, 2026-11-28). Mono (`color.accountCards.divider`): flach, Zeilen durch
  * feine Linien getrennt wie die übrigen Bereiche der Kontoseite (Daria, 2026-11-27).
  */
 export function NavList({ children }: { children: ReactNode }) {
   const divider = color.accountCards.divider;
-  if (!divider) return <View style={styles.navList}>{children}</View>;
+  if (!divider)
+    return (
+      <BlockRows.Provider value>
+        <View style={styles.navList}>{children}</View>
+      </BlockRows.Provider>
+    );
   const rows = Children.toArray(children);
   return (
     <FlatRows.Provider value>
@@ -136,18 +145,19 @@ export function NavList({ children }: { children: ReactNode }) {
 }
 
 /** Figma „NavRow“ (Default, Danger): Zeile, die zu einem anderen Screen führt. */
-export function NavRow({ label, value, tone = 'default', onPress }: NavRowProps) {
+export function NavRow({ label, value, tone = 'default', iconEnd = 'chevron-right', onPress }: NavRowProps) {
   const flat = useContext(FlatRows);
+  const block = useContext(BlockRows);
   return (
     <Pressable
-      style={({ pressed }) => [styles.row, styles.navRow, flat && styles.flatRow, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.row, styles.navRow, flat && styles.flatRow, block && styles.blockRow, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={value ? `${label}, ${value}` : label}
       onPress={onPress}
     >
       <Text style={[styles.value, styles.flex, tone === 'danger' && { color: color.accent.signal }]}>{label}</Text>
       {value ? <Text style={styles.label}>{value}</Text> : null}
-      <Icon name="chevron-right" size={size.icon} color={color.text.secondary} />
+      <Icon name={iconEnd} size={size.icon} color={color.text.secondary} />
     </Pressable>
   );
 }
@@ -192,7 +202,7 @@ export function ProfileHeader({ user, name, details, onPress }: ProfileHeaderPro
  */
 export function NavGroup({ children }: { children: ReactNode }) {
   const divider = color.accountCards.divider;
-  if (!divider) return <View style={styles.navGroup}>{children}</View>;
+  if (!divider) return <View style={[styles.navGroup, styles.navGroupGap]}>{children}</View>;
   // Mono: Linie nur zwischen den Zeilen, bündig mit dem Titel (Daria, 2026-11-25)
   const rows = Children.toArray(children);
   return (
@@ -262,11 +272,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     backgroundColor: color.bg.surface,
   },
-  navRow: { minHeight: 48 },
-  navList: { gap: space[8] },
+  navRow: { minHeight: 52 },
+  // Im Block trägt die Liste die Rundung
+  blockRow: { borderRadius: 0 },
+  navList: { gap: space[2], borderRadius: radius.md, overflow: 'hidden' },
   flatRow: { backgroundColor: 'transparent', borderRadius: 0 },
   listDivider: { height: 1, marginLeft: space[12] },
   navGroup: { borderRadius: radius.md, overflow: 'hidden' },
+  // Kiez: Fuge im Grund zwischen den Zeilen einer Gruppe, alle im selben Ton (Daria, 2026-11-28)
+  navGroupGap: { gap: space[2] },
   groupRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[12], paddingVertical: space[12], minHeight: 60 },
   // Beginnt unter dem Titel: Innenabstand 12, Icon-Feld 40, Abstand 12
   groupDivider: { height: 1, marginLeft: space[12] + 40 + space[12] },

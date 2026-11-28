@@ -31,7 +31,8 @@ const kiezPalette = {
   green: '#7EE798',
   red: '#FF7E8B',
   pink: '#FFB2E5',
-  graphite: '#303034',
+  /** Flächen: Aubergine wie der Grund, heller. Vorher kühles Grafit `#303034` (Daria, 2026-11-28: „Es wirkt kalt. Technisch.“) */
+  graphite: '#372D33',
 };
 
 export const palette = Object.freeze(kiezPalette);
@@ -93,10 +94,6 @@ const swatch = {
    */
   lilaKonto: '#ADB1FF',
   gelbgruenKonto: '#E0F088',
-  /** Farbstufen der Kontoseite: Startfarbe 20 und 40 % Richtung Weiß */
-  lilaKontoStufe1: '#BDC1FF',
-  gruenStufe1: '#98ECAD',
-  gruenStufe2: '#B2F1C1',
   /** Reines Weiß: Rand der Herzen, Schrift auf Fotos beim Beschriften, Blatt der Textposts */
   weiss: '#FFFFFF',
   /** Fast Schwarz mit kühlem Ton: Schrift auf hellen Flächen (Systemmeldung, Abzeichen-Icon) */
@@ -334,7 +331,7 @@ const kiezColor = {
    * Kater Weiß.
    */
   /**
-   * Kontoseite (Daria, 2026-11-17): jede Zeile in der Farbe ihres Bereichs, die Zeilen einer Gruppe in Stufen heller.
+   * Kontoseite (Daria, 2026-11-17): jede Zeile in der Farbe ihres Bereichs, alle Zeilen einer Gruppe im selben Ton.
    * Senf Me & Myself, Rosa Feed und Posts, Lila Friendship, Gelbgrün Schaufenster, Grün Functional. Der Kater steht
    * allein in der Farbe seiner Sprechblase.
    */
@@ -344,9 +341,10 @@ const kiezColor = {
     inkSoft: withAlpha(swatch.tinte, 0.82),
     activity: swatch.senf,
     posts: palette.pink,
-    friendship: [swatch.lilaKonto, swatch.lilaKontoStufe1],
+    // Ohne Aufhellung (Daria, 2026-11-28): die helleren Stufen wirkten milchig, feine Fugen trennen die Zeilen
+    friendship: [swatch.lilaKonto, swatch.lilaKonto],
     showcase: swatch.gelbgruenKonto,
-    functional: [palette.green, swatch.gruenStufe1, swatch.gruenStufe2],
+    functional: [palette.green, palette.green, palette.green],
     cat: swatch.lilaNacht,
     catInk: palette.white,
     catInkSoft: swatch.flieder,
@@ -386,7 +384,8 @@ const kiezColor = {
   textTone: {
     showcase: { primary: swatch.schriftGelbgruen, secondary: swatch.schriftGelbgruenNeben },
     me: { primary: swatch.schriftSenf, secondary: swatch.schriftSenfNeben },
-    functional: { primary: swatch.schriftGruen, secondary: swatch.schriftGruenNeben },
+    // Functional wieder in Puder (Daria, 2026-11-28): grün getönte Schrift machte die Seiten unter dem Menü kalt
+    functional: { primary: kiezPalette.white, secondary: kiezPalette.grey },
   },
   toggle: {
     /** Friendship: dunkles Lila */
@@ -783,7 +782,7 @@ export const text = {
   metricSm: { fontFamily: font.display, fontSize: 18, lineHeight: 22 },
   title: { fontFamily: font.regular, fontSize: 19, lineHeight: 23 },
   /** Abschnittsüberschrift auf Einstellungsseiten aus mehreren Abschnitten, z. B. Funktionen (Daria, 2026-11-10) */
-  settingsHeading: { fontFamily: font.semiBold, fontSize: 20, lineHeight: 26 },
+  settingsHeading: isLight ? { fontFamily: font.semiBold, fontSize: 20, lineHeight: 26 } : { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24 },
   body: { fontFamily: font.text, fontSize: 15, lineHeight: 19 },
   /**
    * `text/body/dark-on-color`: Fließtext dunkel auf farbiger Fläche, z. B. grüne Antworten und lila Fragen in den
