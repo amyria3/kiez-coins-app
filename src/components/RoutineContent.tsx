@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, Platform, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { Button } from './Button';
-import { NAV_SWAP_SPRING } from './TabBar';
 import { Notice } from './Content';
 import { KaterMessage } from './KaterMessage';
 import { upcomingCalendarEvents, type CalendarEvent } from '../data/calendar';
@@ -27,15 +26,14 @@ import { color, space } from '../theme/tokens';
 export function RoutineContent({
   topPad = space[16],
   bottomPad,
-  floatBottom,
   onScroll,
   calendarInList = true,
   onNewButtonShown,
 }: {
   topPad?: number;
   bottomPad: number;
-  /** Abstand des schwebenden „Neue Erinnerung“ vom unteren Rand: direkt über der Leiste (Daria, 2026-11-16) */
-  floatBottom: number;
+  /** Abstand des schwebenden „Neue Erinnerung“ über der Leiste; der Knopf ist vorerst raus (Daria, 2026-11-28) */
+  floatBottom?: number;
   /** Im Feed `false`: Dort liegt der Kalender hinter den Umschaltern (Daria, 2026-11-14) */
   calendarInList?: boolean;
   /** Lage der Liste, z. B. damit der Feed erkennt, ob man ganz oben weiter nach oben zieht */
@@ -114,7 +112,6 @@ export function RoutineContent({
   }, [reload]);
   // Gleichbleibende Funktionen, damit RoutineList (memo) beim Sperren der Seite nicht neu rendert
   const onDone = useCallback((r: Reminder) => router.push({ pathname: '/routine/[id]', params: { id: r.id } }), [router]);
-  const onNew = useCallback(() => router.push('/routine/new'), [router]);
   const onEdit = useCallback((r: Reminder) => router.push({ pathname: '/routine/bearbeiten', params: { id: r.id } }), [router]);
   const onCopy = useCallback((r: Reminder) => router.push({ pathname: '/routine/new', params: { von: r.id } }), [router]);
   // Haken zurücknehmen (Daria, 2026-11-18, „Untick“): ohne Rückfrage, neu abhaken geht jederzeit
@@ -137,35 +134,10 @@ export function RoutineContent({
     undoReminderSkip(r.id).then(reload, reload);
   }, [reload]);
 
-  // „Neue Erinnerung“ (Daria, 2026-11-23): Passt alles auf den Bildschirm, steht der Knopf fest über der Leiste. Sonst
-  // steht er nur am Ende der Liste, nie halb hinter der Leiste (das Hervorfahren beim Scrollen wirkte unruhig). Ist er
-  // ganz zu sehen, fehlt dafür das Plus in der Leiste; sonst übernimmt das Plus.
-  // Halb zu sehen bleibt er unsichtbar und blendet erst ein, wenn er ganz über der Leiste steht (Daria, 2026-11-23).
-  const box = useRef({ view: 0, content: 0 });
+  // Großer Knopf „Neue Erinnerung“ über der Leiste vorerst raus (Daria, 2026-11-28: „Let's de-launch this button for now
+  // and store it in a separate branch“). Gesichert im Branch `archiv/neue-erinnerung-knopf`; neu anlegen geht über das
+  // Plus in der Leiste und „+ Erinnerung“ am Tag.
   const rootRef = useRef<View>(null);
-  const inlineRef = useRef<View>(null);
-  const inlineFade = useRef(new Animated.Value(0)).current;
-  const [fits, setFits] = useState(true);
-  const [inlineShown, setInlineShown] = useState(false);
-  const measure = () => {
-    const b = box.current;
-    setFits(b.content <= b.view + 1);
-    checkInline();
-  };
-  // Ganz zu sehen: Unterkante des Knopfs über der Oberkante der Leiste (floatBottom liegt space[8] darüber). Gemessen
-  // auf dem Bildschirm, nicht gerechnet: So stimmt es auch, wenn die Seite höher ist als der sichtbare Teil (Safari).
-  const checkInline = () => {
-    inlineRef.current?.measureInWindow((_x, y, _w, h) => {
-      rootRef.current?.measureInWindow((_rx, ry, _rw, rh) => {
-        setInlineShown(h > 0 && y + h <= ry + rh - (floatBottom - space[8]) + 1);
-      });
-    });
-  };
-  useEffect(() => {
-    // Dieselbe Feder wie das Plus in der Leiste (TabBar), damit der große Knopf genau so ein- und ausblendet, wie das
-    // Plus verschwindet und erscheint (Daria, 2026-11-23: „simultan“)
-    Animated.spring(inlineFade, { toValue: inlineShown ? 1 : 0, ...NAV_SWAP_SPRING, useNativeDriver: Platform.OS !== 'web' }).start();
-  }, [inlineShown, inlineFade]);
   // Zu einem Stapel scrollen (Daria, 2026-11-28): Lage auf dem Bildschirm messen, nicht rechnen, wie oben
   const scrollRef = useRef<ScrollView>(null);
   const offset = useRef(0);
@@ -181,16 +153,15 @@ export function RoutineContent({
   );
   const scrolled = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     offset.current = e.nativeEvent.contentOffset.y;
-    checkInline();
     onScroll?.(e);
   };
   const empty = !!list && list.length === 0 && events.length === 0 && saved.length === 0;
-  const newShown = !!list && (empty || fits || inlineShown);
+  // Nur der leere Zustand hat einen eigenen Knopf; sonst übernimmt das Plus in der Leiste
+  const newShown = empty;
   useEffect(() => {
     onNewButtonShown?.(newShown);
   }, [newShown, onNewButtonShown]);
   useEffect(() => () => onNewButtonShown?.(false), [onNewButtonShown]);
-  const newButton = <Button label="Neue Erinnerung" icon="plus" onPress={onNew} />;
 
   return (
     <View ref={rootRef} style={styles.screen}>
@@ -222,14 +193,6 @@ export function RoutineContent({
           onTouchCancel={() => lockPage(false)}
           onScroll={scrolled}
           scrollEventThrottle={16}
-          onLayout={(e) => {
-            box.current.view = e.nativeEvent.layout.height;
-            measure();
-          }}
-          onContentSizeChange={(_, h) => {
-            box.current.content = h;
-            measure();
-          }}
           contentContainerStyle={[styles.content, styles.contentFlat, { paddingTop: topPad, paddingBottom: 0 }]}>
           <RoutineList
             list={list}
@@ -246,26 +209,12 @@ export function RoutineContent({
             onDragLock={lockPage}
             showCalendar={calendarInList}
           />
-          {/* Passt alles auf den Bildschirm oder ist er nicht ganz zu sehen, ist dieser hier unsichtbar (Platz bleibt,
-              damit nichts springt) */}
-          <Animated.View
-            ref={inlineRef}
-            style={{ opacity: fits ? 0 : inlineFade.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }) }}
-            pointerEvents={!fits && inlineShown ? 'auto' : 'none'}
-            onLayout={checkInline}>
-            {newButton}
-          </Animated.View>
           {/* Platz unter „Neue Erinnerung“ als eigenes Element statt Polsterung: Safari ließ die Polsterung unten in
               der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}
           <View style={{ height: Math.max(0, bottomPad - space[32]) }} />
         </ScrollView>
         </ScrollToView.Provider>
       )}
-      {list && !empty && fits ? (
-        <View pointerEvents="box-none" style={[styles.float, { bottom: floatBottom }]}>
-          {newButton}
-        </View>
-      ) : null}
     </View>
   );
 }
@@ -280,5 +229,4 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: space[20], paddingTop: space[16], gap: space[24] },
   /** Mehr Luft zwischen Kalender und Gruppen */
   contentFlat: { gap: space[32] },
-  float: { position: 'absolute', left: space[20], right: space[20] },
 });
