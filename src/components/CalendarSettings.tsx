@@ -108,7 +108,7 @@ const SAVE_FAILED = 'Das hat nicht geklappt. Bitte versuch es noch einmal.';
 /**
  * Kalender unter Dein Konto › Funktionen, nach dem Muster vom Weiterposten (Daria, 2026-11-13): je Funktion ein
  * Schalter. „Termine aus KiezCoins exportieren“ und feste Zeilen „Termine aus Google/iCloud/Outlook anzeigen“, dazu
- * weitere verbundene Kalender und auf Android die Kalender des Handys. Ohne Verbindung öffnet der Schalter darunter die
+ * weitere verbundene Kalender und in der Android- und iPhone-App die Kalender des Handys. Ohne Verbindung öffnet der Schalter darunter die
  * Einrichtung; verbunden schaltet er nur an und aus. Ein Tipp auf den Namen öffnet die Einstellungen; dort steht das
  * Zurücksetzen (Link kopieren und neuer Link, Trennen) als eigener Knopf. Scheitert das Speichern, springt der
  * Schalter zurück und eine Meldung erscheint.
@@ -475,7 +475,7 @@ export function CalendarSettings() {
         ),
       )}
 
-      {/* Kalender auf dem Handy (Android-App), je einer mit eigenem Schalter */}
+      {/* Kalender auf dem Handy (Android- und iPhone-App), je einer mit eigenem Schalter */}
       {deviceCalendarsSupported ? (
         device === null ? (
           <View style={styles.setup}>

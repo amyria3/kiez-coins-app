@@ -116,11 +116,14 @@ async function linkedEvents(days: number): Promise<CalendarEvent[]> {
   return error || !data?.events ? [] : data.events;
 }
 
-// ---------- Import vom Gerät (nur Android-App) ----------
+// ---------- Import vom Gerät (Android- und iPhone-App) ----------
 
 const DEVICE_KEY = 'routine-device-calendars';
-/** Kalender des Geräts lesen geht nur in der nativen Android-App, nicht im Web */
-export const deviceCalendarsSupported = Platform.OS === 'android';
+/**
+ * Kalender des Geräts lesen geht nur in der nativen App, nicht im Web. Seit 2026-11-28 auch auf dem iPhone (Daria):
+ * Dort liest die App über EventKit alle Kalender der Kalender-App, auch ein eingetragenes Google-Konto.
+ */
+export const deviceCalendarsSupported = Platform.OS === 'android' || Platform.OS === 'ios';
 
 // Seit SDK 58 werfen die alten Funktionen in `expo-calendar` zur Laufzeit; sie stehen unter `expo-calendar/legacy`
 type ExpoCalendar = typeof import('expo-calendar/legacy');

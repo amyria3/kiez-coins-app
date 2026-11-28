@@ -20,7 +20,9 @@ const SHOWN = 3;
  * Zeile unter dem Datumsfeld (Daria, 2026-11-26): der verstandene Tag und was dort schon ansteht, z. B.
  * „Mi., 2. Dezember · keine festen Termine“ oder „Mi., 2. Dezember · 2 Termine: 10:00 Zahnarzt, 18:30 Chor“.
  * Der ausgeschriebene Tag zeigt zugleich, wie „2.12“ verstanden wurde. Daten aus der Routine, wenn sie schon geladen
- * ist, sonst lädt das Formular sie selbst. `undefined` ohne gültigen Tag.
+ * ist, sonst lädt das Formular sie selbst. Termine aus verbundenen Kalendern holt das Formular beim Öffnen immer frisch
+ * (Daria, 2026-11-28): So steht ein Termin, der eben erst im Kalender eingetragen wurde, schon in der Zeile.
+ * `undefined` ohne gültigen Tag.
  */
 export function useDayAgendaText(day: string | null, skipId?: string): string | undefined {
   const published = useRoutineData();
@@ -43,7 +45,24 @@ export function useDayAgendaText(day: string | null, skipId?: string): string | 
       live = false;
     };
   }, [needOwn, own, calendarOn, currentUserId, hidden]);
-  const source = published ?? own;
+  // Kalender beim Öffnen frisch abrufen; bis die Antwort da ist, gilt der Stand der Routine (Daria, 2026-11-28)
+  const [fresh, setFresh] = useState<CalendarEvent[] | null>(null);
+  useEffect(() => {
+    if (!calendarOn) return;
+    let live = true;
+    upcomingCalendarEvents(CALENDAR_DAYS).then(
+      (events) => live && setFresh(events),
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [calendarOn]);
+  const base = published ?? own;
+  const source = useMemo(
+    () => (base && fresh ? { ...base, events: fresh.filter((e) => !hidden.has(e.id)) } : base),
+    [base, fresh, hidden],
+  );
 
   return useMemo(() => {
     if (!day) return undefined;
