@@ -529,12 +529,16 @@ const mono = {
   herz: '#E5484D',
   /** Fehler als Schrift: 4,9 : 1 auf Weiß */
   fehler: '#C93A1E',
-  /** Zarte Tönungen der Karten in Routine: Aufgaben, Termine, Gemerkte, aus dem Schaufenster */
-  // Frischer (Daria, 2026-11-27: „Farben wieder etwas fresher, vor allem gelb“): mehr Sättigung, Sand wird klares Hellgelb
+  /** Zarte Tönung für Ausgewähltes */
   lila: '#E1E2FE',
-  sand: '#FEF5C8',
-  mint: '#D6F5E4',
-  limette: '#F2FAC6',
+  /**
+   * Karten in Routine: dieselben Farben wie im Kiez-Look, nur heller und leichter, je halb zu Weiß gemischt
+   * (Daria, 2026-11-28: „Gleiche Farben wie im Kiez Look, nur heller / leichter“). Senf, Olive, Puder, Gelbgrün.
+   */
+  senfHell: '#F0E4B6',
+  oliveHell: '#E3E8CA',
+  puderHell: '#F3EBE0',
+  gelbgruenHell: '#F8FFD3',
   /** Sprechblase des Katers, Gelb aus seinem Kreis */
   katerGelb: '#FFF4C2',
   /** Ausgeschaltete Schalter */
@@ -597,12 +601,12 @@ const monoOverrides = {
     signal: mono.fehler,
     error: mono.fehler,
   },
-  // Zarte Tönung je Kartenart statt Grau (Daria, 2026-11-26: Entwurf „C, Zarte Tönung“). Schwarz darauf über 15 : 1.
+  // Kartenfarben wie im Kiez-Look, nur heller (Daria, 2026-11-28). Schwarz darauf über 14 : 1.
   routine: {
-    task: mono.lila,
-    fixed: mono.sand,
-    saved: mono.mint,
-    showcase: mono.limette,
+    task: mono.senfHell,
+    fixed: mono.oliveHell,
+    saved: mono.puderHell,
+    showcase: mono.gelbgruenHell,
     ink: mono.ink,
     pill: mono.inkSoft,
     // Schwarzer Ring um den Kater (Daria, 2026-11-27: „Katzenrand schwarz“)
