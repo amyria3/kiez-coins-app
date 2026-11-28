@@ -1,15 +1,28 @@
-import { memo, useState } from 'react';
+import { memo, useMemo, useState, type ReactElement } from 'react';
+import { View } from 'react-native';
 
 import { eventDate, type CalendarEvent } from '../../data/calendar';
+import { daySummary } from '../../data/daySummary';
 import { useCardMotion } from '../../data/features';
-import { allDoneLine, katerFocus, katerLine } from '../../data/katerRoutine';
-import { addDays, kindOf, localDate, type Reminder, type ReminderEnd } from '../../data/reminders';
+import { allDoneLine, dayName } from '../../data/katerRoutine';
+import { addDays, capitalize, kindOf, localDate, type Reminder, type ReminderEnd } from '../../data/reminders';
+import { localeTag, t } from '../../data/texts';
+import { eventOver, isUrgent, restingOf, sortAgenda, sortByUrgency } from '../../data/urgency';
 import { KaterCard } from '../Content';
 import { RoutineCalendar } from './calendar';
-import { CalendarCard, EventCard, Group, SavedCard, TaskCard } from './cards';
+import { CalendarCard, EventCard, SavedCard, TaskCard } from './cards';
 import { OLIVE, POWDER } from './constants';
 import { AsideWhenCalendar, Motion, PageLock, Saved, noLock, useLater, useNow } from './shared';
-import { isUrgent, sortAgenda, sortByUrgency } from '../../data/urgency';
+import { DayHead, DayStack } from './stack';
+import { stackStyles } from './styles';
+
+type DayCards = { tasks: Reminder[]; fixed: Reminder[]; events: CalendarEvent[]; optional: Reminder[]; saved: Saved[] };
+
+/** „Sa., 28.11.“ */
+const shortDate = (date: string) => {
+  const [y, m, d] = date.split('-').map(Number);
+  return new Intl.DateTimeFormat(localeTag(), { weekday: 'short', day: '2-digit', month: '2-digit' }).format(new Date(y, m - 1, d));
+};
 
 /**
  * `memo`: Die Seite rendert neu, wenn eine Karte angehoben wird (Scrollen sperren). Die Karten sollen dabei nicht
@@ -52,29 +65,91 @@ export const RoutineList = memo(function RoutineList({
   /** Kalender in der Liste; im Feed liegt er hinter den Umschaltern (Daria, 2026-11-14) */
   showCalendar?: boolean;
 }) {
-  const focus = list.length ? katerFocus(list) : undefined;
-  // Nur Routinen, die heute frei haben: alles erledigt (Daria, 2026-11-15)
-  const katerText = focus ? katerLine(focus) : list.length ? allDoneLine() : '';
   const motion = useCardMotion();
   const now = useNow();
   const { later, snooze } = useLater();
   // Sortiert nach Dringlichkeit (Daria, 2026-11-13): fällige nach Uhrzeit, dann ohne Uhrzeit, dann „später“, Erledigte zuletzt
   const sorted = sortByUrgency(list, now, later);
   const urgentOf = (r: Reminder) => isUrgent(r, now, later);
-  // Aufgaben: wiederkehrende und einmalige „bis“; Termine: einmalige „um“ (Daria, 2026-11-10)
-  const tasks = sorted.filter((r) => kindOf(r) !== 'termin');
-  const calendarEvents = sorted.filter((r) => kindOf(r) === 'termin');
-  const fixed = calendarEvents.filter((r) => r.required !== false);
-  const optional = calendarEvents.filter((r) => r.required === false);
-  // Karten nur für die nächsten 7 Tage, der Kalender oben zeigt alle geladenen Termine (Daria, 2026-11-14)
-  const lastCardDay = localDate(addDays(6, now));
-  const calendar = events.filter((e) => eventDate(e) <= lastCardDay).slice(0, 20);
-  // Erinnerungen und Kalendertermine in einer Reihe nach Beginn, Erledigte und Vergangene hinten (Daria, 2026-11-27)
-  // Vergangene Kalendertermine gleiten beim Einblenden nach links hinaus (Daria, 2026-11-27)
-  const [gone, setGone] = useState<string[]>([]);
-  const agenda = sortAgenda(fixed, calendar, now, later).filter((i) => i.kind !== 'event' || !gone.includes(`e:${i.event.id}`));
-  const leaving = agenda.flatMap((i) => (i.kind === 'event' && i.over ? [`e:${i.event.id}`] : []));
-  const shownCount = agenda.length - leaving.length;
+
+  // Ein Tag = ein Stapel (Daria, 2026-11-28), heute und die nächsten 6 Tage. Wiederkehrende Aufgaben liegen heute,
+  // alles mit Datum an seinem Tag; Überfälliges liegt heute. Vergangene Kalendertermine fallen weg.
+  const today = localDate(now);
+  const lastDay = localDate(addDays(6, now));
+  const dayOf = (date?: string) => (!date || date < today ? today : date);
+  const inRange = (date: string) => date <= lastDay;
+  const cardDays = useMemo(() => {
+    const days = new Map<string, DayCards>();
+    const at = (date: string) => {
+      let d = days.get(date);
+      if (!d) days.set(date, (d = { tasks: [], fixed: [], events: [], optional: [], saved: [] }));
+      return d;
+    };
+    for (const r of sorted) {
+      const date = dayOf(r.onDate);
+      if (!inRange(date)) continue;
+      const termin = kindOf(r) === 'termin';
+      if (!termin) at(date).tasks.push(r);
+      else if (r.required === false) at(date).optional.push(r);
+      else at(date).fixed.push(r);
+    }
+    for (const e of events) {
+      const date = eventDate(e);
+      if (date < today || !inRange(date) || eventOver(e, now)) continue;
+      at(date).events.push(e);
+    }
+    for (const e of saved) {
+      const date = dayOf(localDate(new Date(e.startsAt)));
+      if (inRange(date)) at(date).saved.push(e);
+    }
+    at(today);
+    return [...days.entries()].sort(([a], [b]) => a.localeCompare(b));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sorted, events, saved, today, lastDay, now]);
+
+  const [picked, setPicked] = useState<{ date: string; dir: -1 | 0 | 1 }>({ date: today, dir: 0 });
+  const index = Math.max(0, cardDays.findIndex(([d]) => d === picked.date));
+  const [date, cardsOfDay] = cardDays[index] ?? [today, undefined];
+  const isToday = date === today;
+
+  const taskCard = (r: Reminder) => (
+    <TaskCard key={`r:${r.id}`} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} onSkip={onSkip && (() => onSkip(r))} onUndoSkip={onUndoSkip && (() => onUndoSkip(r))} />
+  );
+  const eventCard = (r: Reminder, bg: string) => (
+    <EventCard key={`r:${r.id}`} reminder={r} bg={bg} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} />
+  );
+  // Reihenfolge im Stapel: offene Termine nach Uhrzeit, offene Aufgaben, Vorgemerktes, zuletzt Erledigtes
+  const cards: ReactElement[] = [];
+  let summary = '';
+  if (cardsOfDay) {
+    const d = cardsOfDay;
+    const agenda = sortAgenda(d.fixed, d.events, now, later);
+    const openAgenda = agenda.filter((i) => i.kind === 'event' || !restingOf(i.reminder));
+    const doneAgenda = agenda.filter((i) => i.kind === 'reminder' && restingOf(i.reminder));
+    const agendaCard = (i: (typeof agenda)[number]) =>
+      i.kind === 'event' ? <CalendarCard key={`e:${i.event.id}`} event={i.event} /> : eventCard(i.reminder, OLIVE);
+    cards.push(
+      ...openAgenda.map(agendaCard),
+      ...d.tasks.filter((r) => !restingOf(r)).map(taskCard),
+      ...d.optional.map((r) => eventCard(r, POWDER)),
+      ...d.saved.map((e) => <SavedCard key={`s:${e.id}`} event={e} onChanged={onChanged} />),
+      ...d.tasks.filter(restingOf).map(taskCard),
+      ...doneAgenda.map(agendaCard),
+    );
+    // Pille oben (Daria, 2026-11-28): „Du hast Dir vorgenommen: … Du hast heute außerdem ganze 3 Termine. WTF.“
+    summary = daySummary(
+      {
+        day: dayName(date, now),
+        today: isToday,
+        tasks: d.tasks.filter((r) => !restingOf(r)).map((r) => capitalize(r.want)),
+        dates: openAgenda.length + d.optional.filter((r) => !restingOf(r)).length + d.saved.filter((e) => !e.cancelled).length,
+      },
+      t,
+    );
+  }
+  // Heute nichts Offenes, aber Routinen da: alles erledigt (Daria, 2026-11-15)
+  const katerText = summary || (isToday && list.length ? allDoneLine() : '');
+  const dayLabel = isToday || date === localDate(addDays(1, now)) ? `${dayName(date, now)}, ${shortDate(date)}` : dayName(date, now);
 
   return (
     <Motion.Provider value={motion}>
@@ -86,33 +161,11 @@ export const RoutineList = memo(function RoutineList({
         </AsideWhenCalendar>
       ) : null}
       {showCalendar ? <RoutineCalendar list={list} events={events} saved={saved} /> : null}
-      {tasks.length ? (
-        <Group title="Aufgaben" count={tasks.length}>
-          {tasks.map((r) => (
-            <TaskCard key={r.id} reminder={r} onDone={() => onDone(r)} onGiveUp={() => onEnd(r, 'given_up')} onCancel={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} onSkip={onSkip && (() => onSkip(r))} onUndoSkip={onUndoSkip && (() => onUndoSkip(r))} />
-          ))}
-        </Group>
-      ) : null}
-      {agenda.length ? (
-        <Group title="Feste Termine" count={shownCount} leaving={leaving} onGone={(key) => setGone((g) => [...g, key])}>
-          {agenda.map((item) =>
-            item.kind === 'event' ? (
-              <CalendarCard key={`e:${item.event.id}`} event={item.event} />
-            ) : (
-              <EventCard key={`r:${item.reminder.id}`} reminder={item.reminder} bg={OLIVE} onDone={() => onDone(item.reminder)} onEnd={() => onEnd(item.reminder, 'cancelled')} onEdit={() => onEdit(item.reminder)} onCopy={() => onCopy(item.reminder)} onDelete={() => onEnd(item.reminder, 'deleted')} onLater={() => snooze(item.reminder.id)} urgent={urgentOf(item.reminder)} onDragCancel={() => onEnd(item.reminder, 'cancelled', false)} onDragDelete={() => onEnd(item.reminder, 'deleted', false)} onUndo={() => onUndo(item.reminder)} />
-            ),
-          )}
-        </Group>
-      ) : null}
-      {optional.length || saved.length ? (
-        <Group title="Das hast Du Dir vorgemerkt" count={optional.length + saved.length}>
-          {optional.map((r) => (
-            <EventCard key={r.id} reminder={r} bg={POWDER} onDone={() => onDone(r)} onEnd={() => onEnd(r, 'cancelled')} onEdit={() => onEdit(r)} onCopy={() => onCopy(r)} onDelete={() => onEnd(r, 'deleted')} onLater={() => snooze(r.id)} urgent={urgentOf(r)} onDragCancel={() => onEnd(r, 'cancelled', false)} onDragDelete={() => onEnd(r, 'deleted', false)} onUndo={() => onUndo(r)} />
-          ))}
-          {saved.map((e) => (
-            <SavedCard key={e.id} event={e} onChanged={onChanged} />
-          ))}
-        </Group>
+      {cards.length || cardDays.length > 1 ? (
+        <View style={stackStyles.wrap}>
+          <DayHead label={dayLabel} index={index} count={cardDays.length} onDay={(i, dir) => setPicked({ date: cardDays[i][0], dir })} />
+          {cards.length ? <DayStack key={date} cards={cards} enter={picked.date === date ? picked.dir : 0} /> : null}
+        </View>
       ) : null}
     </PageLock.Provider>
     </Motion.Provider>

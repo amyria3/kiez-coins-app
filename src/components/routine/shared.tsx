@@ -115,6 +115,18 @@ export function tiltOf(key: string): number {
   return TILTS[Math.abs(h) % TILTS.length];
 }
 
+/** Leichter, fester Versatz nach links oder rechts je Karte im Stapel (Daria, 2026-11-28: „links und rechts verschieben“) */
+const SHIFTS = [-5, 4, -2, 6, -4, 2, 5, -6];
+export function shiftOf(key: string): number {
+  if (!handDrawn) return 0;
+  let h = 0;
+  for (const c of key) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return SHIFTS[(Math.abs(h) >> 3) % SHIFTS.length];
+}
+
+/** Karte im Stapel meldet die Höhe von Zeit und Titel (Daria, 2026-11-28) */
+export const StackHead = createContext<((height: number) => void) | null>(null);
+
 /**
  * Wo der Stimmungs-Sticker am Kater klebt (Daria, 2026-11-14): nie über dem Gesicht, sondern darunter oder über den
  * Ohren, mal links, mittig oder rechts, mal schräg in die eine, mal in die andere Richtung. Wechselt jeden Tag und

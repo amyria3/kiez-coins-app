@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import { color, font, radius, space, text } from '../../theme/tokens';
-import { DAY, GUTTER, INK, INK_SOFT, INK_TRACK, MUSTARD, UP_ROOM } from './constants';
+import { DAY, INK, INK_SOFT, INK_TRACK, MUSTARD } from './constants';
 
 export const styles = StyleSheet.create({
   calEnded: { ...text.bodySm, color: color.text.secondary, textAlign: 'right' },
@@ -24,11 +24,6 @@ export const styles = StyleSheet.create({
     ...text.bodyLarge,
     color: color.text.secondary,
   },
-  // Platz für Schräge, Anheben und Hochziehen: Die Reihe reicht oben unter die Überschrift und unten etwas weiter,
-  // ohne dass sich die Abstände ändern. Eine scrollbare Reihe schneidet sonst ab (Daria, 2026-11-13: „overflow sichtbar“).
-  rowScroll: { marginHorizontal: -GUTTER, marginTop: -UP_ROOM, marginBottom: -space[12], overflow: 'visible' },
-  // Jede Karte so hoch wie ihr Inhalt, nicht so hoch wie die höchste in der Reihe (Daria, 2026-11-16)
-  row: { paddingHorizontal: GUTTER, paddingTop: UP_ROOM, paddingBottom: space[12], gap: space[12], alignItems: 'flex-start' },
   card: {
     // Weniger rund (Daria, 2026-11-12): vorher 30, dann 16, jetzt Maß aller Karten (2026-11-13)
     borderRadius: radius.md,
@@ -42,32 +37,6 @@ export const styles = StyleSheet.create({
   cardBody: { gap: space[6] },
   cardRest: { gap: space[6] },
   head: { gap: space[2] },
-  // Nur der Kater bestimmt den Platz; die Sprechblase mit der Stimmung liegt darüber (Daria, 2026-11-28)
-  katerSide: { position: 'absolute', top: 0, right: 0 },
-  // Sprechblase wie die des Katers: rund, die Ecke zum Kater klein. Sitzt über seinem Kopf, ragt nach links und oben.
-  chip: {
-    position: 'absolute',
-    bottom: '100%',
-    right: -6,
-    marginBottom: -10,
-    backgroundColor: color.bg.screen,
-    borderRadius: radius.md,
-    borderBottomRightRadius: space[4],
-    borderWidth: 2,
-    paddingHorizontal: 9,
-    paddingVertical: space[2],
-    zIndex: 1,
-  },
-  chipText: {
-    ...text.captionStrong,
-    color: color.text.primary,
-  },
-  katerRing: {
-    borderRadius: 23,
-    borderWidth: 3,
-    borderColor: color.routine.katerRing ?? color.bg.screen,
-    overflow: 'hidden',
-  },
   meta: {
     ...text.labelSm,
     color: INK_SOFT,
@@ -187,4 +156,38 @@ export const styles = StyleSheet.create({
   },
   calNumDone: { color: INK, fontFamily: font.medium },
   calNumMissed: { color: color.text.secondary, opacity: 0.6 },
+});
+
+/** Tagesstapel (Daria, 2026-11-28) */
+export const stackStyles = StyleSheet.create({
+  wrap: { gap: space[8] },
+  // Platz für Neigung und Bogen, ohne dass etwas abgeschnitten wird
+  stack: { position: 'relative', overflow: 'visible' },
+  // Kräftiger Schatten unter jeder Karte, auch aufgefächert (Daria, 2026-11-28: „Mehr Schatten“)
+  slot: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    borderRadius: radius.md,
+    userSelect: 'none',
+    shadowColor: '#000',
+    shadowOpacity: color.routine.cardRaised ? 0.18 : 0.42,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  cover: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: radius.md },
+  foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[8] },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: space[6], paddingVertical: space[6] },
+  toggleText: { ...text.bodySm, color: color.text.secondary },
+  count: { ...text.bodySm, color: color.text.secondary, fontVariant: ['tabular-nums'] },
+  pressed: { opacity: 0.7 },
+  head: { gap: space[8] },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
+  day: { ...text.settingsHeading, color: color.text.primary, flex: 1 },
+  arrow: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: color.bg.surface },
+  arrowOff: { opacity: 0.3 },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: space[6] },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: color.bg.surface },
+  dotOn: { width: 20, backgroundColor: color.text.primary },
 });

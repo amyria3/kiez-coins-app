@@ -1,166 +1,24 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Alert, Animated, Easing, Linking, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { Alert, Animated, Easing, Linking, PanResponder, Platform, Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { markCardSwipe } from '../../lib/cardSwipe';
 
 import { calCancelUrl, canCancel, minutesUntil, shortNoticeKind } from '../../data/calBooking';
 import { addToMyCalendar, eventDate, eventTime, type CalendarEvent } from '../../data/calendar';
 import { hideEvent } from '../../data/hiddenEvents';
-import { dayName, goalText, katerMood, whenText, type KaterMood } from '../../data/katerRoutine';
+import { dayName, goalText, whenText } from '../../data/katerRoutine';
 import { canSkip, capitalize, goalOf, outOfReachOf, plannedGoalOf, type Reminder } from '../../data/reminders';
 import { asSingleEvent, eventWhen, saveEvent } from '../../data/showcase';
 import { t, useTexts } from '../../data/texts';
-import { color, space } from '../../theme/tokens';
-import { KaterCircle } from '../Content';
+import { color } from '../../theme/tokens';
 import { handShapePath } from '../handShape';
 import { Icon, type IconName } from '../icons/Icon';
 import { ClampText, FullCard } from '../ClampText';
 import { ReminderExtrasRow } from '../ReminderExtras';
 import { ManageButton } from '../ShowcaseManage';
 import { Text } from '../T';
-import { CARD_MAX, CARD_MIN, DRAG_AT, GUTTER, INK, INK_SOFT, LIFT_MS, MUSTARD, OLIVE, SHOWCASE, UP_FACTOR, UP_ROOM } from './constants';
-import { DragLock, Motion, PageLock, Saved, tiltOf, useReduceMotion } from './shared';
+import { DRAG_AT, INK, INK_SOFT, LIFT_MS, MUSTARD, OLIVE, SHOWCASE, UP_FACTOR, UP_ROOM } from './constants';
+import { DragLock, Motion, Saved, StackHead, tiltOf, useReduceMotion } from './shared';
 import { styles } from './styles';
-
-export function Group({
-  title,
-  count,
-  children,
-  leaving,
-  onGone,
-}: {
-  title: string;
-  count: number;
-  children: ReactNode;
-  /** Schlüssel der Karten, die nach links hinausgleiten (Daria, 2026-11-27: vergangene Termine) */
-  leaving?: string[];
-  onGone?: (key: string) => void;
-}) {
-  const { width: screen } = useWindowDimensions();
-  const page = useContext(PageLock);
-  const [locked, setLocked] = useState(false);
-  const lock = useCallback(
-    (on: boolean) => {
-      setLocked(on);
-      page(on);
-    },
-    [page],
-  );
-  // Breite der Spalte; im Browser ist die App schmaler als das Fenster
-  const [width, setWidth] = useState(screen - GUTTER * 2);
-  // Länglich, so breit es geht (Daria, 2026-11-12); die nächste Karte schaut rechts ein Stück herein
-  const cards = (Array.isArray(children) ? children.flat() : [children]).filter(Boolean);
-  // Nur eine Karte: über die ganze Breite (Daria, 2026-11-12)
-  const cardWidth = cards.length === 1 ? width : Math.max(CARD_MIN, Math.min(CARD_MAX, width - 36));
-  return (
-    <View style={styles.group} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
-      <View style={styles.groupHead}>
-        <Text style={styles.groupTitle} accessibilityRole="header">
-          {title}
-        </Text>
-        <Text noTranslate style={styles.groupCount}>
-          {count}
-        </Text>
-      </View>
-      {/* Seitliches Wischen hier bewegt nur die Karten, nicht die Reiter im Feed (Daria, 2026-11-12) */}
-      <View onStartShouldSetResponderCapture={markCardSwipe} onTouchEnd={() => locked && lock(false)} onTouchCancel={() => locked && lock(false)}>
-        <DragLock.Provider value={lock}>
-          {/* Eine Karte: keine Reihe zum Scrollen. Ein abgeschalteter ScrollView sperrt im Browser jede Berührung
-              (touch-action: none), dann scrollt die Seite nicht, wenn der Finger auf der Karte startet (Daria, 2026-11-13). */}
-          {cards.length === 1 ? (
-            <View style={[styles.rowScroll, styles.row]}>
-              <LeaveLeft
-                width={cardWidth}
-                leaving={!!leaving?.includes((cards[0] as { key?: string | null }).key ?? '0')}
-                onGone={() => onGone?.((cards[0] as { key?: string | null }).key ?? '0')}
-              >
-                {cards[0]}
-              </LeaveLeft>
-            </View>
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              scrollEnabled={!locked}
-              snapToInterval={cardWidth + space[12]}
-              decelerationRate="fast"
-              style={styles.rowScroll}
-              contentContainerStyle={styles.row}
-            >
-              {cards.map((c, i) => {
-                const key = (c as { key?: string | null }).key ?? String(i);
-                return (
-                  <LeaveLeft key={key} width={cardWidth} leaving={!!leaving?.includes(key)} onGone={() => onGone?.(key)}>
-                    {c}
-                  </LeaveLeft>
-                );
-              })}
-            </ScrollView>
-          )}
-        </DragLock.Provider>
-      </View>
-    </View>
-  );
-}
-
-/** Wartezeit, bis die Reihe zu sehen ist, und Dauer des Hinausgleitens (Daria, 2026-11-27: „langsam“) */
-const LEAVE_WAIT = 1200;
-const LEAVE_MS = 900;
-const CLOSE_MS = 450;
-
-/**
- * Platz einer Karte in der Reihe. `leaving`: Die Karte gleitet kurz nach dem Einblenden langsam nach links hinaus und
- * blasst aus, dann schließt sich die Lücke und die übrigen Karten rücken nach (Daria, 2026-11-27). Ohne bewegte Karten
- * oder mit „weniger Bewegung“ verschwindet sie sofort.
- */
-function LeaveLeft({ width, leaving, onGone, children }: { width: number; leaving: boolean; onGone: () => void; children: ReactNode }) {
-  const motion = useContext(Motion);
-  const reduce = useReduceMotion();
-  const out = useRef(new Animated.Value(0)).current;
-  const close = useRef(new Animated.Value(0)).current;
-  const gone = useRef(onGone);
-  useEffect(() => {
-    gone.current = onGone;
-  });
-  useEffect(() => {
-    if (!leaving) return;
-    if (!motion || reduce) {
-      gone.current();
-      return;
-    }
-    const anim = Animated.sequence([
-      Animated.delay(LEAVE_WAIT),
-      Animated.timing(out, { toValue: 1, duration: LEAVE_MS, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
-      Animated.timing(close, { toValue: 1, duration: CLOSE_MS, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
-    ]);
-    anim.start(({ finished }) => finished && gone.current());
-    return () => anim.stop();
-  }, [leaving, motion, reduce, out, close]);
-  if (!leaving) return <View style={{ width }}>{children}</View>;
-  return (
-    <Animated.View
-      style={{
-        width: close.interpolate({ inputRange: [0, 1], outputRange: [width, 0] }),
-        marginRight: close.interpolate({ inputRange: [0, 1], outputRange: [0, -space[12]] }),
-      }}
-    >
-      <Animated.View
-        style={{
-          width,
-          opacity: out.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
-          transform: [{ translateX: out.interpolate({ inputRange: [0, 1], outputRange: [0, -(width + GUTTER)] }) }],
-        }}
-      >
-        {children}
-      </Animated.View>
-    </Animated.View>
-  );
-}
-
-/** Stand des Katers auf der Karte, bis die Videos da sind als Wort am Avatar */
-type Mood = KaterMood;
-const moodOf = (r: Reminder) => katerMood(r);
-
 
 type DragActions = { right?: () => void; left?: () => void; up?: () => void };
 
@@ -275,7 +133,6 @@ function useLiftDrag(actions: DragActions) {
 
 function Card({
   bg,
-  mood,
   head,
   children,
   tiltKey,
@@ -287,10 +144,8 @@ function Card({
   onDragUp,
   leftLabel = 'Abbrechen',
   leftTone = 'end',
-  clearKater = true,
 }: {
   bg: string;
-  mood: Mood;
   head: ReactNode;
   children?: ReactNode;
   /** Für die feste Schräge, meist die id */
@@ -307,8 +162,6 @@ function Card({
   /** Was nach links ziehen bedeutet: „Abbrechen“, „Absagen“ oder „Löschen“ (Daria, 2026-11-13) */
   leftLabel?: string;
   leftTone?: 'end' | 'delete';
-  /** Inhalt unter dem Titel beginnt erst unter Kater und Sticker; aus bei Karten ohne Knöpfe (Kalender) */
-  clearKater?: boolean;
 }) {
   const motion = useContext(Motion);
   const drag = useLiftDrag(motion ? { right: onDragRight, left: onDragLeft, up: onDragUp } : {});
@@ -358,48 +211,6 @@ function Card({
   const fullCard = useMemo(() => ({ full, report }), [full, report]);
   const canGrow = cuts.size > 0;
   const tap = full ? () => setFull(false) : canGrow ? () => setFull(true) : onPress;
-  // Nur der Kater zählt für den Platz, die Stimmung schwebt darüber (Daria, 2026-11-28: „Wir nehmen die Pille
-  // ‚entspannt' etc. nicht in die Berechnung auf“). Titel und Zeit halten Abstand zum Kater, die Karte ist mindestens
-  // so hoch wie er, Knöpfe und Fortschritt beginnen erst darunter.
-  const [side, setSide] = useState({ w: 46, h: 46 });
-  const [headH, setHeadH] = useState(0);
-  const measureSide = (e: LayoutChangeEvent) => {
-    const { width: w, height: h } = e.nativeEvent.layout;
-    if (Math.abs(w - side.w) > 0.5 || Math.abs(h - side.h) > 0.5) setSide({ w, h });
-  };
-  // Die Stimmung spricht der Kater als kleine Sprechblase über seinem Kopf, mit Rand in der Farbe der Karte. Sie
-  // taucht kurz nach der Karte auf (Daria, 2026-11-28: „formen sie wie die Sprechblase“, „taucht kurz nach dem
-  // Einblenden des Termins auf“). Mit „Bewegung reduzieren“ steht sie gleich da.
-  const pop = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (reduce) {
-      pop.setValue(1);
-      return;
-    }
-    const anim = Animated.sequence([Animated.delay(450), Animated.spring(pop, { toValue: 1, useNativeDriver: native, bounciness: 9, speed: 10 })]);
-    anim.start();
-    return () => anim.stop();
-  }, [pop, reduce, native]);
-  const popStyle = useMemo(
-    () => ({
-      opacity: pop.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 1, 1] }),
-      transform: [{ translateY: pop.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }, { scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
-    }),
-    [pop],
-  );
-  const kater = (
-    // Ring in der Farbe des Grunds (Daria, 2026-11-12)
-    <View style={styles.katerSide} onLayout={measureSide}>
-      <View style={styles.katerRing}>
-        <KaterCircle size={40} bg={bg} />
-      </View>
-      <Animated.View style={[styles.chip, { borderColor: bg }, popStyle]} pointerEvents="none">
-        <Text style={styles.chipText} numberOfLines={1}>
-          {mood}
-        </Text>
-      </Animated.View>
-    </View>
-  );
   const card = (
     <Pressable
       onPress={drag.press(tap)}
@@ -419,14 +230,12 @@ function Card({
         .join('. ')}
       style={[styles.card, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
-      {/* Kater immer neben Titel und Zeit (Daria, 2026-11-13), oben rechts in der Ecke (Daria, 2026-11-16) */}
+      {/* Kater nicht mehr auf der Karte, er spricht über dem Stapel (Daria, 2026-11-28: „Wir nehmen den Kater erstmal
+          raus aus der Karte“) */}
       <FullCard.Provider value={fullCard}>
-      <View style={[styles.cardBody, { minHeight: side.h }]}>
-        <View style={[styles.head, { marginRight: side.w + space[12] }]} onLayout={(e) => setHeadH(e.nativeEvent.layout.height)}>
-          {head}
-        </View>
-        {children ? <View style={[styles.cardRest, { marginTop: clearKater && headH ? Math.max(0, side.h + space[4] - headH - space[6]) : 0 }]}>{children}</View> : null}
-        {kater}
+      <View style={styles.cardBody}>
+        <View style={styles.head}>{head}</View>
+        {children ? <View style={styles.cardRest}>{children}</View> : null}
       </View>
       </FullCard.Provider>
       {/* Beim Ziehen zeigt die Karte selbst, was das Loslassen auslöst (Daria, 2026-11-13: keine Rückfrage, die Karte
@@ -585,7 +394,6 @@ export function TaskCard({
   return (
     <Card
       bg={MUSTARD}
-      mood={moodOf(r)}
       onPress={() => menu.current?.()}
       tiltKey={r.id}
       urgent={urgent}
@@ -669,7 +477,6 @@ export function EventCard({
   return (
     <Card
       bg={bg}
-      mood={moodOf(r)}
       onPress={() => menu.current?.()}
       tiltKey={r.id}
       urgent={urgent}
@@ -776,14 +583,16 @@ function DoneState({ label, onUndo }: { label: string; onUndo?: () => void }) {
  * Zeit und Titel einer Karte. Kein eigenes Tippziel mehr (Daria, 2026-11-13): Halten hebt die Karte an, auch auf dem
  * Titel; Tippen öffnet das Menü, dort steht „Bearbeiten“.
  */
-function CardHead({ meta, title }: { meta: string; title: string }) {
+/** Zeit und Titel. Meldet seine Höhe an den Stapel: So weit schaut die Karte aufgefächert heraus (Daria, 2026-11-28) */
+function CardHead({ meta, title, struck = false }: { meta: string; title: string; struck?: boolean }) {
+  const report = useContext(StackHead);
   return (
-    <>
+    <View style={styles.head} onLayout={(e) => report?.(e.nativeEvent.layout.height)}>
       <Text style={styles.meta}>{meta}</Text>
-      <ClampText noTranslate style={styles.title} lines={2} balance>
+      <ClampText noTranslate style={[styles.title, struck && styles.struck]} lines={2} balance>
         {title}
       </ClampText>
-    </>
+    </View>
   );
 }
 
@@ -805,19 +614,10 @@ export function CalendarCard({ event: e }: { event: CalendarEvent }) {
     <Card
       bg={OLIVE}
       tiltKey={e.id}
-      mood="chillig"
       onPress={() => menu.current?.()}
       onDragLeft={hide}
       leftLabel="Ausblenden"
-      clearKater={false}
-      head={
-        <>
-          <Text style={styles.meta}>{when}</Text>
-          <ClampText noTranslate style={styles.title} lines={2} balance>
-            {e.title}
-          </ClampText>
-        </>
-      }
+      head={<CardHead meta={when} title={e.title} />}
     >
       <View style={styles.actions}>
         {/* Ohne Knöpfe daneben braucht der Kalendername keine Knopfhöhe (Daria, 2026-11-27: „Wieder viel Platz“) */}
@@ -877,15 +677,7 @@ export function SavedCard({ event: e, onChanged }: { event: Saved; onChanged: ()
     <Card
       bg={SHOWCASE}
       tiltKey={`s${e.id}`}
-      mood={e.cancelled ? 'enttäuscht' : 'neugierig'}
-      head={
-        <>
-          <Text style={styles.meta}>{e.cancelled ? t('Abgesagt') : eventWhen(e)}</Text>
-          <ClampText noTranslate style={[styles.title, e.cancelled && styles.struck]} lines={2} balance>
-            {e.title}
-          </ClampText>
-        </>
-      }
+      head={<CardHead meta={e.cancelled ? t('Abgesagt') : eventWhen(e)} title={e.title} struck={e.cancelled} />}
     >
       <ClampText noTranslate style={styles.sub} lines={1}>
         {e.location ? `${e.showcase} · ${e.location}` : e.showcase}
