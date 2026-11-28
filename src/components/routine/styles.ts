@@ -204,7 +204,8 @@ export const stackStyles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   head: { gap: space[8] },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  day: { ...text.settingsHeading, color: color.text.primary, flex: 1 },
+  // Datum mittig zwischen den Pfeilen (Daria, 2026-11-28: „Center the date“)
+  day: { ...text.settingsHeading, color: color.text.primary, flex: 1, textAlign: 'center' },
   arrow: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: color.bg.surface },
   arrowOff: { opacity: 0.3 },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[6] },
