@@ -1,4 +1,5 @@
 import { SectionLabel } from './Content';
+import { BARE, paper } from '../theme/kiezPage';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -146,17 +147,17 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.8 },
   sub: { ...text.small, color: color.text.secondary },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: space[8] },
-  stat: { flexGrow: 1, flexBasis: '30%', gap: space[4], padding: space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface },
+  stat: { flexGrow: 1, flexBasis: '30%', gap: space[4], padding: BARE ? 0 : space[12], borderRadius: radius.lg, backgroundColor: color.bg.surface, ...paper },
   statValue: { ...text.metric, color: color.text.primary },
   statLabel: { ...text.caption, color: color.text.secondary },
   signal: { color: color.accent.signal },
   block: { gap: space[12] },
-  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: space[12] },
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden', ...paper },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[12], paddingHorizontal: BARE ? 0 : space[12] },
   rowDivider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   rowTitle: { ...text.bodyLarge, color: color.text.primary },
   empty: { ...text.body, color: color.text.secondary },
   wall: { flexDirection: 'row', flexWrap: 'wrap', gap: space[4] },
-  tile: { borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.bg.surface },
+  tile: { borderRadius: BARE ? 2 : radius.md, overflow: 'hidden', backgroundColor: color.bg.surface },
   fallback: { backgroundColor: color.bg.screen, alignItems: 'center', justifyContent: 'center' },
 });

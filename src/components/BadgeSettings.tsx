@@ -7,6 +7,7 @@ import { RadioOption, SwitchRow } from './Form';
 import { Text } from './T';
 import { BADGES, badgeTitle, useMyBadges } from '../data/badges';
 import { color, radius, space, stroke, text } from '../theme/tokens';
+import { paper } from '../theme/kiezPage';
 
 /**
  * Abzeichen in Dein Konto › Persönliche Angaben (Daria, 2026-11-01). Zwei Einstellungen, je mit dem passenden
@@ -80,8 +81,8 @@ export function BadgeSettings() {
 }
 
 const styles = StyleSheet.create({
-  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[8], paddingHorizontal: space[16] },
+  list: { borderRadius: radius.md, backgroundColor: color.bg.surface, overflow: 'hidden', ...paper },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingVertical: space[8], paddingHorizontal: paper ? 0 : space[16] },
   divider: { borderTopWidth: stroke.ultraThin, borderTopColor: color.line.hairline },
   flex: { flex: 1 },
   empty: { ...text.body, color: color.text.secondary },

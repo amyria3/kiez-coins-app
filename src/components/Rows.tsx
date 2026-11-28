@@ -1,4 +1,5 @@
-import { Children, createContext, Fragment, useContext, useRef, useState, type ReactNode } from 'react';
+import { Children, cloneElement, createContext, Fragment, isValidElement, useContext, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import { BARE, LINE } from '../theme/kiezPage';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './T';
 
@@ -242,23 +243,23 @@ export function NavGroupRow({
 }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.groupRow, { backgroundColor: background }, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.groupRow, BARE ? styles.bareGroupRow : { backgroundColor: background }, pressed && styles.pressed]}
       accessibilityRole="button"
       accessibilityLabel={description ? `${title}, ${description}` : title}
       onPress={onPress}
     >
-      <View style={styles.groupLeading}>{leading}</View>
+      <View style={styles.groupLeading}>{BARE && isValidElement(leading) ? cloneElement(leading as ReactElement<{ color?: string; fill?: string }>, { color: background, fill: background }) : leading}</View>
       <View style={styles.texts}>
-        <Text style={[styles.navTitle, { color: ink }]} numberOfLines={1}>
+        <Text style={[styles.navTitle, { color: BARE ? color.text.primary : ink }]} numberOfLines={1}>
           {title}
         </Text>
         {description ? (
-          <Text style={[styles.navDescription, { color: inkSoft }]} numberOfLines={1}>
+          <Text style={[styles.navDescription, { color: BARE ? color.text.secondary : inkSoft }]} numberOfLines={1}>
             {description}
           </Text>
         ) : null}
       </View>
-      <Icon name="chevron-right" size={size.icon} color={inkSoft} />
+      <Icon name="chevron-right" size={size.icon} color={BARE ? color.text.secondary : inkSoft} />
     </Pressable>
   );
 }
@@ -273,16 +274,18 @@ const styles = StyleSheet.create({
     minHeight: 60,
     borderRadius: radius.md,
     backgroundColor: color.bg.surface,
+    ...(BARE ? { backgroundColor: 'transparent', borderRadius: 0, paddingHorizontal: 0, borderBottomWidth: 1, borderBottomColor: LINE } : null),
   },
   navRow: { minHeight: 52 },
   // Im Block trägt die Liste die Rundung
   blockRow: { borderRadius: 0 },
-  navList: { gap: space[2], borderRadius: radius.md, overflow: 'hidden' },
+  navList: { gap: BARE ? 0 : space[2], borderRadius: BARE ? 0 : radius.md, overflow: 'hidden' },
   flatRow: { backgroundColor: 'transparent', borderRadius: 0 },
   listDivider: { height: 1, marginLeft: space[12] },
-  navGroup: { borderRadius: radius.md, overflow: 'hidden' },
+  navGroup: { borderRadius: BARE ? 0 : radius.md, overflow: 'hidden' },
   // Kiez: Fuge im Grund zwischen den Zeilen einer Gruppe, alle im selben Ton (Daria, 2026-11-28)
-  navGroupGap: { gap: space[2] },
+  navGroupGap: { gap: BARE ? 0 : space[2] },
+  bareGroupRow: { paddingHorizontal: 0, minHeight: 68, borderBottomWidth: 1, borderBottomColor: LINE },
   groupRow: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[12], paddingVertical: space[12], minHeight: 60 },
   // Beginnt unter dem Titel: Innenabstand 12, Icon-Feld 40, Abstand 12
   groupDivider: { height: 1, marginLeft: space[12] + 40 + space[12] },

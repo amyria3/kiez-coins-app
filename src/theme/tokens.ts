@@ -17,8 +17,11 @@ export const scheme: 'dark' | 'light' = isLight ? 'light' : 'dark';
 // Zweite Akzentfarbe Grün #89F269 statt #93F4A7. Seit 2026-11-17 #72F377: etwas Richtung Blau (Daria), Farbe des
 // Systems und der Herzen in der Brille des Katers. Danach #7EE798: noch etwas blauer, weniger kräftig (Daria).
 const kiezPalette = {
-  /** Grund: Grau mit leichtem Aubergine-Ton, passend zur Routine-Karte (Daria, 2026-11-12) */
-  black: '#252025',
+  /**
+   * Grund: neutrales, tiefes Schwarz (Daria, 2026-11-28). Darauf leuchtet die Überschrift, und die Farben stehen rein.
+   * Vorher `#252025`, Grau mit Aubergine-Ton.
+   */
+  black: '#161617',
   // Schrift in einem Ton (Daria, 2026-11-11): Puder, Farbton 342°. Haupt- und Nebenschrift unterscheiden sich nur
   // in Helligkeit und Sättigung, nicht im Farbton.
   /** Hauptschrift: helles Puder, H 342° S 60 % L 96 % (Daria, 2026-11-11). */
@@ -32,10 +35,10 @@ const kiezPalette = {
   red: '#FF7E8B',
   pink: '#FFB2E5',
   /**
-   * Flächen: Pflaume, im Ton zwischen Grund und Lila. Vorher kühles Grafit `#303034` (Daria, 2026-11-28: „Es wirkt kalt.
-   * Technisch.“). Der erste Versuch `#372D33` war bräunlich und wirkte „schmutzig“.
+   * Flächen: neutral, eine Stufe über dem Grund (Daria, 2026-11-28). Die getönten Versuche vom selben Tag (`#372D33`,
+   * Pflaume `#3A2F3D`) wirkten „schmutzig“ und „im Schleier“.
    */
-  graphite: '#3A2F3D',
+  graphite: '#232325',
 };
 
 export const palette = Object.freeze(kiezPalette);
@@ -833,6 +836,14 @@ export const text = {
   displaySm: { fontFamily: font.onPhoto, fontSize: 18, lineHeight: 24 },
   /** Sehr große Überschrift, z. B. Willkommen */
   displayLarge: { fontFamily: font.onPhoto, fontSize: 32, lineHeight: 40, letterSpacing: -0.4 },
+  /** Kiez: Überschrift im Seitenkopf neben dem Kater (Daria, 2026-11-28). Kurze Wörter groß, lange in zwei Stufen kleiner. */
+  pageTitle: { fontFamily: font.onPhoto, fontSize: 40, lineHeight: 44, letterSpacing: -0.4 },
+  pageTitleLong: { fontFamily: font.onPhoto, fontSize: 28, lineHeight: 34, letterSpacing: -0.4 },
+  pageTitleVeryLong: { fontFamily: font.onPhoto, fontSize: 22, lineHeight: 28, letterSpacing: -0.2 },
+  /** Kiez: Titel eines Eintrags ohne Karte, z. B. in „Meine Posts“ */
+  entryTitle: { fontFamily: font.onPhoto, fontSize: 21, lineHeight: 27, letterSpacing: -0.2 },
+  /** Kiez: Satz des Katers direkt unter dem Seitenkopf */
+  saying: { fontFamily: font.regular, fontSize: 20, lineHeight: 28 },
   /** Sehr große Zahl, z. B. Vorher-Nachher-Zähler */
   metricHero: { fontFamily: font.display, fontSize: 44, lineHeight: 48, letterSpacing: -1 },
   /** Kleinste Kennzahl, z. B. erledigt, kleine Bounty */

@@ -1,4 +1,5 @@
 import { isInKiez, useHere } from '../data/nearby';
+import { BARE, paper } from '../theme/kiezPage';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
@@ -7,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { KaterCard, SectionBlock, SectionLabel } from '../components/Content';
+import { PageHead } from '../components/Screen';
 import { Cat, CrownIcon } from '../components/icons/Brand';
 import { Icon } from '../components/icons/Icon';
 import { Button } from '../components/Button';
@@ -89,16 +91,23 @@ function Journey() {
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + TAB_BAR_SPACE }]}>
         {/* Krone als Zeichen für „Was Du so machst“ links vor dem Titel; für das Schiffchen reicht der Platz nicht (Daria, 02.11.2026).
             Krone in der Farbe des Titels (Daria, 11.11.2026) */}
+        {/* Kiez: großer Kopf mit Kater wie auf allen Unterseiten (Daria, 2026-11-28) */}
+        {BARE ? (
+          <View style={styles.headBleed}>
+            <PageHead title={t('Was Du so machst')} />
+          </View>
+        ) : (
         <View style={styles.titleRow}>
           {<CrownIcon height={30} fill={color.text.primary} />}
           <Text style={[styles.title, styles.flex1]} accessibilityRole="header">
             Was Du so machst
           </Text>
         </View>
+        )}
 
         {/* Tipp auf den Kater: zu seiner Seite mit Sprüchen */}
         <Pressable accessibilityRole="button" accessibilityLabel={t('Cat The Käptn Hallo sagen')} onPress={() => router.push('/cat')}>
-          <KaterCard mood={catVariant(mood)}>{journeyMoodText(mood, salutation(profile))}</KaterCard>
+          {BARE ? <Text style={styles.saying}>{journeyMoodText(mood, salutation(profile))}</Text> : <KaterCard mood={catVariant(mood)}>{journeyMoodText(mood, salutation(profile))}</KaterCard>}
         </Pressable>
 
         {/* Überschriften für die Abschnitte (Daria, 2026-11-10) */}
@@ -246,6 +255,9 @@ const styles = StyleSheet.create({
   flex: { flex: 1, gap: space[2] },
   pressed: { opacity: 0.8 },
   title: { ...text.display, color: color.text.primary },
+  // Der Kopf rechnet mit 16 Rand, diese Seite hat 20
+  headBleed: { marginHorizontal: -space[4], marginTop: -space[8] },
+  saying: { ...text.saying, color: color.text.primary, marginTop: -space[8] },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: space[12] },
   community: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', columnGap: 3, rowGap: space[8] },
   communityIcons: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
@@ -255,10 +267,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space[12],
-    padding: space[12],
+    padding: BARE ? 0 : space[12],
     borderRadius: radius.md,
+    ...paper,
     // Ohne orangen Rahmen (Daria, 2026-11-13)
-    backgroundColor: color.bg.surface,
+    backgroundColor: paper ? paper.backgroundColor : color.bg.surface,
   },
   // „Du bist dran“ in Gelb (color.accent.turn, Daria, 2026-11-13)
   taskKicker: { ...text.captionStrong, color: color.accent.turn },

@@ -69,7 +69,7 @@ const StoreContext = createContext<Store | null>(null);
 const PASSIVE_ACTIONS = new Set<Action['type']>(['loaded', 'setFeedState', 'challengeLoaded', 'updateProfile', 'setCurrentUser', 'useSampleData']);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, rawDispatch] = useReducer(reducer, sampleProfile, emptyLive);
+  const [state, rawDispatch] = useReducer(reducer, sampleProfile, (p0) => reducer(emptyLive(p0), { type: 'useSampleData' }));
   /** Zählt Änderungen an Feed-Daten. Ein laufendes Laden erkennt daran, dass sein Stand inzwischen veraltet ist. */
   const changes = useRef(0);
   /** Steigt beim Abmelden. Ergebnisse, die davor begonnen haben, gelten nicht mehr (auch nicht für den Startspeicher). */
