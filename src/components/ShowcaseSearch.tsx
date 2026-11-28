@@ -6,7 +6,7 @@ import type { ShowcaseHit } from '../data/showcase';
 import { t } from '../data/texts';
 import { isMono } from '../theme/look';
 import { useFocusColor } from '../theme/signal';
-import { color, radius, space, stroke, text } from '../theme/tokens';
+import { color, emphasis, radius, space, stroke, text } from '../theme/tokens';
 import { IconButton } from './IconButton';
 import { phXml } from './icons/phosphor';
 import { ShowcaseLogo } from './ShowcasePlaceholder';
@@ -58,11 +58,26 @@ export function ShowcaseSearchField({
   );
 }
 
-/** Ein Treffer: Logo, Name, Kiez und der Anfang von „Über uns“. Antippen öffnet das Schaufenster. */
-export function ShowcaseHitRow({ hit, onPress }: { hit: ShowcaseHit; onPress: () => void }) {
+/**
+ * Treffer der Suche: darüber die Zahl, jeder Treffer eine eigene Karte mit feinem Rand (Daria, 2026-11-28: „nicht
+ * zusammenfassen … das sind separate Entitäten“, „der Pfeil ist zu technisch“). Die ganze Karte öffnet das Schaufenster.
+ */
+export function ShowcaseHitList({ hits, onOpen }: { hits: ShowcaseHit[]; onOpen: (id: string) => void }) {
   return (
-    <Pressable accessibilityRole="link" onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-      <ShowcaseLogo image={hit.logo} size={48} />
+    <View style={styles.list}>
+      <Text style={styles.count}>{t('{n} Schaufenster', { n: hits.length })}</Text>
+      {hits.map((hit) => (
+        <ShowcaseHitCard key={hit.id} hit={hit} onPress={() => onOpen(hit.id)} />
+      ))}
+    </View>
+  );
+}
+
+/** Ein Treffer: Logo, Name, Kiez und der Anfang von „Über uns“. Antippen öffnet das Schaufenster. */
+function ShowcaseHitCard({ hit, onPress }: { hit: ShowcaseHit; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="link" onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+      <ShowcaseLogo image={hit.logo} size={44} />
       <View style={styles.rowText}>
         <Text style={styles.name} numberOfLines={1}>
           {hit.name}
@@ -73,7 +88,7 @@ export function ShowcaseHitRow({ hit, onPress }: { hit: ShowcaseHit; onPress: ()
           </Text>
         ) : null}
         {hit.about ? (
-          <Text style={styles.meta} numberOfLines={2}>
+          <Text style={styles.about} numberOfLines={2}>
             {hit.about}
           </Text>
         ) : null}
@@ -96,9 +111,10 @@ const styles = StyleSheet.create({
     // Mehr Luft zum ersten Post darunter (Daria, 2026-11-28)
     marginBottom: space[16],
     // Abzüglich des Rands, der immer da ist und nur im aktiven Feld Farbe bekommt; so springt nichts
-    paddingLeft: space[12] - stroke.focus,
-    paddingRight: space[4] - stroke.focus,
-    borderWidth: stroke.focus,
+    // Ruhiger Rand 1,5 statt des dicken Fokusrands (Daria, 2026-11-28, Entwurf A)
+    paddingLeft: space[12] - stroke.primary,
+    paddingRight: space[4] - stroke.primary,
+    borderWidth: stroke.primary,
     borderColor: 'transparent',
     borderRadius: radius.sm,
     backgroundColor: color.bg.surface,
@@ -118,9 +134,21 @@ const styles = StyleSheet.create({
     paddingRight: space[4] - stroke.focus,
   },
   input: { ...text.body, flex: 1, color: color.text.primary, paddingVertical: space[8] },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], paddingHorizontal: space[16] },
+  list: { marginHorizontal: space[16], marginTop: space[8], gap: space[12] },
+  count: { ...text.caption, color: color.text.secondary },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
+    padding: space[16],
+    borderWidth: stroke.thin,
+    borderColor: color.text.primary,
+    borderRadius: radius.md,
+    backgroundColor: color.bg.screen,
+  },
   pressed: { opacity: 0.6 },
   rowText: { flex: 1, gap: space[2] },
   name: { ...text.title, color: color.text.primary },
   meta: { ...text.caption, color: color.text.secondary },
+  about: { ...text.caption, color: color.text.primary, opacity: emphasis.humble },
 });

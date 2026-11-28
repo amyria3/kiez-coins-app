@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import { handDrawn } from '../../theme/look';
-import { color, font, radius, space, stroke, text } from '../../theme/tokens';
+import { color, emphasis, font, radius, space, stroke, text, withAlpha } from '../../theme/tokens';
 import { DAY, INK, INK_SOFT, INK_TRACK, MUSTARD } from './constants';
 
 export const styles = StyleSheet.create({
@@ -33,6 +33,8 @@ export const styles = StyleSheet.create({
       : null),
   },
   cardBody: { gap: space[6] },
+  // Nur der Inhalt, die Kartenfarbe bleibt (Daria, 2026-11-28: „Gelb sollte gleich bleiben“)
+  cardHumble: { opacity: emphasis.humble },
   // Aufgeklappt unten nach den Knöpfen etwas mehr Luft (Daria, 2026-11-28: „mehr Gap … das beim Antippen“)
   cardOpen: { paddingBottom: 22 },
   cardRest: { gap: space[6] },
@@ -223,6 +225,9 @@ export const stackStyles = StyleSheet.create({
       : { borderWidth: stroke.thin, borderColor: color.text.primary }),
   },
   cover: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: radius.md },
+  // Mono: Rand der Karten hinter der vordersten in zurückgenommener Tinte (Daria, 2026-11-28: „den Schwarzton der
+  // Karten, die nicht oben liegen, pauschal auf 85 % setzen“). Nur ohne Handzeichnung angewendet, siehe stack.tsx
+  slotBehind: { borderColor: withAlpha(color.text.primary, emphasis.humble) },
   foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space[8] },
   toggle: { flexDirection: 'row', alignItems: 'center', gap: space[6], paddingVertical: space[6] },
   toggleText: { ...text.bodySm, color: color.text.secondary },

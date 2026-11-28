@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Animated, Easing, PanResponder, Platform, Pressable, Text as InlineText, StyleSheet, View } from 'react-native';
 import Svg, { Defs, Line, Pattern, Rect } from 'react-native-svg';
@@ -47,6 +48,14 @@ export function RoutineCalendar({
   // den Tag öffnet seinen Stapel (Daria, 2026-11-28)
   const picked = useRoutineDay();
   const setPicked = setRoutineDay;
+  // Zweiter Tipp auf den Tag, der schon zu sehen ist, öffnet „Neue Erinnerung“ für diesen Tag (Daria, 2026-11-28:
+  // „Hatten wir nicht darüber gesprochen, dass ein Tipp auf den Tag das Erstellen eines neuen Termins öffnet?“).
+  // Ohne gewählten Tag ist heute zu sehen.
+  const router = useRouter();
+  const tapDay = (day: string) => {
+    if ((picked ?? localDate()) === day) router.push({ pathname: '/routine/new', params: { tag: day } });
+    else setPicked(day === localDate() ? null : day);
+  };
   const [days, setDays] = useState<RoutineDays | null>(null);
   // Blättern (Daria, 2026-11-14): nach links wischen zeigt den nächsten Monat bzw. die nächste Woche, nach rechts den
   // vorigen. Wechsel zwischen Woche und Monat springt zurück zu heute.
@@ -215,7 +224,7 @@ export function RoutineCalendar({
                     today={today}
                     days={days}
                     picked={picked === localDate(d)}
-                    onPress={() => settled() && setPicked(picked === localDate(d) ? null : localDate(d))}
+                    onPress={() => settled() && tapDay(localDate(d))}
                   />
                 ) : (
                   <View key={`e${j}`} style={styles.calCell} />

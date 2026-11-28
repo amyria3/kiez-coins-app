@@ -5,7 +5,7 @@ import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
 import { useFeature } from '../data/unlock';
-import { ShowcaseHitRow, ShowcaseSearchField } from '../components/ShowcaseSearch';
+import { ShowcaseHitList, ShowcaseSearchField } from '../components/ShowcaseSearch';
 import { nudgeCrystals } from '../components/icons/Brand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -825,7 +825,8 @@ export default function FeedScreen() {
     if (shownHits === undefined) items.push({ kind: 'loading' });
     else if (shownHits === null) items.push({ kind: 'searchError' });
     else if (shownHits.length === 0) items.push({ kind: 'searchEmpty' });
-    else shownHits.forEach((hit) => items.push({ kind: 'showcase', hit }));
+    // Alle Treffer in einer Karte mit Zeilen (Daria, 2026-11-28: Entwurf A, vorher „bisschen erbärmlich“)
+    else items.push({ kind: 'showcases', hits: shownHits });
   }
 
   // Leerer Zustand steht unter der Liste und füllt den Rest bis zur Leiste, mittig. So verteilt sich der Platz
@@ -922,8 +923,8 @@ export default function FeedScreen() {
             }
           />
         ) : null;
-      case 'showcase':
-        return <ShowcaseHitRow hit={item.hit} onPress={() => router.push({ pathname: '/schaufenster/[id]', params: { id: item.hit.id } })} />;
+      case 'showcases':
+        return <ShowcaseHitList hits={item.hits} onOpen={(id) => router.push({ pathname: '/schaufenster/[id]', params: { id } })} />;
       case 'searchEmpty':
       case 'searchError':
         return (
@@ -1174,9 +1175,7 @@ export default function FeedScreen() {
               ? item.challenge.id
               : item.kind === 'running'
                 ? `running-${item.challenge.id}`
-                : item.kind === 'showcase'
-                  ? `showcase-${item.hit.id}`
-                  : item.kind
+                : item.kind
           }
           renderItem={renderItem}
           viewabilityConfig={feedViews.viewabilityConfig}

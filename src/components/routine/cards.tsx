@@ -20,7 +20,7 @@ import { KaterCircle } from '../Content';
 import { ManageButton } from '../ShowcaseManage';
 import { Text } from '../T';
 import { DRAG_AT, INK, INK_SOFT, LIFT_MS, MUSTARD, OLIVE, SHOWCASE, UP_FACTOR, UP_ROOM } from './constants';
-import { DragLock, Motion, Saved, StackHead, tiltOf, useReduceMotion } from './shared';
+import { CardHumble, DragLock, Motion, Saved, StackHead, tiltOf, useReduceMotion } from './shared';
 import { styles } from './styles';
 
 type DragActions = { right?: () => void; left?: () => void; up?: () => void };
@@ -216,6 +216,7 @@ function Card({
   }, []);
   const expandable = open !== undefined;
   const fullCard = useMemo(() => ({ full: full || !!open, report }), [full, open, report]);
+  const humble = useContext(CardHumble);
   const canGrow = cuts.size > 0 && !expandable;
   const tap = expandable ? onPress : full ? () => setFull(false) : canGrow ? () => setFull(true) : onPress;
   const card = (
@@ -241,7 +242,7 @@ function Card({
       {/* Kater nicht mehr auf der Karte, er spricht über dem Stapel (Daria, 2026-11-28: „Wir nehmen den Kater erstmal
           raus aus der Karte“) */}
       <FullCard.Provider value={fullCard}>
-      <View style={styles.cardBody}>
+      <View style={[styles.cardBody, humble && styles.cardHumble]}>
         <View style={styles.head}>{head}</View>
         {children ? <View style={styles.cardRest}>{children}</View> : null}
       </View>
