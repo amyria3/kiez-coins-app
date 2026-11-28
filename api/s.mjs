@@ -410,6 +410,9 @@ ${
 /* KiezCoins-Logo oben klein, das Schaufenster steht im Vordergrund (Daria, 2026-11-10) */
 /* Klein, ohne Slogan, rechts, mit Abstand darunter (Daria, 2026-11-10) */
 .top { justify-content: flex-end; padding: 28px 0 0; margin-bottom: 40px; }
+/* Logo an der Inhaltsspalte ausrichten statt am Rand von .wrap (1080 px). Im breiten Fenster stand es sonst weit links
+   neben der schmalen Spalte (Daria, 2026-11-28: „Dass das Logo wegrutscht nervt“). */
+.top { max-width: 560px; margin-left: auto; margin-right: auto; }
 .top .brand { align-items: flex-end; }
 /* Daria (2026-11-17): „Zu klein, viel zu klein“. So groß wie auf kiezcoins.de: 31 px, auf schmalen Bildschirmen 26 px */
 .top .brand svg { height: 31px; width: auto; }
