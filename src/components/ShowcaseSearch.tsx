@@ -5,8 +5,7 @@ import { SvgXml } from 'react-native-svg';
 import type { ShowcaseHit } from '../data/showcase';
 import { t } from '../data/texts';
 import { useFocusColor } from '../theme/signal';
-import { color, emphasis, radius, size, space, stroke, text } from '../theme/tokens';
-import { Icon } from './icons/Icon';
+import { color, emphasis, radius, space, stroke, text } from '../theme/tokens';
 import { IconButton } from './IconButton';
 import { phXml } from './icons/phosphor';
 import { ShowcaseLogo } from './ShowcasePlaceholder';
@@ -59,29 +58,24 @@ export function ShowcaseSearchField({
 }
 
 /**
- * Treffer der Suche (Daria, 2026-11-28, Entwurf A): darüber die Zahl, alle Treffer in einer Karte mit feinem Rand,
- * Zeilen mit Pfeil und Trennlinie wie auf der Kontoseite.
+ * Treffer der Suche: darüber die Zahl, jeder Treffer eine eigene Karte mit feinem Rand (Daria, 2026-11-28: „nicht
+ * zusammenfassen … das sind separate Entitäten“, „der Pfeil ist zu technisch“). Die ganze Karte öffnet das Schaufenster.
  */
 export function ShowcaseHitList({ hits, onOpen }: { hits: ShowcaseHit[]; onOpen: (id: string) => void }) {
   return (
     <View style={styles.list}>
       <Text style={styles.count}>{t('{n} Schaufenster', { n: hits.length })}</Text>
-      <View style={styles.card}>
-        {hits.map((hit, i) => (
-          <View key={hit.id}>
-            {i > 0 ? <View style={styles.divider} /> : null}
-            <ShowcaseHitRow hit={hit} onPress={() => onOpen(hit.id)} />
-          </View>
-        ))}
-      </View>
+      {hits.map((hit) => (
+        <ShowcaseHitCard key={hit.id} hit={hit} onPress={() => onOpen(hit.id)} />
+      ))}
     </View>
   );
 }
 
-/** Ein Treffer: Logo, Name, Kiez und der Anfang von „Über uns“, Pfeil. Antippen öffnet das Schaufenster. */
-function ShowcaseHitRow({ hit, onPress }: { hit: ShowcaseHit; onPress: () => void }) {
+/** Ein Treffer: Logo, Name, Kiez und der Anfang von „Über uns“. Antippen öffnet das Schaufenster. */
+function ShowcaseHitCard({ hit, onPress }: { hit: ShowcaseHit; onPress: () => void }) {
   return (
-    <Pressable accessibilityRole="link" onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="link" onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <ShowcaseLogo image={hit.logo} size={44} />
       <View style={styles.rowText}>
         <Text style={styles.name} numberOfLines={1}>
@@ -98,7 +92,6 @@ function ShowcaseHitRow({ hit, onPress }: { hit: ShowcaseHit; onPress: () => voi
           </Text>
         ) : null}
       </View>
-      <Icon name="chevron-right" size={size.icon} color={color.text.primary} />
     </Pressable>
   );
 }
@@ -125,11 +118,18 @@ const styles = StyleSheet.create({
     backgroundColor: color.bg.surface,
   },
   input: { ...text.body, flex: 1, color: color.text.primary, paddingVertical: space[8] },
-  list: { marginHorizontal: space[16], marginTop: space[8], gap: space[8] },
+  list: { marginHorizontal: space[16], marginTop: space[8], gap: space[12] },
   count: { ...text.caption, color: color.text.secondary },
-  card: { borderWidth: stroke.thin, borderColor: color.text.primary, borderRadius: radius.md, overflow: 'hidden', backgroundColor: color.bg.screen },
-  divider: { height: stroke.thin, backgroundColor: color.line.hairline, marginLeft: space[12] + 44 + space[12] },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space[12], padding: space[12] },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[12],
+    padding: space[16],
+    borderWidth: stroke.thin,
+    borderColor: color.text.primary,
+    borderRadius: radius.md,
+    backgroundColor: color.bg.screen,
+  },
   pressed: { opacity: 0.6 },
   rowText: { flex: 1, gap: space[2] },
   name: { ...text.title, color: color.text.primary },
