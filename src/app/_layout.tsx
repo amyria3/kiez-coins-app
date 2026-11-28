@@ -1,3 +1,4 @@
+import { DesktopFrame } from '../components/DesktopNav';
 import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
@@ -165,6 +166,8 @@ function RootStack() {
         <StatusBar style={intro || scheme === 'dark' ? 'light' : 'dark'} />
         {/* Hinweise erst nach dem Startbildschirm, sonst liegen sie über ihm oder laufen ungesehen darunter ab */}
         {intro ? null : <BadgeNotice />}
+        {/* Desktop-Fassung ab 900 px: Seitenleiste links, Inhalt in Lesebreite (Daria, 2026-11-28, components/DesktopNav.tsx) */}
+        <DesktopFrame>
         <Stack
           key={languageChanges}
           screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg.screen } }}
@@ -202,6 +205,7 @@ function RootStack() {
           <Stack.Screen name="account/pause/success" options={{ gestureEnabled: false }} />
           <Stack.Screen name="account/delete/success" options={{ gestureEnabled: false }} />
         </Stack>
+        </DesktopFrame>
           {intro ? null : (
             <>
               <InstallHint />

@@ -18,6 +18,8 @@ import { countButton } from '../data/remote';
 import { isMono, look } from '../theme/look';
 import { useRoutineEnabled } from '../data/routine';
 import { usePageLeave } from '../lib/pageSlide';
+import { useDesktop } from '../theme/layout';
+import { useDesktopNavState } from './DesktopNav';
 
 /** `menu`: Dein Konto, dort ist der Burger markiert (Daria, 2026-11-11) */
 export type TabKey = 'feed' | 'reise' | 'chat' | 'menu';
@@ -48,6 +50,10 @@ type TabBarProps = {
  * sie als volle Pille auf der Feed-Pille, wie das Plus auf der Kalender-Pille (Daria, 2026-11-27). Beide Knöpfe zählen mit (`button_presses`), damit sich zeigt, welcher häufiger genutzt wird.
  */
 export function TabBar(props: TabBarProps) {
+  // Desktop-Fassung ab 900 px (Daria, 2026-11-28): Statt der Leiste unten zeigt die Seitenleiste links ihren Stand
+  const { desktop } = useDesktop();
+  useDesktopNavState({ routineActive: false, ...props }, desktop);
+  if (desktop) return null;
   return isMono ? <MonoTabBar {...props} /> : <KiezTabBar {...props} />;
 }
 
