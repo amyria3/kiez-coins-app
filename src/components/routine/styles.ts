@@ -204,7 +204,8 @@ export const stackStyles = StyleSheet.create({
   groupName: { ...text.label, color: color.text.primary },
   // Schräger Knopf am rechten Rand, schwirrt leicht (Daria, 2026-11-28: „secondary Button, der leicht schräg im Bild
   // seitlich schwirrt“)
-  sort: { alignSelf: 'flex-end', marginTop: -space[8], marginBottom: -space[4] },
+  // Etwas weiter an den Rand und zu 85 % sichtbar (Daria, 2026-11-28: „Ein wenig zur Seite, vlt 85% transparent“)
+  sort: { alignSelf: 'flex-end', marginTop: -space[8], marginBottom: -space[4], marginRight: -space[8], opacity: 0.85 },
   // Platz für Neigung und Bogen, ohne dass etwas abgeschnitten wird
   stack: { position: 'relative', overflow: 'visible' },
   // Kräftiger Schatten unter jeder Karte, auch aufgefächert (Daria, 2026-11-28: „Mehr Schatten“). Auf hellem Grund
