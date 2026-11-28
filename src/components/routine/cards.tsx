@@ -236,7 +236,7 @@ function Card({
         .filter(Boolean)
         .join('. ')}
       accessibilityState={expandable ? { expanded: !!open } : undefined}
-      style={[styles.card, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
+      style={[styles.card, open && styles.cardOpen, drag.lifted && styles.cardLifted, { backgroundColor: bg }]}
     >
       {/* Kater nicht mehr auf der Karte, er spricht über dem Stapel (Daria, 2026-11-28: „Wir nehmen den Kater erstmal
           raus aus der Karte“) */}
@@ -568,7 +568,7 @@ function TaskDetail({ r }: { r: Reminder }) {
         <Text style={styles.detailKaterText}>{katerLine(r)}</Text>
       </View>
       {days.length ? (
-        <>
+        <View style={styles.detailWeek}>
           <View style={styles.week} accessible accessibilityLabel={parts.join(', ')}>
             {days.map((d) => (
               <View key={d.day} style={styles.weekDay}>
@@ -580,7 +580,7 @@ function TaskDetail({ r }: { r: Reminder }) {
             ))}
           </View>
           {parts.length ? <Text style={styles.sub}>{parts.join(' · ')}</Text> : null}
-        </>
+        </View>
       ) : null}
     </View>
   );

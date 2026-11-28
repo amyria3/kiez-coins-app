@@ -33,6 +33,8 @@ export const styles = StyleSheet.create({
       : null),
   },
   cardBody: { gap: space[6] },
+  // Aufgeklappt unten nach den Knöpfen etwas mehr Luft (Daria, 2026-11-28: „mehr Gap … das beim Antippen“)
+  cardOpen: { paddingBottom: 22 },
   cardRest: { gap: space[6] },
   head: { gap: space[2] },
   meta: {
@@ -60,7 +62,9 @@ export const styles = StyleSheet.create({
   segmentFill: { height: '100%', backgroundColor: INK },
   segmentGreyed: { borderWidth: 0, backgroundColor: INK_TRACK },
   // Ausgeklappte Karte (Daria, 2026-11-28): Kater auf der Karte und die Woche Tag für Tag
-  detail: { gap: space[8], marginTop: space[4] },
+  // Spürbar Luft zwischen den Gruppen: Kopf mit Balken, Kater, Woche, Knöpfe (Daria, 2026-11-28: „mehr Gap“)
+  detail: { gap: space[16], marginTop: space[12], marginBottom: space[8] },
+  detailWeek: { gap: space[8] },
   detailKater: { flexDirection: 'row', alignItems: 'flex-end', gap: space[8] },
   detailKaterText: { ...text.bodySm, color: INK, flex: 1 },
   detailText: { ...text.bodySm, color: INK },
