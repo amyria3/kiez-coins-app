@@ -12,6 +12,11 @@ export type DaySummaryInput = {
   tasks: string[];
   /** Termine des Tags: Erinnerungen mit Uhrzeit, verbundene Kalender, Vorgemerktes */
   dates: number;
+  /**
+   * Vergangener Tag (Daria, 2026-11-28: „If nothing is scheduled why is the circle yellow“): Was geschafft wurde und
+   * was ausfiel. Ohne Angabe kein vergangener Tag.
+   */
+  past?: { done: string[]; missed: string[] };
 };
 
 /** „A“, „A und B“, „A, B und C“ */
@@ -27,7 +32,14 @@ function datesText(n: number, tr: Tr): string {
 }
 
 /** Leerer Text: Heute steht nichts Offenes an, die Liste wählt dann selbst (z. B. „alles erledigt“) */
-export function daySummary({ day, today, tasks, dates }: DaySummaryInput, tr: Tr): string {
+export function daySummary({ day, today, tasks, dates, past }: DaySummaryInput, tr: Tr): string {
+  const at = tr('Am {day}', { day });
+  if (past) {
+    const parts: string[] = [];
+    if (past.done.length) parts.push(tr('{day} hast Du geschafft: {list}.', { day: at, list: joinList(past.done, tr) }));
+    if (past.missed.length) parts.push(tr('Ausgefallen: {list}.', { list: joinList(past.missed, tr) }));
+    return parts.length ? parts.join(' ') : tr('{day} stand nichts an.', { day: at });
+  }
   const parts: string[] = [];
   if (tasks.length) parts.push(tr('Du hast Dir vorgenommen: {list}.', { list: joinList(tasks, tr) }));
   if (dates) {
