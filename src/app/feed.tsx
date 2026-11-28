@@ -1,6 +1,6 @@
 import { RoutineNudge } from '../components/RoutineNudge';
 import { RoutineCalendarStages } from '../components/RoutineList';
-import { getCalendarLevel, setCalendarLevel, useRoutineData } from '../data/routineView';
+import { CALENDAR_TOP, getCalendarLevel, setCalendarLevel, useRoutineData } from '../data/routineView';
 import { RoutineContent } from '../components/RoutineContent';
 import { clearRoutinePost } from '../data/reminders';
 import { clearShowcasePost, peekShowcasePost, SEARCH_MIN, searchShowcases, type ShowcaseHit } from '../data/showcase';
@@ -597,7 +597,7 @@ export default function FeedScreen() {
   revealRef.current = () => {
     if (!routineActiveRef.current) return;
     setMeSwitchOpen(true);
-    setCalendarLevel(3);
+    setCalendarLevel(CALENDAR_TOP);
   };
   // Nur in „My Structure“ (Routine) verschwindet der große Umschalter. In „My Feed“ und allen anderen Feeds
   // (Gruppe, Kiez, Überall) bleibt er sichtbar (Entscheidung 12.11.2026, ersetzt die frühere Regel „nur in My Feed“).

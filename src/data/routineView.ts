@@ -53,14 +53,17 @@ export function useCalendarShown(): boolean {
 
 /**
  * Kalender als Teil der Seite in Stufen (Daria, 2026-11-28: „Statt Overlay ist der Kalender ein Teil des Screens“):
- * 0 zu, 1 nur die Woche, 2 kurze Liste mit Terminen, 3 ganzer Monat. Dazwischen und den Karten liegt eine Pille zum
- * Schieben. Die Liste kommt nach der Woche (Daria, 2026-11-28: „Diese Ansicht NACH der Ansicht mit den Wochen-Kreisen“).
+ * 0 zu, 1 nur der Kater mit seinem Gruß, 2 die Woche, 3 kurze Liste mit Terminen, 4 ganzer Monat. Dazwischen und den
+ * Karten liegt eine Pille zum Schieben. Die Liste kommt nach der Woche (Daria, 2026-11-28: „Diese Ansicht NACH der
+ * Ansicht mit den Wochen-Kreisen“), der Kater vor dem Kalender („first see good morning, THEN the stage 1 of the
+ * overview calendar“).
  */
-export type CalendarLevel = 0 | 1 | 2 | 3;
+export type CalendarLevel = 0 | 1 | 2 | 3 | 4;
+export const CALENDAR_TOP: CalendarLevel = 4;
 let calendarLevel: CalendarLevel = 1;
 const levelListeners = new Set<() => void>();
 export function setCalendarLevel(level: number) {
-  const next = Math.max(0, Math.min(3, Math.round(level))) as CalendarLevel;
+  const next = Math.max(0, Math.min(CALENDAR_TOP, Math.round(level))) as CalendarLevel;
   if (calendarLevel === next) return;
   calendarLevel = next;
   levelListeners.forEach((l) => l());
@@ -78,10 +81,10 @@ export function useCalendarLevel(): CalendarLevel {
 
 /** Ganzer Monat statt einer Woche (Daria, 2026-11-14), heute die oberste Stufe des Kalenders */
 export function setCalendarMonth(on: boolean) {
-  setCalendarLevel(on ? 3 : Math.min(calendarLevel, 1));
+  setCalendarLevel(on ? CALENDAR_TOP : Math.min(calendarLevel, 2));
 }
 export function useCalendarMonth(): boolean {
-  return useCalendarLevel() === 3;
+  return useCalendarLevel() === CALENDAR_TOP;
 }
 
 /** Gewählter Tag: Kalender und Tagesstapel zeigen denselben (Daria, 2026-11-28: „Click auf den Tag öffnet den Tag“) */
@@ -121,4 +124,22 @@ const subscribeFocus = (l: () => void) => {
 };
 export function useFocusCard(): string | null {
   return useSyncExternalStore(subscribeFocus, () => focusCard, () => focusCard);
+}
+
+/** Was der Kater über den gewählten Tag sagt: Die Liste rechnet es aus, die Stufen über dem Kalender zeigen es */
+let katerLine = '';
+const katerListeners = new Set<() => void>();
+export function setKaterLine(line: string) {
+  if (katerLine === line) return;
+  katerLine = line;
+  katerListeners.forEach((l) => l());
+}
+const subscribeKater = (l: () => void) => {
+  katerListeners.add(l);
+  return () => {
+    katerListeners.delete(l);
+  };
+};
+export function useKaterLine(): string {
+  return useSyncExternalStore(subscribeKater, () => katerLine, () => katerLine);
 }

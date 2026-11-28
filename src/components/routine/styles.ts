@@ -161,6 +161,8 @@ export const styles = StyleSheet.create({
   growBox: { overflow: 'hidden' },
   growInner: { position: 'absolute', top: 0, left: 0, right: 0 },
   short: { gap: space[6] },
+  // Kater über dem Kalender in den Stufen: Luft bis zur Woche
+  stageKater: { marginBottom: space[16] },
   shortRow: { backgroundColor: DAY, borderRadius: radius.md, paddingHorizontal: space[12], paddingVertical: 10 },
   shortRowOn: { borderWidth: 1.5, borderColor: color.text.primary, paddingHorizontal: space[12] - 1.5, paddingVertical: 10 - 1.5 },
   shortText: { marginTop: 0, color: color.text.primary },
@@ -202,7 +204,8 @@ export const stackStyles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   head: { gap: space[8] },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space[8] },
-  day: { ...text.settingsHeading, color: color.text.primary, flex: 1 },
+  // Datum mittig zwischen den Pfeilen (Daria, 2026-11-28: „Center the date“)
+  day: { ...text.settingsHeading, color: color.text.primary, flex: 1, textAlign: 'center' },
   arrow: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: color.bg.surface },
   arrowOff: { opacity: 0.3 },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: space[6] },
