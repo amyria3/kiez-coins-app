@@ -563,7 +563,7 @@ function shortItems(day: string, today: string, list: Reminder[], events: Calend
 
 /**
  * Schmale Pille unter dem Kalender: nach unten ziehen macht ihn größer, nach oben kleiner, je eine Stufe pro Stück.
- * Tippen geht eine Stufe weiter, vom Monat zurück auf zu. Die Punkte zeigen die Stufe.
+ * Tippen geht eine Stufe weiter, vom Monat zurück auf zu.
  */
 function CalendarHandle({ level }: { level: CalendarLevel }) {
   const start = useRef<{ level: number; moved: boolean }>({ level, moved: false });
@@ -599,11 +599,11 @@ function CalendarHandle({ level }: { level: CalendarLevel }) {
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={(e) => setCalendarLevel(level + (e.nativeEvent.actionName === 'increment' ? 1 : -1))}
     >
-      <View style={styles.handleBar} />
-      <View style={styles.handleDots}>
-        {[0, 1, 2, 3].map((i) => (
-          <View key={i} style={[styles.handleDot, i === level && styles.handleDotOn]} />
-        ))}
+      <View style={styles.handleLineClip}>
+        <View style={styles.handleLine} />
+      </View>
+      <View style={styles.handleBarGap}>
+        <View style={styles.handleBar} />
       </View>
     </View>
   );
