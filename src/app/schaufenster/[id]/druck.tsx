@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { ActivityIndicator, Linking, PanResponder, Platform, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
+import { SvgXml } from 'react-native-svg';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 
 import { Button } from '../../../components/Button';
@@ -8,6 +9,7 @@ import { Explanation, FieldGroup, Notice, QuestionHint } from '../../../componen
 import { CheckOption } from '../../../components/Form';
 import { SubScreen } from '../../../components/Screen';
 import { Text } from '../../../components/T';
+import { phXml } from '../../../components/icons/phosphor';
 import { WEB_APP_URL } from '../../../data/groups';
 import { loadShowcase, type Showcase } from '../../../data/showcase';
 import { useStore } from '../../../data/store';
@@ -25,8 +27,9 @@ const web = Platform.OS === 'web';
  * (lib/businessCardCanvas.ts); in der Android-App öffnet der Knopf dieselbe Seite im Browser. Nur fürs Team.
  *
  * „Auf der Druckbaren Visitenkarte zeigen“ (Daria, 2026-11-23): Häkchen bei Services (vorne) und Links (hinten).
- * Vorausgewählt sind die ersten Einträge der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links legt
- * „Inhalte bearbeiten“ fest. Ist eine Seite voll, sind weitere Häkchen gesperrt, und eine Frage erklärt warum. Passt eine
+ * Vorausgewählt sind die ersten Einträge der Liste, so viele wie ganz auf die Karte passen. Die Reihenfolge der Links kommt
+ * aus „Inhalte bearbeiten“; Links und Services lassen sich hier am Griff mit drei Strichen nur für die Karte
+ * umsortieren (2026-11-28). Ist eine Seite voll, sind weitere Häkchen gesperrt, und eine Frage erklärt warum. Passt eine
  * Auswahl trotzdem nicht ganz (lange Einträge brauchen zwei Zeilen), sagt der Bildschirm, was fehlt.
  */
 export default function PrintableBusinessCard() {
@@ -40,8 +43,26 @@ export default function PrintableBusinessCard() {
   // Auswahl je Eintrag; null, bis die erste Zeichnung zeigt, wie viel passt
   const [linkOn, setLinkOn] = useState<boolean[] | null>(null);
   const [serviceOn, setServiceOn] = useState<boolean[] | null>(null);
+  // Reihenfolge der Links und Services nur für die Druckbare Visitenkarte (Daria, 2026-11-28: „Reihenfolge hier anpassen“,
+  // „auch Services sortieren“). Anfangs wie unter „Inhalte bearbeiten“; die Seite und die Digitale Visitenkarte bleiben,
+  // wie sie sind. `linkOn`/`serviceOn` gelten je Eintrag in der Reihenfolge aus „Inhalte bearbeiten“, `*Order` sagt, an
+  // welcher Stelle er auf der Karte steht.
+  const [linkOrder, setLinkOrder] = useState<number[] | null>(null);
+  const [serviceOrder, setServiceOrder] = useState<number[] | null>(null);
   const links = useMemo(() => showcase?.links ?? [], [showcase]);
   const services = useMemo(() => servicesPlain(showcase?.services), [showcase]);
+  const order = linkOrder && linkOrder.length === links.length ? linkOrder : links.map((_, i) => i);
+  const sOrder = serviceOrder && serviceOrder.length === services.length ? serviceOrder : services.map((_, i) => i);
+  // Loslassen am Griff löst im Browser auch ein Antippen der Zeile aus; das soll das Häkchen nicht umschalten
+  const droppedAt = useRef(0);
+  const move = (list: number[], set: (v: number[]) => void) => (from: number, to: number) => {
+    droppedAt.current = Date.now();
+    if (from === to) return;
+    const next = [...list];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    set(next);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -60,7 +81,7 @@ export default function PrintableBusinessCard() {
     let off = false;
     const chosen = linkOn && serviceOn;
     const data = chosen
-      ? { ...cardData(showcase), links: links.filter((_, i) => linkOn[i]), serviceLines: services.filter((_, i) => serviceOn[i]) }
+      ? { ...cardData(showcase), links: order.filter((i) => linkOn[i]).map((i) => links[i]), serviceLines: sOrder.filter((i) => serviceOn[i]).map((i) => services[i]) }
       : cardData(showcase);
     drawBusinessCard(data).then((s) => {
       if (off || !s) return;
@@ -76,7 +97,8 @@ export default function PrintableBusinessCard() {
     return () => {
       off = true;
     };
-  }, [showcase, links, services, linkOn, serviceOn]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- `order` und `sOrder` sind aus den Reihenfolgen abgeleitet
+  }, [showcase, links, services, linkOn, serviceOn, linkOrder, serviceOrder]);
 
   // Gewählt, aber nicht (ganz) auf der Karte
   const missingLinks = sides && linkOn ? linkOn.filter(Boolean).length - sides.fit.links : 0;
@@ -84,7 +106,8 @@ export default function PrintableBusinessCard() {
   // Voll: so viele Häkchen wie Zeilen frei sind; dann lassen sich nur noch Häkchen wegnehmen
   const linksFull = !!sides && !!linkOn && linkOn.filter(Boolean).length >= sides.fit.linkRoom;
   const servicesFull = !!sides && !!serviceOn && serviceOn.filter(Boolean).length >= sides.fit.serviceRoom;
-  const toggle = (list: boolean[] | null, set: (v: boolean[]) => void, i: number) => list && set(list.map((v, j) => (j === i ? !v : v)));
+  const toggle = (list: boolean[] | null, set: (v: boolean[]) => void, i: number) =>
+    list && Date.now() - droppedAt.current > 400 && set(list.map((v, j) => (j === i ? !v : v)));
 
   const title = 'Druckbare Visitenkarte';
   if (showcase === undefined) {
@@ -126,15 +149,24 @@ export default function PrintableBusinessCard() {
             {services.length ? (
               <View style={styles.choices}>
                 <Text style={styles.label}>{t('Services, vorne')}</Text>
-                {services.map((v, i) => (
-                  <CheckOption
-                    key={`s${i}`}
-                    label={v.replace(/^· /, '')}
-                    selected={serviceOn[i]}
-                    disabled={servicesFull && !serviceOn[i]}
-                    onPress={() => toggle(serviceOn, setServiceOn, i)}
-                  />
-                ))}
+                <SortableList
+                  count={sOrder.length}
+                  itemKey={(pos) => `s${sOrder[pos]}`}
+                  onMove={move(sOrder, setServiceOrder)}
+                  renderItem={(pos, handle) => {
+                    const i = sOrder[pos];
+                    return (
+                      <CheckOption
+                        label={services[i].replace(/^· /, '')}
+                        selected={serviceOn[i]}
+                        disabled={servicesFull && !serviceOn[i]}
+                        onPress={() => toggle(serviceOn, setServiceOn, i)}
+                        trailing={handle}
+                      />
+                    );
+                  }}
+                  handleLabel={(pos) => t('Service {n} verschieben', { n: pos + 1 })}
+                />
                 {servicesFull && serviceOn.some((on) => !on) ? (
                   <QuestionHint
                     question="Warum kann ich nicht mehr Services auswählen?"
@@ -145,16 +177,25 @@ export default function PrintableBusinessCard() {
             ) : null}
             {links.length ? (
               <View style={styles.choices}>
-                <Text style={styles.label}>{t('Links, hinten, in der Reihenfolge aus „Inhalte bearbeiten“')}</Text>
-                {links.map((l, i) => (
-                  <CheckOption
-                    key={`l${i}`}
-                    label={printLink(l)}
-                    selected={linkOn[i]}
-                    disabled={linksFull && !linkOn[i]}
-                    onPress={() => toggle(linkOn, setLinkOn, i)}
-                  />
-                ))}
+                <Text style={styles.label}>{t('Links, hinten')}</Text>
+                <SortableList
+                  count={order.length}
+                  itemKey={(pos) => `l${order[pos]}`}
+                  onMove={move(order, setLinkOrder)}
+                  renderItem={(pos, handle) => {
+                    const i = order[pos];
+                    return (
+                      <CheckOption
+                        label={printLink(links[i])}
+                        selected={linkOn[i]}
+                        disabled={linksFull && !linkOn[i]}
+                        onPress={() => toggle(linkOn, setLinkOn, i)}
+                        trailing={handle}
+                      />
+                    );
+                  }}
+                  handleLabel={(pos) => t('Link {n} verschieben', { n: pos + 1 })}
+                />
                 {linksFull && linkOn.some((on) => !on) ? (
                   <QuestionHint
                     question="Warum kann ich nicht mehr Links auswählen?"
@@ -189,6 +230,90 @@ export default function PrintableBusinessCard() {
   );
 }
 
+/**
+ * Liste zum Umsortieren per Ziehen (Daria, 2026-11-28: „diese drei Striche, die anzeigen, dass man was schieben kann“).
+ * Rechts in jeder Zeile (im Rahmen der Auswahl) ein Griff mit drei Strichen; die Zeile hängt am Finger oder an der Maus, die anderen rücken
+ * beiseite, beim Loslassen steht sie an der neuen Stelle. Alle Zeilen sind gleich hoch (CheckOption).
+ */
+function SortableList({
+  count,
+  itemKey,
+  renderItem,
+  onMove,
+  handleLabel,
+}: {
+  count: number;
+  /** Fester Schlüssel je Eintrag, damit nach dem Umsortieren nichts an der falschen Zeile hängen bleibt */
+  itemKey: (pos: number) => string;
+  /** `handle`: der Griff, den die Zeile rechts in ihren Rahmen setzt */
+  renderItem: (pos: number, handle: ReactNode) => ReactNode;
+  onMove: (from: number, to: number) => void;
+  handleLabel: (pos: number) => string;
+}) {
+  const [drag, setDrag] = useState<{ from: number; dy: number } | null>(null);
+  // Höhe einer Zeile samt Abstand, gemessen an der ersten Zeile
+  const step = useRef(64);
+  const target = (from: number, dy: number) => Math.max(0, Math.min(count - 1, from + Math.round(dy / step.current)));
+  const to = drag ? target(drag.from, drag.dy) : -1;
+  const shift = (pos: number) => {
+    if (!drag || pos === drag.from) return drag ? drag.dy : 0;
+    if (drag.from < pos && pos <= to) return -step.current;
+    if (to <= pos && pos < drag.from) return step.current;
+    return 0;
+  };
+  return (
+    <View style={styles.choices}>
+      {Array.from({ length: count }, (_, pos) => (
+        <View
+          key={itemKey(pos)}
+          onLayout={pos === 0 ? (e) => (step.current = e.nativeEvent.layout.height + space[8]) : undefined}
+          style={[styles.linkRow, { transform: [{ translateY: shift(pos) }] }, drag?.from === pos && styles.dragging]}
+        >
+          <View style={styles.flex}>
+            {renderItem(
+              pos,
+              count > 1 ? (
+                <DragHandle
+                  label={handleLabel(pos)}
+                  onDrag={(dy) => setDrag({ from: pos, dy })}
+                  onDrop={(dy) => {
+                    setDrag(null);
+                    onMove(pos, target(pos, dy));
+                  }}
+                />
+              ) : null,
+            )}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Griff mit drei Strichen; meldet, wie weit er nach oben oder unten gezogen wird */
+function DragHandle({ label, onDrag, onDrop }: { label: string; onDrag: (dy: number) => void; onDrop: (dy: number) => void }) {
+  const latest = useRef({ onDrag, onDrop });
+  latest.current = { onDrag, onDrop };
+  const pan = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onStartShouldSetPanResponderCapture: () => true,
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderGrant: () => latest.current.onDrag(0),
+        onPanResponderMove: (_e, g) => latest.current.onDrag(g.dy),
+        onPanResponderRelease: (_e, g) => latest.current.onDrop(g.dy),
+        onPanResponderTerminate: (_e, g) => latest.current.onDrop(g.dy),
+      }),
+    [],
+  );
+  return (
+    <View accessible accessibilityLabel={label} style={[styles.handle, web && HANDLE_WEB]} {...pan.panHandlers}>
+      <SvgXml xml={phXml('list', color.text.primary)} width={22} height={22} accessible={false} />
+    </View>
+  );
+}
+
 /** „Nicht alles passt“ mit den Zahlen, die fehlen; Einzahl und Mehrzahl stehen im Text, damit die Übersetzung stimmt */
 function missingText(links: number, services: number): string {
   const parts = [
@@ -198,6 +323,9 @@ function missingText(links: number, services: number): string {
   return t('Nicht alles passt auf die Karte, es fehlen: {what}. Wähle weniger aus oder kürze die Services.', { what: parts.join(', ') });
 }
 
+// Im Browser: Hand als Mauszeiger, und Ziehen am Handy scrollt nicht die Seite (Web-CSS, das StyleSheet nicht kennt)
+const HANDLE_WEB = { cursor: 'grab', touchAction: 'none', userSelect: 'none' } as object;
+
 const styles = StyleSheet.create({
   page: { gap: space[24] },
   sides: { gap: space[8] },
@@ -205,4 +333,9 @@ const styles = StyleSheet.create({
   card: { width: '100%', aspectRatio: CARD_W / CARD_H, borderRadius: radius.md, marginBottom: space[12] },
   buttons: { gap: space[12] },
   choices: { gap: space[8] },
+  linkRow: { flexDirection: 'row', alignItems: 'center' },
+  flex: { flex: 1 },
+  dragging: { zIndex: 1, opacity: 0.9 },
+  // Bis an den Rand der Zeile, damit die Fläche zum Greifen groß bleibt
+  handle: { width: 40, height: 40, marginVertical: -space[8], marginRight: -space[8], alignItems: 'center', justifyContent: 'center' },
 });

@@ -1448,5 +1448,10 @@
   "Weiter posten": "Continuer la publication",
   "Nichts posten, zurück zum Feed": "Ne rien publier, retour au fil",
   "Nichts posten und zurück": "Ne rien publier et revenir",
-  "Meine Digitale Visitenkarte zeigen": "Afficher ma carte de visite numérique"
+  "Meine Digitale Visitenkarte zeigen": "Afficher ma carte de visite numérique",
+  "Links, hinten": "Liens, au verso",
+  "Link {n} nach oben": "Monter le lien {n}",
+  "Link {n} nach unten": "Descendre le lien {n}",
+  "Link {n} verschieben": "Déplacer le lien {n}",
+  "Service {n} verschieben": "Déplacer le service {n}"
 }

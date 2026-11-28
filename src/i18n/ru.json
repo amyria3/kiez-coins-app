@@ -1434,5 +1434,10 @@
   "Weiter posten": "Продолжить публикацию",
   "Nichts posten, zurück zum Feed": "Ничего не публиковать, назад к ленте",
   "Nichts posten und zurück": "Ничего не публиковать и вернуться",
-  "Meine Digitale Visitenkarte zeigen": "Показать мою цифровую визитку"
+  "Meine Digitale Visitenkarte zeigen": "Показать мою цифровую визитку",
+  "Links, hinten": "Ссылки, на обороте",
+  "Link {n} nach oben": "Переместить ссылку {n} вверх",
+  "Link {n} nach unten": "Переместить ссылку {n} вниз",
+  "Link {n} verschieben": "Переместить ссылку {n}",
+  "Service {n} verschieben": "Переместить услугу {n}"
 }
