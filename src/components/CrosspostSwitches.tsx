@@ -14,8 +14,12 @@ import {
   isLivePlatform,
   loadCrosspostAccounts,
   loadCrosspostSelection,
+  loadTelegramChats,
+  removeTelegramChat,
   saveCrosspostSelection,
   startLinkedin,
+  startTelegram,
+  type TelegramChat,
   useCrosspostInterest,
   type CrosspostAccount,
   tokenOnly,
@@ -58,6 +62,11 @@ const HOW_TO: Record<LivePlatform, string> = {
     'Die Verbindung hält 60 Tage. Danach meldest Du Dich mit zwei Tipps neu an.\n' +
     '1. Unten auf „Mit LinkedIn verbinden“ tippen.\n' +
     '2. Bei LinkedIn anmelden und „Zulassen“ tippen. LinkedIn bringt Dich zurück zu KiezCoins.',
+  telegram:
+    'KiezCoins schickt jeden Post, den Du weiterpostest, fertig mit Foto, Text und Link in Deinen Chat mit dem KiezCoins-Bot. Von dort leitest Du ihn in Deine Gruppen weiter, auch in mehrere auf einmal.\n' +
+    'Nimmst Du den Bot in Deinen Kanal auf, postet KiezCoins dort direkt mit.\n' +
+    '1. Unten auf „Mit Telegram verbinden“ tippen. Telegram öffnet den Chat mit dem KiezCoins-Bot.\n' +
+    '2. In Telegram „Starten“ tippen und zurück zu KiezCoins wechseln. KiezCoins merkt die Verbindung von selbst.',
 };
 
 /**
@@ -72,7 +81,12 @@ const INTRO: Record<LivePlatform, string> = {
   facebook:
     'Das Verbinden hat 4 Schritte. Du brauchst dafür Dein Facebook-Konto und ein Konto bei Meta for Developers. Möchtest Du jetzt loslegen?',
   linkedin: 'Das Verbinden hat 2 Schritte. Du brauchst dafür Dein LinkedIn-Konto. Möchtest Du jetzt loslegen?',
+  telegram: 'Das Verbinden hat 2 Schritte. Du brauchst dafür Telegram auf diesem Gerät oder am Computer. Möchtest Du jetzt loslegen?',
 };
+
+/** Nach dem Öffnen von Telegram: alle 3 Sekunden nachsehen, ob „Starten“ getippt ist, höchstens 10 Minuten (Gültigkeit des Codes) */
+const TELEGRAM_POLL_MS = 3000;
+const TELEGRAM_POLL_MAX = 200;
 
 /**
  * Weiterposten unter Dein Konto › Funktionen (Daria, 2026-11-09): je Plattform ein Schalter. An öffnet darunter die
@@ -199,11 +213,42 @@ function PlatformSwitch({
   const [secret, setSecret] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  // Telegram ist offen, KiezCoins wartet auf „Starten“ (Daria, 2026-11-28)
+  const [waiting, setWaiting] = useState(false);
+  useEffect(() => {
+    if (!waiting) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries += 1;
+      if (tries > TELEGRAM_POLL_MAX) {
+        setWaiting(false);
+        return;
+      }
+      loadCrosspostAccounts().then((list) => {
+        if (!list.some((a) => a.platform === platform)) return;
+        setWaiting(false);
+        setOpen(false);
+        setReconnect(false);
+        // Frisch verbunden: Weiterposten gleich an
+        onEnable(true);
+        onChange();
+      });
+    }, TELEGRAM_POLL_MS);
+    return () => clearInterval(timer);
+    // onEnable und onChange wechseln bei jedem Zeichnen; entscheidend ist nur das Warten
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waiting, platform]);
 
   const connect = async () => {
     setBusy(true);
     setError(undefined);
     try {
+      if (platform === 'telegram') {
+        // Weiter geht es nach „Starten“ in Telegram; beim Neu-Verbinden ersetzt der neue Chat den alten
+        await startTelegram();
+        setWaiting(true);
+        return;
+      }
       if (viaLogin(platform)) {
         // Weiter geht es nach der Rückkehr von LinkedIn (?linkedin=ok)
         await startLinkedin();
@@ -306,6 +351,7 @@ function PlatformSwitch({
           </Pressable>
         </View>
       ) : null}
+      {account && open && platform === 'telegram' && !reconnect ? <TelegramChats /> : null}
       {setupOpen ? (
         <View style={styles.setup}>
           {/* Wie im Chat: erst was weitergepostet wird, dann Umfang und Voraussetzungen mit Frage, dann „Ja, los!“,
@@ -344,7 +390,13 @@ function PlatformSwitch({
           {done && viaLogin(platform) ? (
             <>
               {error ? <Notice message={error} /> : null}
-              <Button busy={busy} label="Mit LinkedIn verbinden" onPress={connect} disabled={busy} />
+              {waiting ? <Notice message="KiezCoins wartet auf „Starten“ in Telegram." /> : null}
+              <Button
+                busy={busy}
+                label={waiting ? t('{label} noch mal öffnen', { label }) : t('Mit {label} verbinden', { label })}
+                onPress={connect}
+                disabled={busy}
+              />
             </>
           ) : done ? (
             <>
@@ -393,6 +445,60 @@ function PlatformSwitch({
           ) : null}
         </View>
       ) : null}
+    </View>
+  );
+}
+
+/**
+ * Telegram verbunden (Daria, 2026-11-28): Kanäle und Gruppen, in die KiezCoins direkt mitpostet, je mit „Entfernen“.
+ * Darunter, wie ein Kanal dazukommt und wie das Weiterleiten in Gruppen ohne Bots geht.
+ */
+function TelegramChats() {
+  const [state, setState] = useState<{ bot: string; chats: TelegramChat[] }>();
+  useEffect(() => {
+    loadTelegramChats().then(setState);
+  }, []);
+  const bot = state?.bot ? `@${state.bot}` : t('den KiezCoins-Bot');
+  const remove = (chat: TelegramChat) =>
+    Alert.alert(t('Nicht mehr in „{title}“ posten?', { title: chat.title }), t('Der KiezCoins-Bot verlässt den Kanal oder die Gruppe.'), [
+      { text: 'Abbrechen', style: 'cancel' },
+      {
+        text: 'Entfernen',
+        style: 'destructive',
+        onPress: () =>
+          removeTelegramChat(chat.chat_id)
+            .then((chats) => setState((s) => ({ bot: s?.bot ?? '', chats })))
+            .catch((e) => Alert.alert('Hat nicht geklappt', errorText(e))),
+      },
+    ]);
+  return (
+    <View style={styles.setup}>
+      {state?.chats.length ? (
+        <>
+          <Text style={styles.caption}>KiezCoins postet direkt mit in</Text>
+          {state.chats.map((chat) => (
+            <View key={chat.chat_id} style={styles.connected}>
+              <Text noTranslate style={[styles.connectedText, styles.flex]}>
+                {chat.title || (chat.username ? `@${chat.username}` : 'Telegram')}
+              </Text>
+              <Pressable accessibilityRole="button" onPress={() => remove(chat)} style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
+                <Text style={styles.chipText}>Entfernen</Text>
+              </Pressable>
+            </View>
+          ))}
+        </>
+      ) : null}
+      <QuestionHint
+        question="Wie postet KiezCoins direkt in meinen Kanal?"
+        answer={t(
+          'Nimm {bot} in Deinem Kanal als Admin auf, mit dem Recht, Nachrichten zu posten. In einer Gruppe, die Bots erlaubt, genügt Mitglied; aufnehmen musst Du ihn dort als Admin der Gruppe. Der Kanal erscheint dann hier.',
+          { bot },
+        )}
+      />
+      <QuestionHint
+        question="Wie poste ich in Gruppen ohne Bots?"
+        answer="Jeder Weiterpost liegt fertig in Deinem Chat mit dem KiezCoins-Bot. Nachricht lange drücken, Weiterleiten tippen und die Gruppen wählen, auch mehrere auf einmal. Mit „Absender ausblenden“ erscheint der Post als Deiner."
+      />
     </View>
   );
 }

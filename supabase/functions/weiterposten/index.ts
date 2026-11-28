@@ -1,5 +1,5 @@
-// Weiterposten auf BlueSky, Mastodon, Instagram, Facebook und LinkedIn (Daria, 05.11.2026; Facebook 09.11.2026;
-// LinkedIn 2026-11-28). Alle fünf Schnittstellen kosten nichts.
+// Weiterposten auf BlueSky, Mastodon, Instagram, Facebook, LinkedIn und Telegram (Daria, 05.11.2026; Facebook
+// 09.11.2026; LinkedIn und Telegram 2026-11-28). Alle sechs Schnittstellen kosten nichts.
 //
 // Anfragen (POST, mit Anmeldung der Person im Header Authorization):
 //   { action: 'connect', platform: 'bluesky', handle, password }      App-Passwort aus BlueSky › Einstellungen
@@ -13,6 +13,12 @@
 //   { action: 'linkedin_start', returnTo }                           Anmeldung bei LinkedIn beginnen: gibt { url } zurück.
 //                                                                    LinkedIn kehrt zur Edge Function `linkedin-anmeldung` zurück,
 //                                                                    die den Zugang speichert und nach returnTo weiterleitet.
+//   { action: 'telegram_start' }                                     Telegram verbinden: gibt { url } zu t.me/<bot>?start=<code>
+//                                                                    zurück. „Starten“ im Chat mit dem Bot verbindet über die
+//                                                                    Edge Function `telegram-bot` (Webhook).
+//   { action: 'telegram_chats' }                                     Kanäle und Gruppen, in denen der Bot für die Person postet:
+//                                                                    { bot, chats: [{ chat_id, title, kind, username }] }
+//   { action: 'telegram_remove', chatId }                            Dort nicht mehr posten; der Bot verlässt den Chat
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
 // Gepostet werden nur eigene Posts, die eine öffentliche Seite bekommen dürfen (share_challenge, Migration
@@ -21,14 +27,24 @@
 // crosspost_save, Lesen über crosspost_accounts_of, beide nur mit dem Service-Schlüssel.
 //
 // SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Für LinkedIn zusätzlich
-// LINKEDIN_CLIENT_ID (Secret der Edge Functions, aus dem LinkedIn Developer Portal).
+// LINKEDIN_CLIENT_ID (Secret der Edge Functions, aus dem LinkedIn Developer Portal). Für Telegram TELEGRAM_BOT_TOKEN
+// und TELEGRAM_BOT_NAME (Benutzername des Bots ohne @, beides von @BotFather).
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { Image } from 'https://deno.land/x/imagescript@1.3.0/mod.ts';
 
 import { FULL_LOOK, framePhoto, type Look } from './rahmen.ts';
+import {
+  alreadyGone,
+  TELEGRAM_CAPTION_MAX,
+  TELEGRAM_TEXT_MAX,
+  telegramLink,
+  telegramText,
+  type TelegramChat,
+  type TelegramRef,
+} from './telegram.ts';
 
-type Platform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin';
-const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram', 'facebook', 'linkedin'];
+type Platform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin' | 'telegram';
+const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram', 'facebook', 'linkedin', 'telegram'];
 const isPlatform = (p: unknown): p is Platform => PLATFORMS.includes(p as Platform);
 type Account = { platform: Platform; handle: string; instance: string; secret: string };
 type Post = {
@@ -405,6 +421,89 @@ async function deleteLinkedin(account: Account, link: string) {
 }
 
 // ---------------------------------------------------------------------------
+// Telegram (Bot-API, Daria 2026-11-28). Ein Bot für alle: TELEGRAM_BOT_TOKEN. Telegram: instance = Chat-ID des
+// privaten Chats mit dem Bot (gleich der Telegram-Kennung der Person), secret = dieselbe Kennung (Vault braucht einen
+// Wert). Jeder Post geht in den privaten Chat zum Weiterleiten in Gruppen ohne Bots, und zusätzlich in jeden Kanal und
+// jede Gruppe aus telegram_chats, in die die Person den Bot aufgenommen hat (Migration 20261128000200).
+// ---------------------------------------------------------------------------
+
+/** Aufruf der Bot-API; Fehler mit der Beschreibung von Telegram */
+async function telegram(method: string, body: Record<string, unknown> | FormData) {
+  const token = Deno.env.get('TELEGRAM_BOT_TOKEN');
+  if (!token) throw new Error('not_configured');
+  const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: 'POST',
+    ...(body instanceof FormData ? { body } : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  });
+  const data = (await res.json().catch(() => ({}))) as { ok?: boolean; result?: unknown; description?: string };
+  if (!data.ok) throw new Error(`telegram ${res.status} ${clip(data.description ?? '', 200)}`.trim());
+  return data.result;
+}
+
+/** Kanäle und Gruppen, die die Person (Telegram-Kennung) mit dem Bot verbunden hat */
+async function telegramChatsOf(admin: SupabaseClient, telegramUser: string): Promise<TelegramChat[]> {
+  const { data } = await admin
+    .from('telegram_chats')
+    .select('chat_id, title, kind, username')
+    .eq('added_by', Number(telegramUser))
+    .order('created_at');
+  return (data ?? []) as TelegramChat[];
+}
+
+async function sendTelegram(chat: number, post: Post): Promise<TelegramRef> {
+  let result: { message_id: number };
+  if (post.image) {
+    const form = new FormData();
+    form.set('chat_id', String(chat));
+    form.set('caption', telegramText(post.title, post.body, post.link, TELEGRAM_CAPTION_MAX));
+    form.set('photo', new Blob([post.image.bytes], { type: post.image.type }), 'kiezcoins.jpg');
+    result = (await telegram('sendPhoto', form)) as { message_id: number };
+  } else {
+    result = (await telegram('sendMessage', {
+      chat_id: chat,
+      text: telegramText(post.title, post.body, post.link, TELEGRAM_TEXT_MAX),
+    })) as { message_id: number };
+  }
+  return { chat, message: result.message_id };
+}
+
+/**
+ * Erst der private Chat, dann die Kanäle und Gruppen. Klappt es irgendwo, gilt der Post als weitergepostet; die
+ * Kennungen aller gesendeten Nachrichten stehen in `refs` zum Löschen. Klappt es nirgends, kommt der erste Fehler.
+ */
+async function postTelegram(admin: SupabaseClient, account: Account, post: Post): Promise<Sent> {
+  const targets: { chat: number; username: string | null }[] = [
+    { chat: Number(account.instance), username: null },
+    ...(await telegramChatsOf(admin, account.instance)).map((c) => ({ chat: Number(c.chat_id), username: c.username })),
+  ];
+  const sent: { ref: TelegramRef; username: string | null }[] = [];
+  let firstError: Error | undefined;
+  for (const [i, target] of targets.entries()) {
+    try {
+      sent.push({ ref: await sendTelegram(target.chat, post), username: target.username });
+    } catch (e) {
+      // Privater Chat gesperrt (403): Die Person hat den Bot blockiert oder den Chat gelöscht
+      const error = i === 0 && /telegram 403/.test((e as Error).message) ? new Error('blocked') : (e as Error);
+      firstError ??= error;
+      console.error('telegram', target.chat, error.message);
+    }
+  }
+  if (!sent.length) throw firstError ?? new Error('telegram');
+  return { url: telegramLink(sent, Deno.env.get('TELEGRAM_BOT_NAME') ?? ''), refs: sent.map((s) => s.ref) };
+}
+
+/** Alle Nachrichten eines Weiterposts löschen. Weitergeleitete Kopien in Gruppen bleiben, die hat die Person gesendet. */
+async function deleteTelegram(refs: unknown) {
+  for (const ref of Array.isArray(refs) ? (refs as TelegramRef[]) : []) {
+    try {
+      await telegram('deleteMessage', { chat_id: ref.chat, message_id: ref.message });
+    } catch (e) {
+      if (!alreadyGone((e as Error).message)) throw e;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Löschen: Der Link in crosspost_posts enthält die Kennung des Posts (letzter Teil des Pfads).
 // ---------------------------------------------------------------------------
 
@@ -525,7 +624,13 @@ async function loadAuthor(admin: SupabaseClient, authorId: string | null) {
   return { name: String(p.handle), avatar };
 }
 
-const sendTo = (platform: Platform, account: Account, post: Post) =>
+/** Ergebnis eines Weiterposts: Link dort; bei Telegram dazu die gesendeten Nachrichten */
+type Sent = { url: string; refs?: TelegramRef[] };
+
+const sendTo = (admin: SupabaseClient, platform: Platform, account: Account, post: Post): Promise<Sent> =>
+  platform === 'telegram' ? postTelegram(admin, account, post) : sendElsewhere(platform, account, post).then((url) => ({ url }));
+
+const sendElsewhere = (platform: Platform, account: Account, post: Post) =>
   platform === 'bluesky'
     ? postBluesky(account, post)
     : platform === 'mastodon'
@@ -625,6 +730,33 @@ Deno.serve(async (req) => {
     return reply({ url: auth.toString() });
   }
 
+  if (input.action === 'telegram_start') {
+    // Telegram verbinden (Daria, 2026-11-28): Code merken, dann zum Bot. „Starten“ dort schickt „/start <code>“ an den
+    // Webhook `telegram-bot`, der den Chat mit der Person verbindet.
+    const bot = Deno.env.get('TELEGRAM_BOT_NAME');
+    if (!bot || !Deno.env.get('TELEGRAM_BOT_TOKEN')) return reply({ error: 'not_configured' }, 503);
+    const code = crypto.randomUUID().replaceAll('-', '');
+    const { error } = await admin.from('telegram_link_codes').insert({ code, user_id: user.id });
+    if (error) return reply({ error: 'save' }, 500);
+    return reply({ url: `https://t.me/${bot}?start=${code}` });
+  }
+
+  if (input.action === 'telegram_chats' || input.action === 'telegram_remove') {
+    const bot = Deno.env.get('TELEGRAM_BOT_NAME') ?? '';
+    const { data: all } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
+    const account = ((all ?? []) as Account[]).find((a) => a.platform === 'telegram');
+    if (!account) return reply({ bot, chats: [] });
+    if (input.action === 'telegram_remove') {
+      const chatId = Number(input.chatId);
+      const chats = await telegramChatsOf(admin, account.instance);
+      if (!chats.some((c) => Number(c.chat_id) === chatId)) return reply({ error: 'input' }, 400);
+      // Erst den Chat verlassen, dann die Zeile löschen; ist der Bot schon raus, reicht das Löschen
+      await telegram('leaveChat', { chat_id: chatId }).catch(() => undefined);
+      await admin.from('telegram_chats').delete().eq('chat_id', chatId);
+    }
+    return reply({ bot, chats: await telegramChatsOf(admin, account.instance) });
+  }
+
   if (input.action === 'post') {
     const challengeId = str('challengeId');
     const platforms = (Array.isArray(input.platforms) ? input.platforms : []).filter(isPlatform);
@@ -673,9 +805,13 @@ Deno.serve(async (req) => {
       try {
         base ??= loadPost(admin, challengeId, look);
         const post: Post = { ...(await base), link: `https://kiezcoins.de/c/${challengeId}?von=${platform}` };
-        const link = await sendTo(platform, account, post);
-        await admin.from('crosspost_posts').update({ status: 'ok', url: link }).eq('challenge_id', challengeId).eq('platform', platform);
-        results[platform] = { url: link };
+        const sent = await sendTo(admin, platform, account, post);
+        await admin
+          .from('crosspost_posts')
+          .update({ status: 'ok', url: sent.url, refs: sent.refs ?? null })
+          .eq('challenge_id', challengeId)
+          .eq('platform', platform);
+        results[platform] = { url: sent.url };
       } catch (e) {
         const message = clip((e as Error).message || 'error', 500);
         await admin.from('crosspost_posts').update({ status: 'error', error: message }).eq('challenge_id', challengeId).eq('platform', platform);
@@ -738,9 +874,13 @@ Deno.serve(async (req) => {
       try {
         base ??= loadEvent(admin, e, showcase.cover_path, showcase.address, look);
         const post: Post = { ...(await base), link: `https://kiezcoins.de/s/${showcase.slug}?von=${platform}` };
-        const link = await sendTo(platform, account, post);
-        await admin.from('crosspost_event_posts').update({ status: 'ok', url: link }).eq('event_id', eventId).eq('platform', platform);
-        results[platform] = { url: link };
+        const sent = await sendTo(admin, platform, account, post);
+        await admin
+          .from('crosspost_event_posts')
+          .update({ status: 'ok', url: sent.url, refs: sent.refs ?? null })
+          .eq('event_id', eventId)
+          .eq('platform', platform);
+        results[platform] = { url: sent.url };
       } catch (err) {
         const message = clip((err as Error).message || 'error', 500);
         await admin.from('crosspost_event_posts').update({ status: 'error', error: message }).eq('event_id', eventId).eq('platform', platform);
@@ -757,14 +897,14 @@ Deno.serve(async (req) => {
     if (!challengeId) return reply({ error: 'input' }, 400);
     const { data: posts } = await admin
       .from('crosspost_posts')
-      .select('platform, url')
+      .select('platform, url, refs')
       .eq('challenge_id', challengeId)
       .eq('user_id', user.id)
       .eq('status', 'ok');
     const { data: accounts } = await admin.rpc('crosspost_accounts_of', { p_user: user.id });
     const only = Array.isArray(input.platforms) ? (input.platforms as unknown[]) : null;
     const results: Record<string, { deleted?: boolean; error?: string }> = {};
-    for (const { platform, url: link } of (posts ?? []).filter((p) => !only || only.includes(p.platform))) {
+    for (const { platform, url: link, refs } of (posts ?? []).filter((p) => !only || only.includes(p.platform))) {
       const account = (accounts ?? []).find((a) => a.platform === platform) as Account | undefined;
       if (!account || !link) {
         results[platform] = { error: 'not_connected' };
@@ -775,10 +915,11 @@ Deno.serve(async (req) => {
         else if (platform === 'mastodon') await deleteMastodon(account, link);
         else if (platform === 'instagram') await deleteInstagram(account, link);
         else if (platform === 'linkedin') await deleteLinkedin(account, link);
+        else if (platform === 'telegram') await deleteTelegram(refs);
         else await deleteFacebook(account, link);
         await admin
           .from('crosspost_posts')
-          .update({ status: 'error', error: 'deleted', url: null })
+          .update({ status: 'error', error: 'deleted', url: null, refs: null })
           .eq('challenge_id', challengeId)
           .eq('platform', platform);
         results[platform] = { deleted: true };

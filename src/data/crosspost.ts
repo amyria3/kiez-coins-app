@@ -12,12 +12,12 @@ import { useStore } from './store';
 
 /**
  * Weiterposten (Daria, 05.11.2026): Öffentliche Posts lassen sich zusätzlich auf anderen Plattformen veröffentlichen.
- * BlueSky, Mastodon, Instagram, Facebook und LinkedIn (persönliches Profil, Daria, 2026-11-28) laufen über die Edge
- * Function `weiterposten` (kostenlos). X kommt später.
+ * BlueSky, Mastodon, Instagram, Facebook, LinkedIn (persönliches Profil, Daria, 2026-11-28) und Telegram (Daria,
+ * 2026-11-28) laufen über die Edge Function `weiterposten` (kostenlos). X kommt später.
  * Freigegeben für alle (Daria, 09.11.2026, „alles außer X“). Wer die echten Schalter sieht, entscheidet das Feature
  * `weiterposten` (unlock.ts). Für X zählt ein Knopf das Interesse. Plan und Preismodell: Documentation `kiez-coins/app/TODO.md`, Abschnitt „Teilen“.
  */
-export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin' | 'x';
+export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin' | 'telegram' | 'x';
 
 export const CROSSPOST_PLATFORMS: {
   key: CrosspostPlatform;
@@ -33,6 +33,7 @@ export const CROSSPOST_PLATFORMS: {
   { key: 'instagram', label: 'Instagram', free: true, letter: 'I', tint: '#DD2A7B' },
   { key: 'facebook', label: 'Facebook', free: true, letter: 'f', tint: '#1877F2' },
   { key: 'linkedin', label: 'LinkedIn', free: true, letter: 'in', tint: '#0A66C2' },
+  { key: 'telegram', label: 'Telegram', free: true, letter: 'T', tint: '#26A5E4' },
   { key: 'x', label: 'X', free: false, letter: 'X', tint: '#000000' },
 ];
 
@@ -61,15 +62,15 @@ export function useCrosspostInterest(): [boolean, () => void] {
 }
 
 /** Plattformen, die die Edge Function schon kann */
-export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin';
-export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram', 'facebook', 'linkedin'];
+export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin' | 'telegram';
+export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram', 'facebook', 'linkedin', 'telegram'];
 export const isLivePlatform = (p: CrosspostPlatform): p is LivePlatform => (LIVE_PLATFORMS as string[]).includes(p);
 
 /** Instagram und Facebook brauchen nur einen Zugangs-Token, kein zweites Feld */
 export const tokenOnly = (p: LivePlatform) => p === 'instagram' || p === 'facebook';
 
-/** LinkedIn verbindet per Anmeldung bei LinkedIn, ohne Felder */
-export const viaLogin = (p: LivePlatform) => p === 'linkedin';
+/** LinkedIn verbindet per Anmeldung bei LinkedIn, Telegram per „Starten“ im Chat mit dem Bot, beide ohne Felder */
+export const viaLogin = (p: LivePlatform) => p === 'linkedin' || p === 'telegram';
 
 /** Echte Schalter sichtbar? Feature `weiterposten` (unlock.ts), nur mit echten Daten. */
 export function useCrosspostEnabled(): boolean {
@@ -160,6 +161,50 @@ export async function startLinkedin(): Promise<void> {
       ? 'LinkedIn ist bei KiezCoins noch nicht eingerichtet. Versuche es bitte später noch mal.'
       : 'Da ist etwas schiefgegangen. Versuche es bitte noch mal.',
   );
+}
+
+/**
+ * Telegram verbinden (Daria, 2026-11-28): Die Edge Function gibt den Link zum KiezCoins-Bot mit einem Code zurück
+ * (t.me/<bot>?start=<code>, 10 Minuten gültig). „Starten“ in Telegram verbindet; die App merkt das beim Nachladen der
+ * Konten (CrosspostSwitches fragt nach, bis die Verbindung da ist).
+ */
+export async function startTelegram(): Promise<void> {
+  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>('weiterposten', {
+    body: { action: 'telegram_start' },
+  });
+  if (!error && data?.url) {
+    // Web: neuer Tab, damit KiezCoins offen bleibt; auf dem Handy öffnet der Link die Telegram-App
+    if (Platform.OS === 'web') window.open(data.url, '_blank', 'noopener');
+    else await Linking.openURL(data.url);
+    return;
+  }
+  const reason = await reasonOf(error, data);
+  throw new Error(
+    reason === 'not_configured'
+      ? 'Telegram ist bei KiezCoins noch nicht eingerichtet. Versuche es bitte später noch mal.'
+      : 'Da ist etwas schiefgegangen. Versuche es bitte noch mal.',
+  );
+}
+
+/** Kanal oder Gruppe, in die der KiezCoins-Bot für die Person direkt postet */
+export type TelegramChat = { chat_id: number; title: string; kind: 'channel' | 'group' | 'supergroup'; username: string | null };
+
+/** Benutzername des Bots und die Kanäle und Gruppen der Person. Leer bei einem Fehler. */
+export async function loadTelegramChats(): Promise<{ bot: string; chats: TelegramChat[] }> {
+  const { data, error } = await supabase.functions.invoke<{ bot?: string; chats?: TelegramChat[] }>('weiterposten', {
+    body: { action: 'telegram_chats' },
+  });
+  if (error || !data) return { bot: '', chats: [] };
+  return { bot: data.bot ?? '', chats: data.chats ?? [] };
+}
+
+/** Dort nicht mehr posten: Der Bot verlässt den Kanal oder die Gruppe */
+export async function removeTelegramChat(chatId: number): Promise<TelegramChat[]> {
+  const { data, error } = await supabase.functions.invoke<{ chats?: TelegramChat[] }>('weiterposten', {
+    body: { action: 'telegram_remove', chatId },
+  });
+  if (error || !data?.chats) throw new Error('Da ist etwas schiefgegangen. Versuche es bitte noch mal.');
+  return data.chats;
 }
 
 /**
