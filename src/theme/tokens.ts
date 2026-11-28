@@ -31,8 +31,11 @@ const kiezPalette = {
   green: '#7EE798',
   red: '#FF7E8B',
   pink: '#FFB2E5',
-  /** Flächen: Aubergine wie der Grund, heller. Vorher kühles Grafit `#303034` (Daria, 2026-11-28: „Es wirkt kalt. Technisch.“) */
-  graphite: '#372D33',
+  /**
+   * Flächen: Pflaume, im Ton zwischen Grund und Lila. Vorher kühles Grafit `#303034` (Daria, 2026-11-28: „Es wirkt kalt.
+   * Technisch.“). Der erste Versuch `#372D33` war bräunlich und wirkte „schmutzig“.
+   */
+  graphite: '#3A2F3D',
 };
 
 export const palette = Object.freeze(kiezPalette);

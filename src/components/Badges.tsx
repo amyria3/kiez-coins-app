@@ -7,6 +7,7 @@ import { Icon } from './icons/Icon';
 import type { Challenge, ChallengeStatus } from '../data/types';
 import { useStore } from '../data/store';
 import { color, font, radius, space, stroke, text } from '../theme/tokens';
+import { isLight } from '../theme/look';
 import { CoinsIcon } from './icons/Brand';
 import { t, tAbout } from '../data/texts';
 
@@ -30,10 +31,20 @@ const statusStyles: Record<ChallengeStatus, { label: string; tint: string; fille
   deleted: { label: 'Gelöscht', tint: color.accent.signal },
 };
 
+/** Deckende Mischung zweier Farben „#RRGGBB“: `share` Anteil von `a` auf `b` */
+function mixHex(a: string, b: string, share: number): string {
+  const ch = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
+  const mixed = [0, 1, 2].map((i) => Math.round(ch(a, i) * share + ch(b, i) * (1 - share)));
+  return `#${mixed.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
 /** Fläche, Rand und Schriftfarbe eines Badges nach dem Badge-Prinzip */
 function badgeLook(tint: string) {
 
-  // Getönt (Daria, 2026-11-05, Variante B): zarte Fläche in der Statusfarbe, Schrift in der vollen Farbe, kein Rand
+  // Getönt (Daria, 2026-11-05, Variante B): zarte Fläche in der Statusfarbe, Schrift in der vollen Farbe, kein Rand.
+  // Kiez: deckend aus Statusfarbe und Grund gemischt. Durchscheinend mischte sich die Farbe mit der Karte darunter
+  // und wurde trüb (Daria, 2026-11-28: „ein bisschen schmutzig“).
+  if (!isLight) return { box: { backgroundColor: mixHex(tint, color.bg.screen, 0.24), borderColor: 'transparent' }, ink: tint };
   return { box: { backgroundColor: `${tint}29`, borderColor: 'transparent' }, ink: tint };
 }
 
@@ -88,13 +99,17 @@ export function StatusBadge({
   return (
     <View style={[styles.status, look.box]}>
       {actor && by ? (
-        <Text noTranslate style={[text.caption, { color: look.ink }]} numberOfLines={1}>
+        // Zwei Texte in einer Zeile: Ein langer Deckname kürzt mit „…“, der Status dahinter bleibt ganz lesbar
+        // (2026-11-28, vorher verschwand „» hat bestätigt“ hinter dem Namen oder brach auf drei Zeilen um)
+        <View style={styles.actorRow}>
           {/* Isoliert links nach rechts, damit das @ auch auf Arabisch und Hebräisch vor dem Namen bleibt */}
-          <Text noTranslate style={styles.actorName}>
+          <Text noTranslate style={[text.caption, styles.actorName, { color: look.ink }]} numberOfLines={1}>
             {`\u2066@${actor.name}\u2069`}
           </Text>
-          {` » ${tAbout(actor, by.phrase)}`}
-        </Text>
+          <Text noTranslate style={[text.caption, styles.actorPhrase, { color: look.ink }]} numberOfLines={1}>
+            {`» ${tAbout(actor, by.phrase)}`}
+          </Text>
+        </View>
       ) : (
         <Text style={[text.caption, { color: look.ink }]} numberOfLines={1}>
           {label}
@@ -204,7 +219,9 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     alignSelf: 'center',
   },
-  actorName: { fontFamily: font.semiBold },
+  actorRow: { flexDirection: 'row', alignItems: 'baseline', gap: space[4] },
+  actorName: { fontFamily: font.semiBold, flexShrink: 1 },
+  actorPhrase: { flexShrink: 0 },
   deadline: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start' },
   bounty: { flexDirection: 'row', alignItems: 'center', gap: space[6] },
   bountyText: { ...text.metricSm, color: color.accent.signal },
