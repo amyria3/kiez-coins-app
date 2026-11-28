@@ -11,7 +11,7 @@ import { contactGroups, shortUrl, socialLink, telLink } from '../src/data/digita
 import { cleanPaymentLinks } from '../src/data/paymentLinks.mjs';
 import { anfahrtLink, hatPunkt, KARTE_B, KARTE_H, karteGross, kartenKacheln } from './_karte.mjs';
 import { oeffnungszeiten } from './_oeffnungszeiten.mjs';
-import { appVisitenkarte, serviceListe, teamHinweis, vcard, vorschauSeite } from './_visitenkarte.mjs';
+import { appVisitenkarte, teamHinweis, vcard, vorschauSeite } from './_visitenkarte.mjs';
 import { BILD_B, BILD_H, bildBaum, bildText } from './_visitenkarte-bild.mjs';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://aqxzxpxrshizlaqyjplw.supabase.co';
@@ -575,18 +575,12 @@ ${
   .geteilt .sf-seite .sf-vk a.sf-vk-haupt { display: inline; min-height: 0; padding: 0; border-radius: 0; background: none; color: var(--text);
     font: 500 14px/20px Inter, sans-serif; text-decoration: underline; text-underline-offset: 3px; }
 }
-/* Standard-Posts als kleine Plakate (Daria, 2026-11-28), siehe standardPosts() */
-.geteilt .sf-plakat { display: flex; flex-direction: column; gap: 20px; min-height: 300px; padding: 24px; border-radius: 12px; box-sizing: border-box; }
-.geteilt .sf-plakat-tinte { background: #161616; color: #F0FFA6; }
-.geteilt .sf-plakat-hell { background: #F0FFA6; color: #161616; }
+/* Standard-Post als kleines Plakat (Daria, 2026-11-28), siehe standardPosts() */
+.geteilt .sf-plakat { display: flex; flex-direction: column; gap: 20px; min-height: 300px; padding: 24px; border-radius: 12px; box-sizing: border-box;
+  background: #161616; color: #F0FFA6; }
 .geteilt .sf-plakat p.sf-plakat-marke { margin: 0; font: 600 12px/15px 'Inter Tight', Inter, sans-serif; letter-spacing: .03em; text-transform: uppercase; color: inherit; }
 .geteilt .sf-plakat h2 { margin: auto 0 0; font: 500 34px/1.08 Unbounded, var(--display); letter-spacing: -.01em; color: inherit; overflow-wrap: anywhere; }
-.geteilt .sf-plakat-hell h2 { font-size: 24px; line-height: 1.2; }
 .geteilt .sf-plakat p.sf-plakat-fuss { margin: 0; font: 400 15px/1.4 Inter, sans-serif; color: inherit; opacity: .8; }
-.geteilt .sf-plakat-liste { list-style: none; margin: auto 0 0; padding: 0; }
-.geteilt .sf-plakat-liste li { display: flex; gap: 16px; align-items: baseline; padding: 12px 0; border-top: 1px solid rgba(22,22,22,.25);
-  font: 500 18px/1.3 'Inter Tight', Inter, sans-serif; }
-.geteilt .sf-plakat-liste li span { flex: none; font: 500 12px/1 Inter, sans-serif; font-variant-numeric: tabular-nums; }
 @media (min-width: 1040px) { .geteilt .sf-plakat { aspect-ratio: 4 / 5; min-height: 0; } }
 /* Platzhalter (Daria, 2026-11-11) */
 .geteilt .sf-verlauf { background: linear-gradient(135deg, #8F90FA 0%, #FFB2E5 55%, #FFAD7E 100%); }
@@ -595,37 +589,17 @@ ${
 </style>`;
 }
 
-// Standard-Posts (Daria, 2026-11-28: „Default-Posts, die erscheinen, bevor echte Posts erscheinen. Minimalistisch aber
-// modern. À la Grafikdesigner“). Statt des gestrichelten Platzhalters zwei Karten wie kleine Plakate, nur aus Angaben,
-// die das Schaufenster schon hat: Willkommen in Tinte mit Schrift in Gelbgrün, daneben in Gelbgrün die Services
-// (höchstens drei, nummeriert), ohne Services die Öffnungszeiten, ohne beides die Adresse. Feste Farben wie das Bild
-// der Digitalen Visitenkarte, damit sie auf jedem Hintergrund gleich aussehen. Mit dem ersten echten Post fallen sie weg.
+// Standard-Post (Daria, 2026-11-28: „Default-Posts, die erscheinen, bevor echte Posts erscheinen. Minimalistisch aber
+// modern. À la Grafikdesigner“). Statt des gestrichelten Platzhalters eine Karte wie ein kleines Plakat: Willkommen in
+// Tinte mit Schrift in Gelbgrün. Ein zweites Plakat mit den Services fiel weg, weil sie dann doppelt dastanden (Daria:
+// „wieso gedoppelt?“). Feste Farben wie das Bild der Digitalen Visitenkarte. Mit dem ersten echten Post fällt es weg.
 function standardPosts(s) {
   const kiez = s.kiez?.trim();
-  const willkommen = `<article class="sf-plakat sf-plakat-tinte">
+  return `<h2 class="sf-abschnitt">Neu im Schaufenster</h2><div class="sf-liste sf-plakate"><article class="sf-plakat">
       <p class="sf-plakat-marke">Willkommen</p>
       <h2>${kiez ? `Neu in ${esc(kiez)}.` : 'Neu im Kiez.'}</h2>
       <p class="sf-plakat-fuss">${esc(s.name)} hat jetzt ein Schaufenster. Neues erscheint hier.</p>
-    </article>`;
-  const services = serviceListe(s.services ?? '').slice(0, 3);
-  const zeiten = (s.opening_hours ?? '').split('\n').map((z) => z.trim()).filter(Boolean).slice(0, 4);
-  const zweite = services.length
-    ? `<article class="sf-plakat sf-plakat-hell">
-      <p class="sf-plakat-marke">Was es hier gibt</p>
-      <ol class="sf-plakat-liste">${services.map((x, i) => `<li><span>${String(i + 1).padStart(2, '0')}</span>${esc(x)}</li>`).join('')}</ol>
-    </article>`
-    : zeiten.length
-      ? `<article class="sf-plakat sf-plakat-hell">
-      <p class="sf-plakat-marke">Geöffnet</p>
-      <ol class="sf-plakat-liste sf-plakat-ohne-zahl">${zeiten.map((z) => `<li>${esc(z)}</li>`).join('')}</ol>
-    </article>`
-      : s.address?.trim()
-        ? `<article class="sf-plakat sf-plakat-hell">
-      <p class="sf-plakat-marke">Hier zu finden</p>
-      <h2>${esc(s.address)}</h2>
-    </article>`
-        : '';
-  return `<h2 class="sf-abschnitt">Neu im Schaufenster</h2><div class="sf-liste sf-plakate">${willkommen}${zweite}</div>`;
+    </article></div>`;
 }
 
 function inhalt(s, via, team = false) {

@@ -333,10 +333,10 @@ export default function ShowcaseScreen() {
               )}
             </View>
           ) : access.canSee ? (
-            // Ohne Posts die Standard-Posts für alle, nicht nur fürs Team (Daria, 2026-11-28)
+            // Ohne Posts der Standard-Post für alle, nicht nur fürs Team (Daria, 2026-11-28)
             <View style={routine.group}>
               <SectionHead title="Neu im Schaufenster" />
-              <StandardPosts name={s.name} kiez={s.kiez} services={s.services} openingHours={s.openingHours} address={s.address} />
+              <StandardPosts name={s.name} kiez={s.kiez} />
             </View>
           ) : null}
 
