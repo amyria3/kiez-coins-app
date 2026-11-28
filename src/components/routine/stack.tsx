@@ -340,6 +340,9 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
     };
   }, []);
 
+  // Desktop (Daria, 2026-11-28): Aufgefächert holt die Maus eine verdeckte Karte nach vorn, damit ihre zweite Zeile
+  // lesbar ist. Nur der Blick, die Reihenfolge bleibt; Tippen holt sie wie bisher wirklich nach vorn.
+  const [hovered, setHovered] = useState<string | null>(null);
   const n = order.length;
   const frontIndex = n ? incoming.indexOf(order[0]) + 1 : 0;
   return (
@@ -359,7 +362,8 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
               if (!card) return null;
               const v = valsOf(key);
               // Zu: vorn oben. Offen: von oben nach unten übereinander, die vordere unten und ganz oben drauf.
-              const z = open ? (pos === 0 ? 100 : 10 + pos) : 100 - pos;
+              const lifted = open && hovered === key;
+              const z = lifted ? 200 : open ? (pos === 0 ? 100 : 10 + pos) : 100 - pos;
               return (
                 <Animated.View
                   key={key}
@@ -403,6 +407,8 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
                     <Pressable
                       style={styles.cover}
                       onPress={() => (open ? bringToFront(key, true) : setOpen(true))}
+                      onHoverIn={() => setHovered(key)}
+                      onHoverOut={() => setHovered((h) => (h === key ? null : h))}
                       accessibilityRole="button"
                       accessibilityLabel={open ? t('Karte nach vorn holen') : t('Stapel auffächern')}
                     />
