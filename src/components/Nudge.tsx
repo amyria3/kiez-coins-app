@@ -321,6 +321,14 @@ export function explain(title: string, message?: string) {
 }
 
 /**
+ * „Als Entwurf speichern“ ohne Inhalt: echte Wahl statt nur „OK“ (Daria, 28.11.2026).
+ * Reihenfolge wie von Daria: oben „Nichts posten, zurück zum Feed“ (verlässt das Formular), darunter „Weiter posten“ (schließt nur den Dialog).
+ */
+export function nothingToSave(message: string, onLeave: () => void, leaveLabel = 'Nichts posten, zurück zum Feed') {
+  Alert.alert('Noch nichts zu speichern', message, [{ text: leaveLabel, onPress: onLeave }, { text: 'Weiter posten' }]);
+}
+
+/**
  * Rahmen für Ziele, die kein Textfeld sind (Foto, Auswahl, Schalter): hebt sie hervor und zeigt den Hinweis darunter.
  */
 export function NudgeArea({ nudge, children }: { nudge: Nudge; children: ReactNode }) {

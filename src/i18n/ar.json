@@ -1467,5 +1467,8 @@
   "Cal.com-Konto anlegen": "إنشاء حساب على Cal.com",
   "Freie Zeiten sehen und online buchen.": "اطّلع على الأوقات المتاحة واحجز عبر الإنترنت.",
   "{n} Termine: {list}": "{n, plural, two {موعدان} few {# مواعيد} many {# موعدًا} other {# موعد}}: {list}",
-  "{n} Aufgaben ohne Uhrzeit": "{n, plural, two {مهمتان} few {# مهام} many {# مهمة} other {# مهمة}} بدون وقت"
+  "{n} Aufgaben ohne Uhrzeit": "{n, plural, two {مهمتان} few {# مهام} many {# مهمة} other {# مهمة}} بدون وقت",
+  "Weiter posten": "متابعة النشر",
+  "Nichts posten, zurück zum Feed": "عدم نشر أي شيء والعودة إلى الصفحة الرئيسية",
+  "Nichts posten und zurück": "عدم نشر أي شيء والعودة"
 }

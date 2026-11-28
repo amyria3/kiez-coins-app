@@ -14,7 +14,7 @@ import { PHOTO_TAG } from '../WithMentions';
 import { TagTextField } from './BeforeAfterForm';
 import { VeryPrivateSwitch } from './VeryPrivateSwitch';
 import { CrosspostRow } from './CrosspostRow';
-import { explain } from '../Nudge';
+import { nothingToSave } from '../Nudge';
 import { useComposeContent, type ComposeContent } from './compose';
 import { color, text } from '../../theme/tokens';
 
@@ -176,9 +176,9 @@ export function usePublicComposeForm(
         disabled={busy || !hasContent}
         whyDisabled={() =>
           !busy &&
-          explain(
-            'Noch nichts zu speichern',
+          nothingToSave(
             textOnly ? 'Schreib etwas auf das Blatt, dann lässt sich der Entwurf speichern.' : 'Füge ein Foto hinzu oder gib einen Titel ein, dann lässt sich der Entwurf speichern.',
+            onSaved,
           )
         }
       />
