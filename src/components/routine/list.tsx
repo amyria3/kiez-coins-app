@@ -191,7 +191,7 @@ export const RoutineList = memo(function RoutineList({
     <PageLock.Provider value={onDragLock ?? noLock}>
       {showCalendar ? <RoutineCalendarStages list={list} events={events} saved={saved} /> : null}
       {cards.length || cardDays.length > 1 || pickedDay ? (
-        <View style={stackStyles.wrap}>
+        <View style={stackStyles.dayWrap}>
           <DayHead label={dayLabel} index={index} count={cardDays.length} onDay={(i) => setRoutineDay(cardDays[i][0] === today ? null : cardDays[i][0])} />
           {/* „+ Erinnerung für heute“ über dem Stapel raus (Daria, 2026-11-28: „Raus“), neu anlegen über das Plus in der Leiste */}
           {cards.length ? (

@@ -195,6 +195,8 @@ export const styles = StyleSheet.create({
 /** Tagesstapel (Daria, 2026-11-28) */
 export const stackStyles = StyleSheet.create({
   wrap: { gap: space[8] },
+  // Tageszeile mit Punkten und Stapel: etwas mehr Luft (Daria, 2026-11-28: „Slightly more space would be nice“)
+  dayWrap: { gap: space[16] },
   // Platz für Neigung und Bogen, ohne dass etwas abgeschnitten wird
   stack: { position: 'relative', overflow: 'visible' },
   // Kräftiger Schatten unter jeder Karte, auch aufgefächert (Daria, 2026-11-28: „Mehr Schatten“). Auf hellem Grund
