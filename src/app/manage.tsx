@@ -365,7 +365,7 @@ export default function ManageChallenges() {
       />
       {/* Kiez: großer Kopf mit Kater wie auf allen Unterseiten (Daria, 2026-11-28) */}
       {BARE ? (
-        <PageHead title={t('Meine Posts')} note={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined} fixed />
+        <PageHead motif={{ icon: 'ship', tint: color.accountCards.posts }} title={t('Meine Posts')} note={pages.length > 1 ? t('{current} von {pages}', { current: current + 1, pages: pages.length }) : undefined} fixed />
       ) : null}
       <View style={styles.switch}>
         <Segments
