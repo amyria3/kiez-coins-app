@@ -533,6 +533,8 @@ const mono = {
   fehler: '#C93A1E',
   /** Zarte Tönung für Ausgewähltes */
   lila: '#E1E2FE',
+  /** Lila des Kiez-Looks für den Hauptknopf in der Leiste (Daria, 2026-11-28), Tinte darauf 6,4 : 1 */
+  lilaKraeftig: '#8F90FA',
   /**
    * Karten in Routine: derselbe Farbton wie im Kiez-Look, nur heller und leichter (Daria, 2026-11-28: „Gleiche Farben
    * wie im Kiez Look, nur heller / leichter“). Nicht mit Weiß gemischt, das wirkte grau („Bitte weniger grau, hell,
@@ -588,8 +590,9 @@ const monoOverrides = {
     feed: mono.ink,
     chat: mono.ink,
     menu: mono.ink,
-    create: mono.ink,
-    onCreate: mono.white,
+    // Hauptknopf (Plus, Kamera) probeweise lila statt schwarz, Lila aus dem Kiez-Look, Tinte darauf (Daria, 2026-11-28)
+    create: mono.lilaKraeftig,
+    onCreate: mono.ink,
   },
   brand: { signature: mono.ink, wordmark: mono.ink },
   accent: {

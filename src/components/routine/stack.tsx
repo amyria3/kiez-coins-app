@@ -1,12 +1,13 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { Animated, PanResponder, Platform, Pressable, View, type LayoutChangeEvent, type PanResponderGestureState } from 'react-native';
 
+import { setFocusCard, useFocusCard } from '../../data/routineView';
 import { t } from '../../data/texts';
 import { markCardSwipe } from '../../lib/cardSwipe';
 import { color } from '../../theme/tokens';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
-import { DragLock, Motion, PageLock, StackHead, shiftOf, tiltOf, useReduceMotion } from './shared';
+import { DragLock, Motion, PageLock, ScrollToView, StackHead, shiftOf, tiltOf, useReduceMotion } from './shared';
 import { stackStyles as styles } from './styles';
 
 /**
@@ -277,6 +278,18 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
   // Im Browser entscheidet die erste Fingerbewegung, ob die Seite scrollt. Seitlich und nach unten gehört sie dem
   // Stapel, nach oben scrollt die Seite. Aufgefächert scrollt die Seite in beide Richtungen.
   const node = useRef<View>(null);
+
+  // Tippen auf einen Termin in der kurzen Liste (Daria, 2026-11-28): Karte nach vorn holen und hinscrollen
+  const focus = useFocusCard();
+  const scrollTo = useContext(ScrollToView);
+  useEffect(() => {
+    if (!focus || !incoming.includes(focus)) return;
+    setFocusCard(null);
+    if (orderRef.current[0] !== focus) bringToFront(focus);
+    // Ohne Aufräumen: `setFocusCard(null)` rendert gleich neu und würde den Sprung sonst abbrechen
+    setTimeout(() => node.current && scrollTo?.(node.current), 60);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus, sequence]);
   useEffect(() => {
     const el = node.current as unknown as HTMLElement | null;
     if (Platform.OS !== 'web' || !el?.addEventListener) return;

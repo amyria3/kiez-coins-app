@@ -125,6 +125,9 @@ export function shiftOf(key: string): number {
 }
 
 /** Karte im Stapel meldet die Höhe von Zeit und Titel (Daria, 2026-11-28) */
+/** Seite bis zu einem Stapel scrollen, z. B. nach Tippen auf einen Termin in der kurzen Liste (Daria, 2026-11-28) */
+export const ScrollToView = createContext<((view: View) => void) | null>(null);
+
 export const StackHead = createContext<((height: number) => void) | null>(null);
 
 /**

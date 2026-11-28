@@ -165,11 +165,14 @@ export const styles = StyleSheet.create({
   shortRowOn: { borderWidth: 1.5, borderColor: color.text.primary, paddingHorizontal: space[12] - 1.5, paddingVertical: 10 - 1.5 },
   shortText: { marginTop: 0, color: color.text.primary },
   // Pille zum Schieben: breite Fläche zum Greifen, im Browser ohne Textauswahl und ohne Scrollen
-  handle: { alignItems: 'center', gap: space[4], paddingTop: space[12], paddingBottom: space[8], userSelect: 'none', touchAction: 'none', cursor: 'grab' } as object,
-  handleBar: { width: 44, height: 5, borderRadius: 3, backgroundColor: color.text.secondary, opacity: 0.45 },
-  handleDots: { flexDirection: 'row', gap: space[4] },
-  handleDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: color.text.secondary, opacity: 0.35 },
-  handleDotOn: { opacity: 1, backgroundColor: color.text.primary },
+  // Pille zum Schieben: breite Fläche zum Greifen, im Browser ohne Textauswahl und ohne Scrollen. Sie liegt auf einer
+  // gestrichelten Linie über die ganze Breite statt über vier Punkten (Daria, 2026-11-28)
+  handle: { justifyContent: 'center', paddingTop: space[16], paddingBottom: space[12], userSelect: 'none', touchAction: 'none', cursor: 'grab' } as object,
+  handleLine: { alignSelf: 'stretch' },
+  handleBarGap: { position: 'absolute', alignSelf: 'center', paddingHorizontal: space[8], backgroundColor: color.bg.screen },
+  // In Schriftfarbe (Daria, 2026-11-28: „Schiebepille in schwarz, also in Font Color“)
+  handleBar: { width: 44, height: 5, borderRadius: 3, backgroundColor: color.text.primary },
+  handleBarHeld: { width: 48, height: 7, borderRadius: 4 },
 });
 
 /** Tagesstapel (Daria, 2026-11-28) */

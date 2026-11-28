@@ -12,6 +12,7 @@ import { savedEvents, type ShowcaseEvent } from '../data/showcase';
 import { useCalendarEnabled } from '../data/routine';
 import { useStore } from '../data/store';
 import { RoutineList } from './RoutineList';
+import { ScrollToView } from './routine/shared';
 import { publishRoutineData } from '../data/routineView';
 import { archiveReminder, capitalize, kindOf, loadReminders, skipReminderToday, undoReminderDone, undoReminderSkip, type Reminder, type ReminderEnd } from '../data/reminders';
 import { t } from '../data/texts';
@@ -165,7 +166,21 @@ export function RoutineContent({
     // Plus verschwindet und erscheint (Daria, 2026-11-23: „simultan“)
     Animated.spring(inlineFade, { toValue: inlineShown ? 1 : 0, ...NAV_SWAP_SPRING, useNativeDriver: Platform.OS !== 'web' }).start();
   }, [inlineShown, inlineFade]);
+  // Zu einem Stapel scrollen (Daria, 2026-11-28): Lage auf dem Bildschirm messen, nicht rechnen, wie oben
+  const scrollRef = useRef<ScrollView>(null);
+  const offset = useRef(0);
+  const scrollToView = useCallback(
+    (view: View) => {
+      view.measureInWindow((_x, y) => {
+        rootRef.current?.measureInWindow((_rx, ry) => {
+          scrollRef.current?.scrollTo({ y: Math.max(0, offset.current + y - ry - topPad - STACK_HEAD_ROOM), animated: true });
+        });
+      });
+    },
+    [topPad],
+  );
   const scrolled = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    offset.current = e.nativeEvent.contentOffset.y;
     checkInline();
     onScroll?.(e);
   };
@@ -198,7 +213,9 @@ export function RoutineContent({
           />
         </ScrollView>
       ) : (
+        <ScrollToView.Provider value={scrollToView}>
         <ScrollView
+          ref={scrollRef}
           scrollEnabled={!dragging}
           // Sicherung: Mit dem Finger endet die Sperre immer, damit die Seite nie stehen bleibt (Daria, 2026-11-13)
           onTouchEnd={() => lockPage(false)}
@@ -242,6 +259,7 @@ export function RoutineContent({
               der scrollbaren Fläche weg, der Button lag hinter der Leiste (Daria, 2026-11-13) */}
           <View style={{ height: Math.max(0, bottomPad - space[32]) }} />
         </ScrollView>
+        </ScrollToView.Provider>
       )}
       {list && !empty && fits ? (
         <View pointerEvents="box-none" style={[styles.float, { bottom: floatBottom }]}>
@@ -251,6 +269,9 @@ export function RoutineContent({
     </View>
   );
 }
+
+/** Platz über dem Stapel, damit Tageskopf und „+ Erinnerung“ beim Springen zu sehen bleiben */
+const STACK_HEAD_ROOM = 72;
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.bg.screen },
