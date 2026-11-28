@@ -6,9 +6,6 @@ import { DAY, INK, INK_SOFT, INK_TRACK, MUSTARD } from './constants';
 
 export const styles = StyleSheet.create({
   calEnded: { ...text.bodySm, color: color.text.secondary, textAlign: 'right' },
-  // Plus bündig mit „Fr. 27.11.“ darüber (das Icon hat innen etwas Rand), Abstand wie zwischen Kalender und Tageszeile
-  dayCreate: { flexDirection: 'row', alignItems: 'center', gap: space[6], alignSelf: 'flex-start', marginLeft: -3, marginTop: -space[2] },
-  dayCreateText: { ...text.label },
   dayBar: { ...text.bodySm, marginTop: space[4], color: color.text.secondary },
   group: { gap: space[12] },
   groupHead: {
