@@ -189,7 +189,8 @@ function NavItem({
         pressed && styles.pressed,
       ]}
     >
-      <View>
+      {/* Feste Breite für jedes Icon, damit die Namen bündig stehen: Die Kiez-Icons sind unterschiedlich breit (Daria, 2026-11-28) */}
+      <View style={styles.iconBox}>
         <Icon name={icon} size={sub ? size.icon * 0.8 : size.icon} color={tint} />
         {dot ? <View style={styles.dot} /> : null}
       </View>
@@ -225,6 +226,8 @@ const WORDMARK_INK = '#7E94FF';
 
 const SIDE_WIDE = 232;
 const SIDE_RAIL = 88;
+/** Breite des Icon-Felds in der Seitenleiste: Platz für das breiteste Kiez-Icon */
+const ICON_BOX = 40;
 
 const styles = StyleSheet.create({
   frame: { flex: 1, flexDirection: 'row', backgroundColor: color.bg.screen },
@@ -262,10 +265,11 @@ const styles = StyleSheet.create({
   subLabel: text.label,
   railLabel: { ...text.caption, textAlign: 'center' },
   pressed: { opacity: 0.6 },
+  iconBox: { width: ICON_BOX, alignItems: 'center', justifyContent: 'center' },
   dot: {
     position: 'absolute',
     top: -2,
-    right: -4,
+    right: 4,
     width: 8,
     height: 8,
     borderRadius: 4,
