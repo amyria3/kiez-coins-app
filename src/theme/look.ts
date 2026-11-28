@@ -75,8 +75,10 @@ export function pillPath(width: number, height: number, inset = 0): string {
   return `M${x + r} ${y}H${x + w - r}A${r} ${r} 0 0 1 ${x + w - r} ${y + h}H${x + r}A${r} ${r} 0 0 1 ${x + r} ${y}Z`;
 }
 
-// Seite hinter der App und Statusleiste der PWA im Papierweiß des Light-Modus (public/index.html setzt das Kiez-Grau)
-if (isLight && typeof document !== 'undefined') {
+// Seite hinter der App und Statusleiste der PWA im Papierweiß des Light-Modus (public/index.html setzt das Kiez-Grau).
+// Erst nach der Startanimation, deren Grund in jedem Look dunkel ist (Daria, 2026-11-28); _layout.tsx ruft das auf.
+export function paintLookPage() {
+  if (!isLight || typeof document === 'undefined') return;
   const paper = isMono ? '#FFFFFF' : '#F6F4F0';
   const ink = isMono ? '#111111' : '#24221F';
   document.documentElement.style.backgroundColor = paper;

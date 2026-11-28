@@ -4,13 +4,13 @@ import { Image } from 'expo-image';
 import { Text } from './T';
 
 import { color, radius, space, stroke, text, withAlpha } from '../theme/tokens';
-import { isMono } from '../theme/look';
+import { isLight, isMono } from '../theme/look';
 import { isRtl, t as translate, useTexts } from '../data/texts';
 import { openLink } from '../lib/places';
 import { type CatMood } from './icons/Brand';
 import { Icon, type IconName } from './icons/Icon';
 import Svg, { Rect, SvgXml } from 'react-native-svg';
-import { KATER_AVATAR_YELLOW, katerAvatarSvg, katerHeartsSvg } from './icons/katerAvatarSvg';
+import { KATER_AVATAR_YELLOW, katerAvatarSvg, katerHeartsSvg, katerRingOnlySvg } from './icons/katerAvatarSvg';
 import { IconButton } from './IconButton';
 import { useSectionHeading } from './SectionIndex';
 
@@ -673,6 +673,8 @@ function useKaterBreath(active: boolean): Animated.Value {
 
 /**
  * Kater im Kreis: Darias Kater-Avatar (2026-11-11), lila Kater mit grünen Herzen in der Brille auf gelbem Kreis.
+ * Auf hellem Grund (Light, Mono) ohne gelbgrünen Kreis, dafür mit dickem Ring wie `bildmarke-ring-dick` (Daria,
+ * 2026-11-28: „bitte lass den bei hellem Hintergrund stroke“, „Überall“; Designsystem).
  * Er fährt beim Erscheinen sanft von unten in den Kreis herein. Der gelbe Kreis pulsiert langsam und unregelmäßig,
  * dabei scheint darunter ein Farbverlauf durch. Die Herzen in der Brille blenden ab und zu ein und wieder aus
  * (Daria, 2026-11-11: „Puls weniger regelmäßig, weniger schnell“, „Herzen nicht ständig zeigen“).
@@ -738,8 +740,8 @@ export function KaterCircle({ size = CIRCLE_SIZE, bg, pulse: shared }: { size?: 
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      {bg ? (
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: bg }]} />
+      {bg || isLight ? (
+        bg ? <View style={[StyleSheet.absoluteFill, { backgroundColor: bg }]} /> : null
       ) : (
         <>
           <Image source={CIRCLE_BACKDROP} style={StyleSheet.absoluteFill} contentFit="cover" />
@@ -757,6 +759,12 @@ export function KaterCircle({ size = CIRCLE_SIZE, bg, pulse: shared }: { size?: 
           <SvgXml xml={katerHeartsSvg()} width={size} height={size} />
         </Animated.View>
       </Animated.View>
+      {/* Heller Grund (Light, Mono): dicker Ring statt gelbgrünem Kreis, wie bildmarke-ring-dick (Daria, 2026-11-28) */}
+      {isLight ? (
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <SvgXml xml={katerRingOnlySvg()} width={size} height={size} />
+        </View>
+      ) : null}
     </View>
   );
 }
