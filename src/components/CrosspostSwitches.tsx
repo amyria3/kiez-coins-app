@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 
 import { Button } from './Button';
 import { AskedQuestion, CHAT_GAP_CHANGE, CHAT_GAP_SAME, ChatReply, Notice, QuestionHint } from './Content';
@@ -9,14 +10,17 @@ import {
   connectCrosspost,
   CROSSPOST_PLATFORMS,
   disconnectCrosspost,
+  expiresSoon,
   isLivePlatform,
   loadCrosspostAccounts,
   loadCrosspostSelection,
   saveCrosspostSelection,
+  startLinkedin,
   useCrosspostInterest,
   type CrosspostAccount,
   tokenOnly,
   type LivePlatform,
+  viaLogin,
 } from '../data/crosspost';
 import { FULL_CROSSPOST_LOOK, loadCrosspostLook, saveCrosspostLook, type CrosspostLook } from '../data/crosspostLook';
 import { useFeature } from '../data/unlock';
@@ -49,6 +53,11 @@ const HOW_TO: Record<LivePlatform, string> = {
     '3. Im Graph API Explorer diese App wählen, bei „Benutzer oder Seite“ Deine Seite auswählen und die Rechte pages_manage_posts und pages_read_engagement anhaken.\n' +
     '4. „Generate Access Token“ antippen, bestätigen und den Seiten-Zugangs-Token unten eintragen.\n' +
     'Mit Foto erscheint der Post als Foto, ohne Foto als Text mit Link.',
+  linkedin:
+    'KiezCoins postet auf Dein persönliches LinkedIn-Profil, nicht auf eine Unternehmensseite.\n' +
+    'Die Verbindung hält 60 Tage. Danach meldest Du Dich mit zwei Tipps neu an.\n' +
+    '1. Unten auf „Mit LinkedIn verbinden“ tippen.\n' +
+    '2. Bei LinkedIn anmelden und „Zulassen“ tippen. LinkedIn bringt Dich zurück zu KiezCoins.',
 };
 
 /**
@@ -62,6 +71,7 @@ const INTRO: Record<LivePlatform, string> = {
     'Das Verbinden hat 4 Schritte. Du brauchst dafür Dein Instagram-Konto und ein Konto bei Meta for Developers. Möchtest Du jetzt loslegen?',
   facebook:
     'Das Verbinden hat 4 Schritte. Du brauchst dafür Dein Facebook-Konto und ein Konto bei Meta for Developers. Möchtest Du jetzt loslegen?',
+  linkedin: 'Das Verbinden hat 2 Schritte. Du brauchst dafür Dein LinkedIn-Konto. Möchtest Du jetzt loslegen?',
 };
 
 /**
@@ -93,6 +103,21 @@ export function CrosspostSwitches() {
     loadCrosspostLook().then(setLook);
   }, []);
   useEffect(reload, [reload]);
+  // Rückkehr von der Anmeldung bei LinkedIn: ?linkedin=ok oder fehler (Daria, 2026-11-28)
+  const { linkedin } = useLocalSearchParams<{ linkedin?: string }>();
+  useEffect(() => {
+    if (linkedin === 'ok') {
+      // Frisch verbunden: Weiterposten gleich an, zur gespeicherten Auswahl dazu
+      loadCrosspostAccounts().then(setAccounts);
+      loadCrosspostSelection().then((saved) => {
+        const next: LivePlatform[] = [...saved.filter((p) => p !== 'linkedin'), 'linkedin'];
+        setSelected(next);
+        saveCrosspostSelection(next);
+      });
+    } else if (linkedin === 'fehler') {
+      Alert.alert(t('LinkedIn verbinden hat nicht geklappt'), t('Versuche es bitte noch mal.'));
+    }
+  }, [linkedin]);
   const enable = (platform: LivePlatform, on: boolean) => {
     const next = on ? [...selected.filter((p) => p !== platform), platform] : selected.filter((p) => p !== platform);
     setSelected(next);
@@ -179,6 +204,11 @@ function PlatformSwitch({
     setBusy(true);
     setError(undefined);
     try {
+      if (viaLogin(platform)) {
+        // Weiter geht es nach der Rückkehr von LinkedIn (?linkedin=ok)
+        await startLinkedin();
+        return;
+      }
       await connectCrosspost(
         platform,
         platform === 'bluesky'
@@ -253,6 +283,7 @@ function PlatformSwitch({
               {account.handle}
             </Text>
           ) : null}
+          {account && expiresSoon(account) ? <Text style={styles.caption}>Läuft bald ab. Bitte neu verbinden.</Text> : null}
         </Pressable>
         <Toggle
           label={label}
@@ -310,7 +341,12 @@ function PlatformSwitch({
               ) : null}
             </View>
           ))}
-          {done ? (
+          {done && viaLogin(platform) ? (
+            <>
+              {error ? <Notice message={error} /> : null}
+              <Button busy={busy} label="Mit LinkedIn verbinden" onPress={connect} disabled={busy} />
+            </>
+          ) : done ? (
             <>
         {tokenOnly(platform) ? null : (
         <TextField

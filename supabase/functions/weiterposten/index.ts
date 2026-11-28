@@ -1,5 +1,5 @@
-// Weiterposten auf BlueSky, Mastodon, Instagram und Facebook (Daria, 05.11.2026; Facebook 09.11.2026).
-// Alle vier Schnittstellen kosten nichts.
+// Weiterposten auf BlueSky, Mastodon, Instagram, Facebook und LinkedIn (Daria, 05.11.2026; Facebook 09.11.2026;
+// LinkedIn 2026-11-28). Alle fünf Schnittstellen kosten nichts.
 //
 // Anfragen (POST, mit Anmeldung der Person im Header Authorization):
 //   { action: 'connect', platform: 'bluesky', handle, password }      App-Passwort aus BlueSky › Einstellungen
@@ -10,6 +10,9 @@
 //                                                                    look: Foto im Rahmen, mit Logo; ohne Angabe beides an
 //   { action: 'post_event', eventId, platforms, look? }               Termin aus dem Schaufenster (Daria, 2026-11-18)
 //   { action: 'delete', challengeId, platforms? }                    Weiterposts dort wieder löschen (ohne platforms: alle)
+//   { action: 'linkedin_start', returnTo }                           Anmeldung bei LinkedIn beginnen: gibt { url } zurück.
+//                                                                    LinkedIn kehrt zur Edge Function `linkedin-anmeldung` zurück,
+//                                                                    die den Zugang speichert und nach returnTo weiterleitet.
 // Antworten: { handle } bei connect, { results: { bluesky: { url } | { error } } } bei post, sonst { error }.
 //
 // Gepostet werden nur eigene Posts, die eine öffentliche Seite bekommen dürfen (share_challenge, Migration
@@ -17,14 +20,15 @@
 // Zugänge stehen verschlüsselt in Supabase Vault (Migration 20261114000100_weiterposten_vault). Schreiben über
 // crosspost_save, Lesen über crosspost_accounts_of, beide nur mit dem Service-Schlüssel.
 //
-// SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Keine weiteren Secrets.
+// SUPABASE_URL, SUPABASE_ANON_KEY und SUPABASE_SERVICE_ROLE_KEY stellt Supabase selbst bereit. Für LinkedIn zusätzlich
+// LINKEDIN_CLIENT_ID (Secret der Edge Functions, aus dem LinkedIn Developer Portal).
 import { createClient, type SupabaseClient } from 'npm:@supabase/supabase-js@2';
 import { Image } from 'https://deno.land/x/imagescript@1.3.0/mod.ts';
 
 import { FULL_LOOK, framePhoto, type Look } from './rahmen.ts';
 
-type Platform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook';
-const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram', 'facebook'];
+type Platform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin';
+const PLATFORMS: Platform[] = ['bluesky', 'mastodon', 'instagram', 'facebook', 'linkedin'];
 const isPlatform = (p: unknown): p is Platform => PLATFORMS.includes(p as Platform);
 type Account = { platform: Platform; handle: string; instance: string; secret: string };
 type Post = {
@@ -50,6 +54,15 @@ const INSTAGRAM_TEXT_MAX = 2200;
 /** Facebook: nur Seiten, keine privaten Profile (die Schnittstelle erlaubt das nicht). Foto ist freiwillig. */
 const FACEBOOK = 'https://graph.facebook.com';
 const FACEBOOK_API = `${FACEBOOK}/v21.0`;
+/**
+ * LinkedIn: persönliches Profil über „Share on LinkedIn“ (Recht w_member_social). Text bis 3000 Zeichen, Foto
+ * freiwillig. Die Schnittstelle ist versioniert (JJJJMM); eine Version gilt etwa ein Jahr.
+ */
+const LINKEDIN_API = 'https://api.linkedin.com/rest';
+const LINKEDIN_VERSION = '202610';
+const LINKEDIN_TEXT_MAX = 3000;
+/** Rückkehr-Adressen nach der Anmeldung: nur die App und die Web-App */
+const LINKEDIN_RETURN = /^(kiezcoins:\/\/|exp:\/\/|https:\/\/app\.kiezcoins\.de\/|http:\/\/localhost:\d+\/)/;
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -321,6 +334,77 @@ async function deleteFacebook(account: Account, link: string) {
 }
 
 // ---------------------------------------------------------------------------
+// LinkedIn (Posts-API, persönliches Profil). Den Zugang holt die Edge Function `linkedin-anmeldung` per OAuth.
+// ---------------------------------------------------------------------------
+
+const linkedinHeaders = (token: string) => ({
+  Authorization: `Bearer ${token}`,
+  'LinkedIn-Version': LINKEDIN_VERSION,
+  'X-Restli-Protocol-Version': '2.0.0',
+  'Content-Type': 'application/json',
+});
+
+/** LinkedIn liest den Text als „little text“: Diese Zeichen brauchen einen Backslash, sonst fällt der Post durch. */
+const linkedinEscape = (value: string) => value.replace(/[\\|{}@\[\]()<>#*_~]/g, (c) => `\\${c}`);
+
+async function linkedinImage(account: Account, image: NonNullable<Post['image']>): Promise<string> {
+  const init = await fetch(`${LINKEDIN_API}/images?action=initializeUpload`, {
+    method: 'POST',
+    headers: linkedinHeaders(account.secret),
+    body: JSON.stringify({ initializeUploadRequest: { owner: account.instance } }),
+  });
+  if (!init.ok) throw new Error(`linkedin image ${init.status}`);
+  const { value } = (await init.json()) as { value: { uploadUrl: string; image: string } };
+  const upload = await fetch(value.uploadUrl, {
+    method: 'PUT',
+    headers: { Authorization: `Bearer ${account.secret}`, 'Content-Type': image.type },
+    body: image.bytes,
+  });
+  if (!upload.ok) throw new Error(`linkedin upload ${upload.status}`);
+  return value.image;
+}
+
+async function postLinkedin(account: Account, post: Post): Promise<string> {
+  // Erst kürzen, dann maskieren: Masken verlängern den Text, deshalb mit Puffer
+  const text = linkedinEscape(clip([post.title, post.body].filter(Boolean).join('\n\n'), LINKEDIN_TEXT_MAX - post.link.length - 400));
+  // Ohne Foto geht der Post als Text mit Link raus; scheitert das Foto, ebenso
+  const imageUrn = post.image ? await linkedinImage(account, post.image).catch(() => undefined) : undefined;
+  const res = await fetch(`${LINKEDIN_API}/posts`, {
+    method: 'POST',
+    headers: linkedinHeaders(account.secret),
+    body: JSON.stringify({
+      author: account.instance,
+      commentary: `${text}\n\n${post.link}`,
+      visibility: 'PUBLIC',
+      distribution: { feedDistribution: 'MAIN_FEED', targetEntities: [], thirdPartyDistributionChannels: [] },
+      ...(imageUrn ? { content: { media: { id: imageUrn, altText: clip(post.title, 300) } } } : {}),
+      lifecycleState: 'PUBLISHED',
+      isReshareDisabledByAuthor: false,
+    }),
+  });
+  if (res.status === 401) throw new Error('expired');
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(`linkedin ${res.status} ${clip(body?.message ?? '', 200)}`.trim());
+  }
+  // Die Kennung (urn:li:share:… oder urn:li:ugcPost:…) steht im Kopf der Antwort und im Link
+  const urn = res.headers.get('x-restli-id');
+  if (!urn) throw new Error('linkedin id');
+  return `https://www.linkedin.com/feed/update/${urn}/`;
+}
+
+async function deleteLinkedin(account: Account, link: string) {
+  const urn = link.split('/').filter(Boolean).pop();
+  if (!urn?.startsWith('urn:li:')) throw new Error('delete id');
+  const res = await fetch(`${LINKEDIN_API}/posts/${encodeURIComponent(urn)}`, {
+    method: 'DELETE',
+    headers: linkedinHeaders(account.secret),
+  });
+  // 404: dort schon gelöscht
+  if (!res.ok && res.status !== 404) throw new Error(`delete ${res.status}`);
+}
+
+// ---------------------------------------------------------------------------
 // Löschen: Der Link in crosspost_posts enthält die Kennung des Posts (letzter Teil des Pfads).
 // ---------------------------------------------------------------------------
 
@@ -448,7 +532,9 @@ const sendTo = (platform: Platform, account: Account, post: Post) =>
       ? postMastodon(account, post)
       : platform === 'instagram'
         ? postInstagram(account, post)
-        : postFacebook(account, post);
+        : platform === 'linkedin'
+          ? postLinkedin(account, post)
+          : postFacebook(account, post);
 
 const parseLook = (value: unknown): Look => {
   const v = (value ?? {}) as Partial<Look>;
@@ -519,6 +605,24 @@ Deno.serve(async (req) => {
     });
     if (error) return reply({ error: 'save' }, 500);
     return reply({ handle: account.handle });
+  }
+
+  if (input.action === 'linkedin_start') {
+    // Anmeldung bei LinkedIn (Daria, 2026-11-28): Zufallswert merken, dann zur Anmeldeseite von LinkedIn
+    const returnTo = str('returnTo');
+    const clientId = Deno.env.get('LINKEDIN_CLIENT_ID');
+    if (!LINKEDIN_RETURN.test(returnTo)) return reply({ error: 'input' }, 400);
+    if (!clientId) return reply({ error: 'not_configured' }, 503);
+    const state = crypto.randomUUID();
+    const { error } = await admin.from('linkedin_oauth_states').insert({ state, user_id: user.id, return_to: returnTo });
+    if (error) return reply({ error: 'save' }, 500);
+    const auth = new URL('https://www.linkedin.com/oauth/v2/authorization');
+    auth.searchParams.set('response_type', 'code');
+    auth.searchParams.set('client_id', clientId);
+    auth.searchParams.set('redirect_uri', `${url}/functions/v1/linkedin-anmeldung`);
+    auth.searchParams.set('state', state);
+    auth.searchParams.set('scope', 'openid profile w_member_social');
+    return reply({ url: auth.toString() });
   }
 
   if (input.action === 'post') {
@@ -670,6 +774,7 @@ Deno.serve(async (req) => {
         if (platform === 'bluesky') await deleteBluesky(account, link);
         else if (platform === 'mastodon') await deleteMastodon(account, link);
         else if (platform === 'instagram') await deleteInstagram(account, link);
+        else if (platform === 'linkedin') await deleteLinkedin(account, link);
         else await deleteFacebook(account, link);
         await admin
           .from('crosspost_posts')

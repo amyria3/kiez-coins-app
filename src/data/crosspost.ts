@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
+import * as Linking from 'expo-linking';
 
 import { supabase } from '../lib/supabase';
 import { look } from '../theme/look';
@@ -10,11 +12,12 @@ import { useStore } from './store';
 
 /**
  * Weiterposten (Daria, 05.11.2026): Öffentliche Posts lassen sich zusätzlich auf anderen Plattformen veröffentlichen.
- * BlueSky, Mastodon, Instagram und Facebook laufen über die Edge Function `weiterposten` (kostenlos). X kommt später.
+ * BlueSky, Mastodon, Instagram, Facebook und LinkedIn (persönliches Profil, Daria, 2026-11-28) laufen über die Edge
+ * Function `weiterposten` (kostenlos). X kommt später.
  * Freigegeben für alle (Daria, 09.11.2026, „alles außer X“). Wer die echten Schalter sieht, entscheidet das Feature
  * `weiterposten` (unlock.ts). Für X zählt ein Knopf das Interesse. Plan und Preismodell: Documentation `kiez-coins/app/TODO.md`, Abschnitt „Teilen“.
  */
-export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'x';
+export type CrosspostPlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin' | 'x';
 
 export const CROSSPOST_PLATFORMS: {
   key: CrosspostPlatform;
@@ -29,6 +32,7 @@ export const CROSSPOST_PLATFORMS: {
   { key: 'mastodon', label: 'Mastodon', free: true, letter: 'M', tint: '#6364FF' },
   { key: 'instagram', label: 'Instagram', free: true, letter: 'I', tint: '#DD2A7B' },
   { key: 'facebook', label: 'Facebook', free: true, letter: 'f', tint: '#1877F2' },
+  { key: 'linkedin', label: 'LinkedIn', free: true, letter: 'in', tint: '#0A66C2' },
   { key: 'x', label: 'X', free: false, letter: 'X', tint: '#000000' },
 ];
 
@@ -57,12 +61,15 @@ export function useCrosspostInterest(): [boolean, () => void] {
 }
 
 /** Plattformen, die die Edge Function schon kann */
-export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook';
-export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram', 'facebook'];
+export type LivePlatform = 'bluesky' | 'mastodon' | 'instagram' | 'facebook' | 'linkedin';
+export const LIVE_PLATFORMS: LivePlatform[] = ['bluesky', 'mastodon', 'instagram', 'facebook', 'linkedin'];
 export const isLivePlatform = (p: CrosspostPlatform): p is LivePlatform => (LIVE_PLATFORMS as string[]).includes(p);
 
 /** Instagram und Facebook brauchen nur einen Zugangs-Token, kein zweites Feld */
 export const tokenOnly = (p: LivePlatform) => p === 'instagram' || p === 'facebook';
+
+/** LinkedIn verbindet per Anmeldung bei LinkedIn, ohne Felder */
+export const viaLogin = (p: LivePlatform) => p === 'linkedin';
 
 /** Echte Schalter sichtbar? Feature `weiterposten` (unlock.ts), nur mit echten Daten. */
 export function useCrosspostEnabled(): boolean {
@@ -71,11 +78,12 @@ export function useCrosspostEnabled(): boolean {
   return mode === 'live' && on;
 }
 
-export type CrosspostAccount = { platform: LivePlatform; handle: string; instance: string };
+/** expires_at: Ablauf des Zugangs, nur bei LinkedIn (60 Tage) */
+export type CrosspostAccount = { platform: LivePlatform; handle: string; instance: string; expires_at?: string | null };
 
 /** Verbundene Konten der angemeldeten Person, ohne Zugang. Leer bei einem Fehler. */
 export async function loadCrosspostAccounts(): Promise<CrosspostAccount[]> {
-  const { data, error } = await supabase.from('crosspost_accounts').select('platform, handle, instance');
+  const { data, error } = await supabase.from('crosspost_accounts').select('platform, handle, instance, expires_at');
   if (error) return [];
   return (data ?? []) as CrosspostAccount[];
 }
@@ -121,6 +129,37 @@ export async function connectCrosspost(
   }
   if (reason === 'input') throw new Error(tokenOnly(platform) ? 'Bitte trage den Zugangs-Token ein.' : 'Bitte fülle beide Felder aus.');
   throw new Error('Da ist etwas schiefgegangen. Versuche es bitte noch mal.');
+}
+
+/** Zugang abgelaufen oder läuft in den nächsten 7 Tagen ab: Die App bietet „Neu verbinden“ an */
+export const expiresSoon = (account: CrosspostAccount) =>
+  !!account.expires_at && new Date(account.expires_at).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * LinkedIn verbinden (Daria, 2026-11-28): Die Edge Function legt die Anmeldung an und gibt die Adresse von LinkedIn
+ * zurück. Nach dem „Zulassen“ leitet `linkedin-anmeldung` zurück auf diese Seite, mit `?linkedin=ok` oder `fehler`.
+ * Web: im selben Fenster. App: im Browser, zurück über kiezcoins://.
+ */
+export async function startLinkedin(): Promise<void> {
+  // Zurück zum Abschnitt Weiterposten unter Dein Konto › Funktionen
+  const returnTo =
+    Platform.OS === 'web'
+      ? `${window.location.origin}/account/features?abschnitt=weiterposten`
+      : Linking.createURL('account/features', { queryParams: { abschnitt: 'weiterposten' } });
+  const { data, error } = await supabase.functions.invoke<{ url?: string; error?: string }>('weiterposten', {
+    body: { action: 'linkedin_start', returnTo },
+  });
+  if (!error && data?.url) {
+    if (Platform.OS === 'web') window.location.assign(data.url);
+    else await Linking.openURL(data.url);
+    return;
+  }
+  const reason = await reasonOf(error, data);
+  throw new Error(
+    reason === 'not_configured'
+      ? 'LinkedIn ist bei KiezCoins noch nicht eingerichtet. Versuche es bitte später noch mal.'
+      : 'Da ist etwas schiefgegangen. Versuche es bitte noch mal.',
+  );
 }
 
 /**
