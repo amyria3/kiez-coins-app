@@ -23,17 +23,28 @@ const HEART_BACK_LINE =
   'M213.86,61.63 C204.32,53.15 191.76,48 178,48 C158,48 139,58 128,76 C117,58 98,48 78,48 C48.18,48 24,72.18 24,102 ' +
   'C24,134.94 50.52,164.87 77.09,186.81';
 // Etwas größer gezeichnet statt in der Leiste vergrößert (Daria, 2026-11-28: „The different stroke indicates the
-// setting is not completely working“): So bleibt der Strich wie bei allen Phosphor-Icons bei 16 von 256.
-const HEART_SCALE = 0.784;
+// setting is not completely working“). Die Herzen sind auf 78,4 % verkleinert und verschoben, und zwar schon in den
+// Koordinaten, ohne `transform`: Android rechnete den Strich unter einer Verkleinerung nicht immer mit, das Herz wirkte
+// feiner als Kamera und Chats (Daria, 2026-11-28: „Immer noch ungleiche Strichdicke“). So steht der Strich wie bei
+// allen Phosphor-Icons direkt bei 16 von 256.
+const HEART_BACK_DRAWN =
+  'M156.79,52.64 C149.31,45.99 139.46,41.95 128.67,41.95 C112.99,41.95 98.1,49.79 89.47,63.9 C80.85,49.79 65.95,41.95 ' +
+  '50.27,41.95 C26.89,41.95 7.94,60.91 7.94,84.29 C7.94,110.11 28.73,133.58 49.56,150.78';
+const HEART_FRONT_DRAWN =
+  'M165.63,108.7 C157.01,94.59 142.11,86.75 126.43,86.75 C103.05,86.75 84.1,105.71 84.1,129.09 C84.1,176.13 153.09,215.33 ' +
+  '165.63,223.17 C178.18,215.33 247.17,176.13 247.17,129.09 C247.17,105.71 228.21,86.75 204.83,86.75 C189.15,86.75 ' +
+  '174.26,94.59 165.63,108.7 Z';
 const doubleHeartLine: LineSvg = (c) => {
-  const width = 16 / HEART_SCALE;
-  const line = `fill="none" stroke="${c}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"`;
+  const line = `fill="none" stroke="${c}" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"`;
   return (
     `<svg width="24" height="24" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">` +
-    `<path d="${HEART_BACK_LINE}" transform="translate(-10.88 4.32) scale(${HEART_SCALE})" ${line}/>` +
-    `<path d="${HEART_LINE}" transform="translate(65.28 49.12) scale(${HEART_SCALE})" ${line}/></svg>`
+    `<path d="${HEART_BACK_DRAWN}" ${line}/><path d="${HEART_FRONT_DRAWN}" ${line}/></svg>`
   );
 };
+// Grundform der Herzen in voller Größe, Quelle der Koordinaten oben (verkleinert mit 0,784, verschoben um
+// (-10,88 | 4,32) hinten und (65,28 | 49,12) vorn)
+void HEART_LINE;
+void HEART_BACK_LINE;
 
 /** Jedes Icon eine Bedeutung, wie im Icon-Regelwerk. Kommentar = Sprechblase, Chats = zwei Sprechblasen. */
 export const lineSvgs: Partial<Record<IconName, LineSvg>> = {
