@@ -103,6 +103,8 @@ export function useLater() {
 export const DragLock = createContext<(on: boolean) => void>(() => {});
 /** Bewegte Karten an (Dein Konto › Funktionen): Schräge, Wackeln, Halten und Ziehen (Daria, 2026-11-13) */
 export const Motion = createContext(true);
+/** Karte liegt im Stapel nicht oben: Inhalt in zurückgenommener Tinte (emphasis.humble, Daria, 2026-11-28) */
+export const CardHumble = createContext(false);
 export const PageLock = createContext<(on: boolean) => void>(() => {});
 
 /** Leichte, unregelmäßige Schräge je Karte (Daria, 2026-11-13); fest an der id, damit nichts springt */

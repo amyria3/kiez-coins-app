@@ -727,6 +727,12 @@ export const size = {
 } as const;
 
 // Stroke
+/**
+ * Zurückgenommene Tinte als eigene Stufe (Daria, 2026-11-28: „eine 2. semantische Variable, font humble oder so“):
+ * Schrift, Striche und Knöpfe in derselben Tinte, nur zu 85 % deckend. Die Fläche darunter bleibt, wie sie ist.
+ */
+export const emphasis = { humble: 0.85 };
+
 export const stroke = {
   ultraThin: 0.5,
   thin: 1,

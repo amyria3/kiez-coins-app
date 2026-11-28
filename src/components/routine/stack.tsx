@@ -10,7 +10,7 @@ import { handDrawn } from '../../theme/look';
 import { Icon } from '../icons/Icon';
 import { Text } from '../T';
 import { HandButton } from './cards';
-import { DragLock, Motion, PageLock, ScrollToView, StackHead, shiftOf, tiltOf, useReduceMotion } from './shared';
+import { CardHumble, DragLock, Motion, PageLock, ScrollToView, StackHead, shiftOf, tiltOf, useReduceMotion } from './shared';
 import { stackStyles as styles } from './styles';
 
 /**
@@ -396,12 +396,12 @@ export function DayStack({ cards, enter = 0 }: { cards: ReactElement[]; enter?: 
                       }
                     }}
                   >
-                    {card}
+                    <CardHumble.Provider value={!handDrawn && pos > 0}>{card}</CardHumble.Provider>
                   </HeadReport>
                   {/* Hintere Karten: Tippen fächert auf, aufgefächert holt Tippen die Karte nach vorn */}
                   {pos > 0 ? (
                     <Pressable
-                      style={[styles.cover, !handDrawn && styles.coverBehind]}
+                      style={styles.cover}
                       onPress={() => (open ? bringToFront(key, true) : setOpen(true))}
                       accessibilityRole="button"
                       accessibilityLabel={open ? t('Karte nach vorn holen') : t('Stapel auffächern')}
