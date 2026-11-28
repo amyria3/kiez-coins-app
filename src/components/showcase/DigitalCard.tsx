@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
@@ -26,6 +27,10 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
   const services = serviceItems(s.services);
   // Kontakt, Webseiten und soziale Netzwerke getrennt wie auf der Schaufenster-Seite (Daria, 2026-11-23)
   const { email, phone, websites, social } = contactGroups(s);
+  // Mehr Innenabstand, je breiter die Karte (Daria, 2026-11-28: „Bei dieser Größe kann das Ganze etwas mehr Padding
+  // vertragen“). Am Handy (Karte unter 400 px) bleibt es bei 20, in der Web-App (480 px) 32, ab 720 px 48.
+  const [width, setWidth] = useState(0);
+  const roomy = width >= 720 ? styles.cardWide : width >= 400 ? styles.cardMedium : null;
   const linkRow = (label: string, links: { href: string; text: string }[]) =>
     links.length ? (
       <View style={styles.row}>
@@ -45,7 +50,7 @@ export function DigitalCard({ showcase: s, onPress }: { showcase: Showcase; onPr
       </View>
     ) : null;
   const card = (
-    <View style={styles.card}>
+    <View style={[styles.card, roomy]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       <View style={styles.head}>
         <ShowcaseLogo image={s.logo} size={64} tone={{ circle: INK, mask: CARD }} />
         <View style={styles.flex}>
@@ -109,6 +114,8 @@ function Row({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   card: { gap: space[16], padding: space[20], borderRadius: radius.md, backgroundColor: CARD },
+  cardMedium: { gap: space[20], padding: space[32] },
+  cardWide: { gap: space[24], paddingHorizontal: space[48], paddingVertical: space[48] },
   pressed: { opacity: 0.85 },
   head: { flexDirection: 'row', alignItems: 'center', gap: space[16] },
   flex: { flex: 1, gap: space[2] },
